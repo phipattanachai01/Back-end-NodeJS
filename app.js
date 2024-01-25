@@ -119,8 +119,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/image/default', express.static('public/default/image'));
 app.use('/media', express.static('media'));
 
-// app.use('/media', express.static(path.join(__dirname, '/public/media')))
-
 app.use(
     '/api/v1.0',
     routesVersioning({
