@@ -1,0 +1,132 @@
+{
+    "ACCOUNT_TYPE": [
+        {
+            "id": "010",
+            "name": "บัญชี 1-ทั่วไป",
+            "color": "#FCFFA6"
+        },
+        {
+            "id": "011",
+            "name": "บัญชี 1-ค่าปรับปกครอง",
+            "color": "#FCFFA6"
+        },
+        {
+            "id": "012",
+            "name": "บัญชี 1-คูปอง",
+            "color": "#FCFFA6"
+        },
+        {
+            "id": "013",
+            "name": "บัญชี 1-เงินประกันคูปอง",
+            "color": "#FCFFA6"
+        },
+        {
+            "id": "020",
+            "name": "บัญชี 2",
+            "color": "#C1FFD7"
+        },
+        {
+            "id": "030",
+            "name": "บัญชี 3",
+            "color": "#B5DEFF"
+        },
+        {
+            "id": "040",
+            "name": "บัญชี 4",
+            "color": "#CAB8FF"
+        }
+    ],
+    "BANK_LIST": [
+        {
+            "code": "002",
+            "name": "ธนาคาร กรุงเทพ จำกัด (มหาชน)",
+            "icon": "/image/default/banks/icon-BBL.png"
+        },
+        {
+            "code": "004",
+            "name": "ธนาคาร กสิกรไทย จำกัด (มหาชน)",
+            "icon": "/image/default/banks/icon-KBANK.png"
+        },
+        {
+            "code": "014",
+            "name": "ธนาคาร กรุงเทพ จำกัด (มหาชน)",
+            "icon": "/image/default/banks/icon-SCB.png"
+        },
+        {
+            "code": "024",
+            "name": "ธนาคาร กรุงเทพ จำกัด (มหาชน)",
+            "icon": "/image/default/banks/icon-UOB.png"
+        },
+        {
+            "code": "025",
+            "name": "ธนาคาร กรุงเทพ จำกัด (มหาชน)",
+            "icon": "/image/default/banks/icon-BAY.png"
+        },
+        {
+            "code": "030",
+            "name": "ธนาคาร กรุงเทพ จำกัด (มหาชน)",
+            "icon": "/image/default/banks/icon-GSB.png"
+        },
+        {
+            "code": "033",
+            "name": "ธนาคาร กรุงเทพ จำกัด (มหาชน)",
+            "icon": "/image/default/banks/icon-GHBANK.png"
+        },
+        {
+            "code": "034",
+            "name": "ธนาคาร กรุงเทพ จำกัด (มหาชน)",
+            "icon": "/image/default/banks/icon-BAAC.png"
+        },
+        {
+            "code": "066",
+            "name": "ธนาคาร กรุงเทพ จำกัด (มหาชน)",
+            "icon": "/image/default/banks/icon-IBANK.png"
+        },
+        {
+            "code": "069",
+            "name": "ธนาคาร กรุงเทพ จำกัด (มหาชน)",
+            "icon": "/image/default/banks/icon-KKP.png"
+        },
+        {
+            "code": "098",
+            "name": "ธนาคาร กรุงเทพ จำกัด (มหาชน)",
+            "icon": "/image/default/banks/icon-SMEBANK.png"
+        }
+    ],
+    "BANK_ACCOUNT_TYPE": [
+        {
+            "code": "FA",
+            "name": "ธนาคาร กรุงเทพ จำกัด (มหาชน)",
+            "color": "#FDB528"
+        },
+        {
+            "code": "CA",
+            "name": "ธนาคาร กรุงเทพ จำกัด (มหาชน)",
+            "color": "#797EF6"
+        },
+        {
+            "code": "SA",
+            "name": "ธนาคาร กรุงเทพ จำกัด (มหาชน)",
+            "color": "#1AA7EC"
+        }
+    ],
+    "ZF101_A01_BUSINESS_AREA": [
+        { "id": "1601", "name": "บัญชี 1" },
+        { "id": "1602", "name": "บัญชี 2" },
+        { "id": "1603", "name": "บัญชี 3" },
+        { "id": "1604", "name": "บัญชี 4" }
+    ],
+    "ZF101_B01_OBJECTIVE": [
+        { "id": "Z1", "name": "บัญชี 1", "detail": "ทีวีดิจิทัล" },
+        { "id": "Z2", "name": "บัญชี 1", "detail": "ปรับปกครอง" },
+        { "id": "Z3", "name": "บัญชี 1", "detail": "ม.52 ยกเว้น (6)" },
+        { "id": "Z4", "name": "บัญชี 2", "detail": "ม.52 ยกเว้น (6)" },
+        { "id": "Z5", "name": "บัญชี 3", "detail": "แผน USO โทรคมนาคม" },
+        { "id": "Z6", "name": "บัญชี 4", "detail": "ม.52 ยกเว้น (6)" }
+    ],
+    "ZF101_B01_DETAIL": [
+        { "id": "Y1", "name": "คงเหลือ" },
+        { "id": "Y2", "name": "หักภาระผูกพันตามสัญญา" },
+        { "id": "Y3", "name": "หักสำรองเงิน" }
+    ]
+}

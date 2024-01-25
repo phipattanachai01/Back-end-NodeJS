@@ -1,0 +1,28 @@
+openapi: 3.0.0
+info:
+  title: Starter API
+  description: Optional multiline or single-line description in HTML.
+  version: 0.0.1
+servers:
+  - url: http://localhost:3001/api/v1.0
+    description: APIs for Dev
+tags:
+  - name: auth
+    description: Everything about your auth
+    externalDocs:
+      description: Find out more
+      url: http://swagger.io
+paths:
+  /auth/login:
+    post:
+      tags:
+        - auth
+      summary: Login
+      description: auth user by email or phone
+      responses:
+        '200': # status code
+          description: List of Player
+          content:
+            application/json:
+              schema:
+                type: array

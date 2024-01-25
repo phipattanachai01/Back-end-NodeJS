@@ -1,0 +1,68 @@
+{
+    "c1000": {
+        "httpStatusCode": 200,
+        "businessCode": 1000,
+        "error": false,
+        "description": "Success"
+    },
+    "c1101": {
+        "httpStatusCode": 400,
+        "businessCode": 1101,
+        "error": true,
+        "description": "Missing required parameters"
+    },
+    "c1102": {
+        "httpStatusCode": 400,
+        "businessCode": 1102,
+        "error": true,
+        "description": "Invalid parameters entered"
+    },
+    "c1103": {
+        "httpStatusCode": 400,
+        "businessCode": 1103,
+        "error": true,
+        "description": "Invalid value or data type"
+    },
+    "c1104": {
+        "httpStatusCode": 404,
+        "businessCode": 1104,
+        "error": true,
+        "description": "Requested entity record does not exist"
+    },
+    "c1111": {
+        "httpStatusCode": 400,
+        "businessCode": 1111,
+        "error": true,
+        "description": "Data entry duplicated with existing"
+    },
+    "c9000": {
+        "httpStatusCode": 401,
+        "businessCode": 9000,
+        "error": true,
+        "description": "Invalid Username or password"
+    },
+    "c9100": {
+        "httpStatusCode": 401,
+        "businessCode": 9100,
+        "error": true,
+        "description": "Authorization credentials required"
+    },
+    "c9300": {
+        "httpStatusCode": 401,
+        "businessCode": 9300,
+        "error": true,
+        "description": "Invalid/expired temporary token"
+    },
+    "c9500": {
+        "httpStatusCode": 401,
+        "businessCode": 9500,
+        "error": true,
+        "description": "Unauthorized"
+    },
+    "c5001": {
+        "httpStatusCode": 500,
+        "businessCode": 5001,
+        "error": true,
+        "description": "Internal Server Error"
+    }
+}
