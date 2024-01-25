@@ -8,6 +8,7 @@ const ProflieUser = async function (req, res) {
     try {
 
         let param = [req.user];
+        let role = [req.body.role_name]
         // console.log(param);
         // console.log(param[0].user);
         // const userId = req.user && req.user.user_id;
@@ -19,7 +20,7 @@ const ProflieUser = async function (req, res) {
             message: rescode.c1000.description,
             error: rescode.c1000.error,
             timeReq: dateTimeFormater(new Date(), 'x'),
-            data: {user: param[0].user,password: param[0].password}
+            data: {firstname: param[0].firstname, lastname: param[0].lastname, Role: role[0].role_name}
         });
     } catch (error) {
         res.status(rescode.c5001.httpStatusCode).json({

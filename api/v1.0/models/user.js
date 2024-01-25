@@ -23,7 +23,7 @@ const userlistByusername = function (paramuser) {
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {
-            var sqlQuery = 'SELECT * FROM sys_user WHERE user_name  = $1 ';
+            var sqlQuery = 'SELECT * FROM sys_user WHERE user_name  = $1 AND user_status = 1';
             console.log();
             let rows = await client.query(sqlQuery, paramuser);
             resolve(rows.rows);
