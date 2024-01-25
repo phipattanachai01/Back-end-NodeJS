@@ -49,11 +49,10 @@ const login = async function (req, res) {
         // var accessToken = await signAccessToken( user[0].user_id,user[1],user_name);
         // var accessToken = await signAccessToken(user[0].user_id);
         var accessToken = await signAccessToken(user);
-
         var data = { req_password: req.body.user_password, password: user[0].user_password };
 
         let compare = await comparePassword(data);
-        console.log('🚀 ~ login ~ compare:', compare);
+        // console.log('🚀 ~ login ~ compare:', compare);
         if (compare) {
 
             return res.status(rescode.c1000.httpStatusCode).json({

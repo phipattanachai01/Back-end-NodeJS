@@ -8,8 +8,8 @@ const ProflieUser = async function (req, res) {
     try {
 
         let param = [req.user];
-        console.log(param);
-        console.log(param[0].user);
+        // console.log(param);
+        // console.log(param[0].user);
         // const userId = req.user && req.user.user_id;
         // var data = await Register.adduse(params);
         // console.log('data: ', data);
@@ -19,7 +19,7 @@ const ProflieUser = async function (req, res) {
             message: rescode.c1000.description,
             error: rescode.c1000.error,
             timeReq: dateTimeFormater(new Date(), 'x'),
-            data: {user: param[0].fullname,password: param[0].password}
+            data: {user: param[0].user,password: param[0].password}
         });
     } catch (error) {
         res.status(rescode.c5001.httpStatusCode).json({

@@ -177,14 +177,16 @@ const verifyAPIKeyAndCode2 = async function (req, res, next) {
 };
 
 const signAccessToken = async function (user) {
-    console.log(user)
+    console.log('++++++usersignAccess',user)
     return new Promise((resolve, reject) => {
         const payload = {
             id: user[0].user_id,
             user: user[0].user_name,
+            password: user[0].user_password,
+            status: user[0].user_status,
             phone: user[0].user_phone,
-            fullname: user[0].user_fullname,
-            password: user[0].user_password
+            firstname: user[0].user_firstname,
+            lastname: user[0].user_lastname,
         };
         const secret = process.env.TOKEN_SECRET;
         const options = {
