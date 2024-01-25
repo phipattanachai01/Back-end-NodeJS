@@ -128,12 +128,6 @@ app.use(
     })
 );
 
-// app.use('/media', routesVersioning({
-//   "~1.0.0": require('./media/asset/logo.jpg')
-// }));
-
-
-
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
     var err = new Error('Not Found');
