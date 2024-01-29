@@ -6,9 +6,25 @@ const ListDashboard = function () {
     return new Promise(async (resolve, reject) => {
         const client = await connectionR.connect();
         try {
-            // var sqlQuery = selectDb(sql_params);
-            var sqlQuery = 'SELECT * FROM dashboard  WHERE 1=1';
-            console.log();
+            var sqlQuery = `SELECT 'sys_company' AS table_name, COUNT(company_id) AS count_result
+            FROM sys_company
+            UNION ALL
+            SELECT 'sys_user_status_1' AS table_name, COUNT(user_id) AS count_result
+            FROM sys_user WHERE user_status = 1
+            UNION ALL
+            SELECT 'sys_user_status_0' AS table_name, COUNT(user_id) AS count_result
+            FROM sys_user WHERE user_status = 0
+            UNION ALL
+            SELECT 'sys_company_contact' AS table_name, COUNT(contact_id) AS count_result
+            FROM sys_company_contact`;
+            // ----------------------------------------------------------------
+            // SELECT COUNT(user_id)
+            // FROM sys_user WHERE user_status = 1;
+            // ----------------------------------------------------------------
+            // SELECT COUNT(user_id)
+            // FROM sys_user WHERE user_status = 0;
+            // ----------------------------------------------------------------
+            // var sqlQuery = 'SELECT company_id FROM sys_company';
             let rows = await client.query(sqlQuery);
             if (rows.rows) {
                 resolve(rows.rows);
