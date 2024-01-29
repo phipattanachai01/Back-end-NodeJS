@@ -21,7 +21,7 @@ const list = function () {
             };
 
             // var sqlQuery = selectDb(sql_params);
-            var sqlQuery = 'SELECT * FROM package  WHERE 1=1  ';
+            // var sqlQuery = 'SELECT * FROM package  WHERE 1=1  ';
             console.log()
             let rows = await client.query(sqlQuery);
             if (rows.rows) {

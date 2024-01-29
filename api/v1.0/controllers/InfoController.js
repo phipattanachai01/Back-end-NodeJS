@@ -4,8 +4,8 @@ var {} = require('../../../config/default');
 const Info = require('../models/Info');
 const Register = require('../models/user');
 const info = async function (req, res) {
-    let param = [req.body.username, req.body.username];
-    let params = [req.body.name, req.body.password];
+    // let param = [req.body.username, req.body.username];
+    // let params = [req.body.name, req.body.password];
     try {
         // var data = await Register.adduse(params);
         // console.log('data: ', data);

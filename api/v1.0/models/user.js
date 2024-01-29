@@ -41,7 +41,7 @@ const updateUser = function (params) {
         try {
             await client.query('BEGIN');
             var sqlQuery =
-                'UPDATE users SET user_name = $1, user_phone = $2, user_fullname = $3  WHERE user_id = $4';
+                'UPDATE sys_user SET user_firstname = $1, user_phone = $2, user_lastname = $3  WHERE user_id = $4';
             console.log();
             let rows = await client.query(sqlQuery, params);
             await client.query('COMMIT');
@@ -61,7 +61,7 @@ const deleteUser = function (params) {
         const client = await connection.connect();
         try {
             await client.query('BEGIN');
-            var sqlQuery = 'DELETE FROM users WHERE user_id = $1';
+            var sqlQuery = 'DELETE FROM sys_user WHERE user_id = $1';
             console.log();
             let rows = await client.query(sqlQuery, params);
             await client.query('COMMIT');
@@ -82,7 +82,7 @@ const changePasswordUser = function (params) {
         try {
             await client.query('BEGIN');
             var sqlQuery =
-                'UPDATE users SET user_password = $1  WHERE user_id = $2';
+                'UPDATE sys_user SET user_password = $1  WHERE user_id = $2';
             console.log();
             let rows = await client.query(sqlQuery, params);
             await client.query('COMMIT');

@@ -86,7 +86,7 @@ const login = async function (req, res) {
 const updateUser = async function (req, res) {
     // let hashPass = await hashPassword({ password: req.body.user_password });
     // console.log(hashPass);
-    let params = [req.body.user_name, req.body.user_phone, req.body.user_fullname, req.body.user_id];
+    let params = [req.body.user_firstname, req.body.user_phone, req.body.user_lastname, req.body.user_id];
     console.log(params);
     try {
 

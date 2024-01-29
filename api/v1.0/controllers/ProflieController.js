@@ -1,26 +1,21 @@
 var rescode = require('../../../responsecode.json');
 let { dateTimeFormater } = require('../middleware/formatConverter');
-let { verityMidToken} = require('../middleware/functionAuth');
+let { verityMidToken } = require('../middleware/functionAuth');
 var {} = require('../../../config/default');
 const Proflie = require('../models/proflie');
 const ProflieUser = async function (req, res) {
     // let params = [req.body.name, req.body.password];
     try {
-
         let param = [req.user];
-        let role = [req.body.role_name]
-        // console.log(param);
-        // console.log(param[0].user);
-        // const userId = req.user && req.user.user_id;
-        // var data = await Register.adduse(params);
-        // console.log('data: ', data);
+       
         var data = await Proflie.Proflie(param);
+        // console.log('data: ', data);
         res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
             message: rescode.c1000.description,
             error: rescode.c1000.error,
             timeReq: dateTimeFormater(new Date(), 'x'),
-            data: {firstname: param[0].firstname, lastname: param[0].lastname, Role: role[0].role_name}
+            data: { firstname: param[0].firstname, lastname: param[0].lastname , License: data[0].role_name},
         });
     } catch (error) {
         res.status(rescode.c5001.httpStatusCode).json({
@@ -35,12 +30,12 @@ const ProflieUser = async function (req, res) {
 };
 
 const UpdateProfileUser = async function (req, res) {
-    let param = [req.body.username, req.body.username];
-    let params = [req.body.name, req.body.password];
+    // let param = [req.body.username, req.body.username];
+    // let params = [req.body.name, req.body.password];
     try {
         // var data = await Register.adduse(params);
         // console.log('data: ', data);
-        var data = await Proflie.Proflie();
+        // var data = await Proflie.Proflie();
         // console.log('data: ', data);
         res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
