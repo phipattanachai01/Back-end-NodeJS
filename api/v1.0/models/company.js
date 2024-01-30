@@ -1,1 +1,99 @@
-var {connection} = require('../../../connection')
+var { connection } = require('../../../connection');
+
+const CreateCompany = function (data) {
+    return new Promise(async (resolve, reject) => {
+        const client = await connection.connect();
+        try {
+            await client.query('BEGIN');
+            var sqlQuery =
+                'INSERT INTO sys_company (company_fullname, company_shortname, company_about, company_dormain, company_linetoken, company_status) VALUES($1,$2,$3,$4,$5,$6)';
+            console.log();
+            let rows = await client.query(sqlQuery, data);
+            await client.query('COMMIT');
+            resolve(rows.rows);
+        } catch (error) {
+            await client.query('ROLLBACK');
+            reject(error);
+            console.log(error);
+        } finally {
+            client.release();
+        }
+    });
+};
+
+const updateCompany = function (params) {
+    return new Promise(async (resolve, reject) => {
+        const client = await connection.connect();
+        try {
+            await client.query('BEGIN');
+            var sqlQuery =
+                'UPDATE sys_company SET company_fullname = $1, company_shortname = $2, company_about = $3, company_dormain = $4, company_linetoken = $5, company_status = $6  WHERE company_id = $7';
+            console.log();
+            let rows = await client.query(sqlQuery, params);
+            await client.query('COMMIT');
+            resolve(rows.rows);
+        } catch (error) {
+            await client.query('ROLLBACK');
+            reject(error);
+            console.log(error);
+        } finally {
+            client.release();
+        }
+    });
+};
+
+const DatalistByCompany = function () {
+    return new Promise(async (resolve, reject) => {
+        const client = await connection.connect();
+        try {
+            var sqlQuery = 'SELECT * FROM sys_company';
+            console.log();
+            let rows = await client.query(sqlQuery);
+            resolve(rows.rows);
+        } catch (error) {
+            reject(error);
+            console.log(error);
+        } finally {
+            client.release();
+        }
+    });
+};
+
+const DeleteCompany = function (data) {
+    return new Promise(async (resolve, reject) => {
+        const client = await connection.connect();
+        try {
+            var sqlQuery = 'DELETE FROM sys_company WHERE company_id = $1';
+            console.log();
+            let rows = await client.query(sqlQuery, data);
+            resolve(rows.rows);
+        } catch (error) {
+            reject(error);
+            console.log(error);
+        } finally {
+            client.release();
+        }
+    });
+};
+
+const MainCompany = function () {
+    return new Promise(async (resolve, reject) => {
+        const client = await connection.connect();
+        try {
+            var sqlQuery = `SELECT sys_company.company_fullname,
+            COALESCE(COUNT(sys_company_contact.contact_id), 0) AS count_result
+            FROM sys_company
+            LEFT JOIN sys_company_contact ON sys_company.company_id = sys_company_contact.contact_companyid
+            GROUP BY sys_company.company_fullname`;
+            let rows = await client.query(sqlQuery);
+            resolve(rows.rows);
+        } catch (error) {
+            reject(error);
+            console.log(error);
+        } finally {
+            client.release();
+        }
+    });
+};
+
+module.exports = { CreateCompany, updateCompany, DatalistByCompany, DeleteCompany, MainCompany };

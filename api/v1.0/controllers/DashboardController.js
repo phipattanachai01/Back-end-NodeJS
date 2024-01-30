@@ -6,9 +6,9 @@ const DashboardUser = async function (req, res) {
     let dashboard = [req.body]
     try {
         var data = await Dashboard.ListDashboard(dashboard);
-        console.log(data);
+        // console.log(data);
 
-        const resultItems = data.map(item => ({
+        var resultItems = data.map(item => ({
             [item.table_name]: item.count_result
         }));
 
