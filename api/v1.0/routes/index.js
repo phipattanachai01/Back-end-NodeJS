@@ -7,14 +7,18 @@ const ticket = require('./ticket');
 const setting = require('./setting');
 const notify = require('./notify');
 const company = require('./company');
+const team = require('./team');
+const contact = require('./contact');
 
 router.use('/profile', Proflie);
-router.use('/dashboard',dashboard);
+router.use('/dashboard', dashboard);
 router.use('/user', user);
-router.use('/ticket',ticket);
-router.use('/setting',setting);
-router.use('/notify',notify);
-router.use('/company',company);
+router.use('/ticket', ticket);
+router.use('/setting', setting);
+router.use('/notify', notify);
+router.use('/company', company);
+router.use('/team', team);
+router.use('/contact', contact);
 
 
 // dashboard / incomeExpenses;
