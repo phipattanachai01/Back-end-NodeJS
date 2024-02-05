@@ -76,9 +76,32 @@ const EditContact = async function (req, res) {
     }
 };
 
+const DeleteContact = async function (req, res) {
+    let data = [req.body.contact_id]
+    try {
+        var DeleteData = await Contact.DeleteByContact(data);
+
+        res.status(rescode.c1000.httpStatusCode).json({
+            code: rescode.c1000.businessCode,
+            message: rescode.c1000.description,
+            error: rescode.c1000.error,
+            timeReq: dateTimeFormater(new Date(), 'x'),
+            data: DeleteData,
+        });
+    } catch (error) {
+        res.status(rescode.c5001.httpStatusCode).json({
+            code: rescode.c5001.businessCode,
+            message: rescode.c5001.description,
+            error: rescode.c5001.error,
+            timeReq: dateTimeFormater(new Date(), 'x'),
+            catch: error.message,
+        });
+    }
+};
 
 module.exports = {
     CreateContact,
     MainContact,
-    EditContact
+    EditContact,
+    DeleteContact
 }

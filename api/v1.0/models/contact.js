@@ -55,60 +55,7 @@ const DatalistByContact = function () {
     });
 };
 
-// const EditByContact = async function (contactId, data) {
-//     return new Promise(async (resolve, reject) => {
-//         const client = await connection.connect();
-//         let transaction;
 
-//         try {
-//             transaction = await client.query('BEGIN');
-
-//             console.log('Received data:', data);
-
-//             const contactSqlQuery = `
-//                 UPDATE sys_company_contact
-//                 SET
-//                     contact_fullname = $1,
-//                     contact_nickname = $2,
-//                     contact_email = $3,
-//                     contact_phone = $4,
-//                     contact_about = $5
-//                 WHERE contact_id = $6
-//                 RETURNING *`;
-
-//             if (data[1] === null) {
-//                 reject(new Error("Contact fullname cannot be null."));
-//                 return;
-//             }
-
-//             const contactUpdatedRows = await client.query(contactSqlQuery, [data[1].substring(0, 15), data[2], data[3], data[4], data[5], contactId]);
-//             const companyId = contactUpdatedRows.rows[0].contact_companyid;
-//             const companySqlQuery = `
-//                 UPDATE sys_company
-//                 SET
-//                     company_fullname = $1
-//                 WHERE company_id = $2
-//                 RETURNING *`;
-
-//             const companyUpdatedRows = await client.query(companySqlQuery, [data[0], companyId]);
-
-//             await client.query('COMMIT');
-
-//             resolve({
-//                 contact: contactUpdatedRows.rows[0],
-//                 company: companyUpdatedRows.rows[0],
-//             });
-//         } catch (error) {
-//             if (transaction) {
-//                 await client.query('ROLLBACK');
-//             }
-//             reject(error);
-//             console.error(error);
-//         } finally {
-//             client.release();
-//         }
-//     });
-// };
 const EditByContact = function (data) {
     console.log(data);
     return new Promise(async (resolve, reject) => {
@@ -161,4 +108,31 @@ const EditByContact = function (data) {
     });
 };
 
-module.exports = { AddContact, DatalistByContact, EditByContact };
+
+const DeleteByContact = function (data) {
+    return new Promise(async (resolve, reject) => {
+        const client = await connection.connect();
+        try {
+            await client.query('BEGIN');
+            var deleteQuery = 'DELETE FROM sys_company_contact WHERE contact_id = $1';
+            await client.query(deleteQuery, data);
+
+            var updateQuery = 'UPDATE sys_company_contact SET contact_id = contact_id - 1 WHERE contact_id > $1';
+            await client.query(updateQuery, data);
+            await client.query('COMMIT');
+            resolve("Delete successful");
+        } catch (error) {
+            await client.query('ROLLBACK');
+
+            reject(error);
+            console.log(error);
+        } finally {
+            client.release();
+        }
+    });
+};
+
+
+
+
+module.exports = { AddContact, DatalistByContact, EditByContact , DeleteByContact};
