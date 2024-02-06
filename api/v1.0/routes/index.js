@@ -9,6 +9,8 @@ const notify = require('./notify');
 const company = require('./company');
 const team = require('./team');
 const contact = require('./contact');
+const role = require('./role');
+
 
 router.use('/profile', Proflie);
 router.use('/dashboard', dashboard);
@@ -19,6 +21,7 @@ router.use('/notify', notify);
 router.use('/company', company);
 router.use('/team', team);
 router.use('/contact', contact);
+router.use('/role', role);
 
 
 // dashboard / incomeExpenses;
