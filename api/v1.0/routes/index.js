@@ -10,6 +10,7 @@ const company = require('./company');
 const team = require('./team');
 const contact = require('./contact');
 const role = require('./role');
+const menu = require('./menu');
 
 
 router.use('/profile', Proflie);
@@ -22,6 +23,7 @@ router.use('/company', company);
 router.use('/team', team);
 router.use('/contact', contact);
 router.use('/role', role);
+router.use('/menu', menu);
 
 
 // dashboard / incomeExpenses;

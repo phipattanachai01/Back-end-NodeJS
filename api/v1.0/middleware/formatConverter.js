@@ -95,6 +95,24 @@ function dateDiff(s, e) {
     const result = s.diff(e); //differenceInDays(new Date(s), new Date(e));
     return result;
 }
+function getMenuName(index) {
+    switch (index) {
+        case 1:
+            return 'Dashboard';
+        case 2:
+            return 'Notify';
+        case 3:
+            return 'Ticket';
+        case 4:
+            return 'Company';
+        case 5:
+            return 'Structures';
+        case 6:
+            return 'General';
+        default:
+            return '';
+    }
+}
 
 const validateEmail = email => {
     return email.match(
@@ -110,4 +128,5 @@ module.exports = {
     dateDiff,
     validateEmail,
     keysToSnake,
+    getMenuName
 };
