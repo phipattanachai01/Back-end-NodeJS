@@ -7,6 +7,7 @@ const ProflieUser = async function (req, res) {
     // let params = [req.body.name, req.body.password];
     try {
         let param = [req.user];
+        console.log("🚀 ~ ProflieUser ~ param:", param)
        
         var data = await Proflie.Proflie(param);
         // console.log('data: ', data);

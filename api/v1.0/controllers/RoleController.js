@@ -5,13 +5,15 @@ var {} = require('../../../config/default');
 const Role = require('../models/role');
 
 const ListRoles = async function (req, res) {
+
     try {
         var data = await Role.Mainrole();
+        
         res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
             message: rescode.c1000.description,
             error: rescode.c1000.error,
-            timeReq: dateTimeFormater(new Date(), 'x'),
+            timeReq: dateTimeFormater(new Date(), 'yyyy-MM-dd'),
             Data: data,
         });
     } catch (error) {
@@ -26,14 +28,17 @@ const ListRoles = async function (req, res) {
     }
 };
 const RoleUser = async function (req, res) {
+    let formattedDateTime = dateTimeFormater(new Date(), 'yyyy-MM-DD HH:mm:ss');
     try {
         var data = {
             role_name: req.body.role_name,
-            role_menu: req.body.role_menu
+            role_menu: req.body.role_menu,
+            
         };
+        // console.log("🚀 ~ RoleUser ~ data:", data, formattedDateTime)
         // console.log('data: ', data);
 
-        var result = await Role.Addrole(data);
+        var result = await Role.Addrole(data, formattedDateTime);
         res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
             message: rescode.c1000.description,
@@ -54,6 +59,8 @@ const RoleUser = async function (req, res) {
 };
 
 const EditRoles = async function (req, res) {
+    let formattedDateTime = dateTimeFormater(new Date(), 'yyyy-MM-DD HH:mm:ss');
+
     try {
         const roleId = req.params.RoleId;
         // console.log('___', roleId);
@@ -62,7 +69,7 @@ const EditRoles = async function (req, res) {
             role_menu: req.body.role_menu
         };
 
-        var result = await Role.Editrole(data, roleId);
+        var result = await Role.Editrole(data, roleId, formattedDateTime);
 
         res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,

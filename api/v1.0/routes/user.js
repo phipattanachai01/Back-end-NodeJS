@@ -5,8 +5,10 @@ const functionAuth = require('../middleware/functionAuth');
 
 router.post('/register', UserController.RegisterUser);
 router.post('/login', UserController.login);
-router.post('/update', UserController.updateUser);
-router.delete('/delete', UserController.deleteuse);
+router.post('/main', UserController.mainUser);
+router.post('/update/:userID', UserController.updateUser);
+router.post('/delete/:userID', UserController.deleteuse);
 router.put('/editpass', UserController.changePasswordByuser);
+router.post('/updateStatus', UserController.disableuser);
 
 module.exports = router;
