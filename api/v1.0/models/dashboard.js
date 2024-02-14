@@ -17,14 +17,6 @@ const ListDashboard = function () {
             UNION ALL
             SELECT 'sys_company_contact' AS table_name, COUNT(contact_id) AS count_result
             FROM sys_company_contact`;
-            // ----------------------------------------------------------------
-            // SELECT COUNT(user_id)
-            // FROM sys_user WHERE user_status = 1;
-            // ----------------------------------------------------------------
-            // SELECT COUNT(user_id)
-            // FROM sys_user WHERE user_status = 0;
-            // ----------------------------------------------------------------
-            // var sqlQuery = 'SELECT company_id FROM sys_company';
             let rows = await client.query(sqlQuery);
             if (rows.rows) {
                 resolve(rows.rows);

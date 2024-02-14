@@ -34,6 +34,8 @@ const MainTeamUser = async function (req, res) {
 };
 
 const AddTeamUser = async function (req, res) {
+    let formattedDateTime = dateTimeFormater(new Date(), 'yyyy-MM-DD HH:mm:ss');
+
     try {
         const { teamName, userFirstNames } = req.body;
 
@@ -47,7 +49,7 @@ const AddTeamUser = async function (req, res) {
             });
         }
 
-        const result = await Team.Addteam({ teamName, userFirstNames });
+        const result = await Team.Addteam({ teamName, userFirstNames, formattedDateTime});
 
         res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
@@ -69,15 +71,18 @@ const AddTeamUser = async function (req, res) {
 
 const EditTeamUser = async function (req, res) {
     try {
-        const data = req.body; 
-            const result = await Team.EditTeam(data);
-            res.status(200).json({
-                code: rescode.c1000.businessCode,
-                message: rescode.c1000.description,
-                error: rescode.c1000.error,
-                timeReq: dateTimeFormater(new Date(), 'x'),
-                data: result,
-            });
+        const formattedDateTime = dateTimeFormater(new Date(), 'yyyy-MM-DD HH:mm:ss');
+        const teamID = req.params.teamID;
+        const data = req.body;
+
+        const result = await Team.EditTeam(data, teamID, formattedDateTime);
+        res.status(200).json({
+            code: rescode.c1000.businessCode,
+            message: rescode.c1000.description,
+            error: rescode.c1000.error,
+            timeReq: dateTimeFormater(new Date(), 'x'),
+            data: result,
+        });
     } catch (error) {
         res.status(rescode.c5001.httpStatusCode).json({
             code: rescode.c5001.businessCode,
@@ -88,6 +93,7 @@ const EditTeamUser = async function (req, res) {
         });
     }
 };
+
 const DeleteTeamUser = async function (req, res) {
     try {
         const { teamId } = req.body; 
@@ -123,5 +129,28 @@ const DeleteTeamUser = async function (req, res) {
     }
 };
 
-module.exports = { MainTeamUser, AddTeamUser, EditTeamUser, DeleteTeamUser };
+const disableTeam =  async function (req, res) {
+    let params = [req.body.team_status, req.body.team_id]
+    try {
+        var status = await Team.statusTeam(params)
+        res.status(200).json({
+            code: rescode.c1000.businessCode,
+            message: rescode.c1000.description,
+            error: rescode.c1000.error,
+            timeReq: dateTimeFormater(new Date(), 'x'),
+            data: 'success',
+        });
+    } catch (error) {
+        res.status(rescode.c1103.httpStatusCode).json({
+            code: rescode.c1103.businessCode,
+            message: rescode.c1103.description,
+            error: rescode.c1103.error,
+            timeReq: dateTimeFormater(new Date(), 'x'),
+            catch: error.message,
+        })
+
+    }
+}
+
+module.exports = { MainTeamUser, AddTeamUser, EditTeamUser, DeleteTeamUser , disableTeam};
 

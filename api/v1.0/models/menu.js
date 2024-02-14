@@ -16,15 +16,14 @@ const mainmenu = function (param) {
     });
 };
 
-const Updatemenu = function (data) {
+const Updatemenu = function (data , formattedupdateDateTime) {
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {
             for (let i = 0; i < data.role_menu.length; i++) {
                 let menu = data.role_menu[i];
-                console.log("🚀 ~ returnnewPromise ~ menu:", menu)
-                let menuQuery = `UPDATE sys_menu SET menu_status = $1, menu_updatedate WHERE menu_id = $2`;
-                let rows = await client.query(menuQuery, [menu.menu_status, menu.menu_id]);
+                let menuQuery = `UPDATE sys_menu SET menu_status = $1, menu_updatedate = $2 WHERE menu_id = $3`;
+                let rows = await client.query(menuQuery, [menu.menu_status, formattedupdateDateTime, menu.menu_id]);
                 // console.log(rows);
             }
             resolve({

@@ -80,6 +80,8 @@ function dateTimeFormater(d, f) {
     }
     return date;
 }
+
+
 function dateSubString(d, f) {
     d = d + '';
     var setYears = 543;
@@ -119,6 +121,20 @@ const validateEmail = email => {
         /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
     );
 };
+function label(tableName) {
+    switch (tableName) {
+        case 'sys_company':
+            return 'Partner register';
+        case 'sys_user_status_1':
+            return 'Active';
+        case 'sys_user_status_0':
+            return 'Inactive';
+        case 'sys_company_contact':
+            return 'Contact user';
+        default:
+            return '';
+    }
+}
 
 
 module.exports = {
@@ -128,5 +144,6 @@ module.exports = {
     dateDiff,
     validateEmail,
     keysToSnake,
-    getMenuName
+    getMenuName,
+    label
 };

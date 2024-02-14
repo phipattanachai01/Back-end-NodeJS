@@ -29,13 +29,11 @@ const ListMenu = async function (req , res) {
 
 const UpdateMenu = async function (req , res) {
     let formattedupdateDateTime = dateTimeFormater(new Date(), 'yyyy-MM-DD HH:mm:ss');
-
     try {
         var data = {
             role_menu: req.body.role_menu,
-            formattedupdateDateTime
         }
-        var result = await Menu.Updatemenu(data);
+        var result = await Menu.Updatemenu(data, formattedupdateDateTime);
         res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
             message: rescode.c1000.description,

@@ -37,31 +37,23 @@ const RegisterUser = async function (req, res) {
 };
 const login = async function (req, res) {
     let params = [req.body.username];
-    // console.log(params);
     try {
         var user = await Register.loginuser(params);
-        // console.log([user[0].user_id]);
-        // // var accessToken = await signAccessToken(user[0].user_id);
-        // console.log('+++++++======+++++',user[0].user_name)
+        
         if (!user.length) {
             return res.send({ status: 401, message: 'NOT FOUND' });
         }
-        // console.log('🚀 ~ login ~ user:', user);
-
-        // var accessToken = await signAccessToken( user[0].user_id,user[1],user_name);
-        // var accessToken = await signAccessToken(user[0].user_id);
+        
         var accessToken = await signAccessToken(user);
         var data = { req_password: req.body.user_password, password: user[0].user_password };
 
         let compare = await comparePassword(data);
-        // console.log('🚀 ~ login ~ compare:', compare);
         if (compare) {
 
             return res.status(rescode.c1000.httpStatusCode).json({
                 code: rescode.c1000.businessCode,
                 message: rescode.c1000.description,
                 data: {token: accessToken}
-                // data: {token: accessToken}
                 
             });
         } else {
