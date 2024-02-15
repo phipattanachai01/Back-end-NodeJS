@@ -2,19 +2,23 @@ var rescode = require('../../../responsecode.json');
 let { dateTimeFormater } = require('../middleware/formatConverter');
 const { hashPassword, comparePassword, signAccessToken } = require('../middleware/functionAuth');
 var {} = require('../../../config/default');
-const CreateCompany = require('../models/company')
+const CreateCompany = require('../models/company');
 const listByCompany = async function (req, res) {
     let formattedDateTime = dateTimeFormater(new Date(), 'yyyy-MM-DD HH:mm:ss');
-    let data = [req.body.company_fullname, req.body.company_shortname, req.body.company_about, req.body.company_dormain, req.body.company_linetoken, formattedDateTime];
+    let data = [
+        req.body.company_fullname,
+        req.body.company_shortname,
+        req.body.company_about,
+        req.body.company_dormain,
+        req.body.company_linetoken,
+        formattedDateTime,
+    ];
     try {
-            await CreateCompany.CreateCompany(data);
-            return res.status(rescode.c1000.httpStatusCode).json({
-                code: rescode.c1000.businessCode,
-                message: rescode.c1000.description,
-                
-            });
-
-
+        await CreateCompany.CreateCompany(data);
+        return res.status(rescode.c1000.httpStatusCode).json({
+            code: rescode.c1000.businessCode,
+            message: rescode.c1000.description,
+        });
     } catch (error) {
         res.status(rescode.c5001.httpStatusCode).json({
             code: rescode.c5001.businessCode,
@@ -27,17 +31,25 @@ const listByCompany = async function (req, res) {
     }
 };
 
-const editByCompany = async function ( req, res) {
+const editByCompany = async function (req, res) {
     let companyId = req.params.companyId;
     let formattedDateTime = dateTimeFormater(new Date(), 'yyyy-MM-DD HH:mm:ss');
-    let data = [req.body.company_fullname, req.body.company_shortname, req.body.company_about, req.body.company_dormain, req.body.company_linetoken, formattedDateTime, companyId];
+    let data = [
+        req.body.company_fullname,
+        req.body.company_shortname,
+        req.body.company_about,
+        req.body.company_dormain,
+        req.body.company_linetoken,
+        formattedDateTime,
+        companyId,
+    ];
 
     try {
         await CreateCompany.updateCompany(data);
-            return res.status(rescode.c1000.httpStatusCode).json({
-                code: rescode.c1000.businessCode,
-                message: rescode.c1000.description,
-            });
+        return res.status(rescode.c1000.httpStatusCode).json({
+            code: rescode.c1000.businessCode,
+            message: rescode.c1000.description,
+        });
     } catch (error) {
         res.status(rescode.c5001.httpStatusCode).json({
             code: rescode.c5001.businessCode,
@@ -48,17 +60,17 @@ const editByCompany = async function ( req, res) {
         });
         return false;
     }
-    };
+};
 
 const datalist = async function (req, res) {
     // let data = [req.company_fullname, req.company_shortname, req.company_about, req.company_dormain, req.company_linetoken, req.company_status, req.company_id];
     try {
         var data = await CreateCompany.DatalistByCompany();
-            return res.status(rescode.c1000.httpStatusCode).json({
-                code: rescode.c1000.businessCode,
-                message: rescode.c1000.description,
-                data : data
-            });
+        return res.status(rescode.c1000.httpStatusCode).json({
+            code: rescode.c1000.businessCode,
+            message: rescode.c1000.description,
+            data: data,
+        });
     } catch (error) {
         res.status(rescode.c5001.httpStatusCode).json({
             code: rescode.c5001.businessCode,
@@ -69,17 +81,17 @@ const datalist = async function (req, res) {
         });
         return false;
     }
-}
+};
 
 const deleteByCompany = async function (req, res) {
     let data = [req.body.company_id];
     try {
-            await CreateCompany.DeleteCompany(data);
-            return res.status(rescode.c1000.httpStatusCode).json({
-                code: rescode.c1000.businessCode,
-                message: rescode.c1000.description,
-                data : {ID : data}
-            });
+        await CreateCompany.DeleteCompany(data);
+        return res.status(rescode.c1000.httpStatusCode).json({
+            code: rescode.c1000.businessCode,
+            message: rescode.c1000.description,
+            data: { ID: data },
+        });
     } catch (error) {
         res.status(rescode.c5001.httpStatusCode).json({
             code: rescode.c5001.businessCode,
@@ -89,20 +101,20 @@ const deleteByCompany = async function (req, res) {
         });
         return false;
     }
-}
+};
 
 const mainByCompany = async function (req, res) {
     try {
         var data = await CreateCompany.MainCompany();
         var resultItems = data.map(item => ({
-            [item.company_fullname]: item.count_result
+            [item.company_fullname]: item.count_result,
         }));
 
-            return res.status(rescode.c1000.httpStatusCode).json({
-                code: rescode.c1000.businessCode,
-                message: rescode.c1000.description,
-                data: resultItems
-            });
+        return res.status(rescode.c1000.httpStatusCode).json({
+            code: rescode.c1000.businessCode,
+            message: rescode.c1000.description,
+            data: resultItems,
+        });
     } catch (error) {
         res.status(rescode.c5001.httpStatusCode).json({
             code: rescode.c5001.businessCode,
@@ -112,7 +124,7 @@ const mainByCompany = async function (req, res) {
         });
         return false;
     }
-}
+};
 const StatusCompany = async function (req, res) {
     try {
         const params = [req.body.company_status, req.body.company_id];
@@ -122,7 +134,7 @@ const StatusCompany = async function (req, res) {
             message: rescode.c1000.description,
         });
     } catch (error) {
-        console.error(error); 
+        console.error(error);
         return res.status(rescode.c1103.httpStatusCode).json({
             code: rescode.c1103.businessCode,
             message: rescode.c1103.description,
@@ -132,4 +144,4 @@ const StatusCompany = async function (req, res) {
     }
 };
 
-module.exports = { listByCompany , editByCompany , datalist, deleteByCompany, mainByCompany, StatusCompany};
+module.exports = { listByCompany, editByCompany, datalist, deleteByCompany, mainByCompany, StatusCompany };

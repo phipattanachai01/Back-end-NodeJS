@@ -9,10 +9,10 @@ const Proflie = function (param) {
         const client = await connectionR.connect();
         try {
             var use = [param[0].id, 1];
-            console.log('🚀 ~ returnnewPromise ~ use:', use);
+            // console.log('🚀 ~ returnnewPromise ~ use:', use);
             var sqlQuery =
                 'SELECT * , sys_role.role_name FROM sys_user INNER JOIN sys_role ON sys_role.role_id=sys_user.user_roleid WHERE sys_user.user_id = $1 AND sys_user.user_status = $2';
-            console.log('🚀 ~ returnnewPromise ~ sqlQuery:', sqlQuery);
+            // console.log('🚀 ~ returnnewPromise ~ sqlQuery:', sqlQuery);
             let rows = await client.query(sqlQuery, use);
 
             // var sqlQuery2 = `SELECT * , sys_role.role_name FROM sys_user INNER JOIN sys_role ON sys_role.role_id=sys_user.user_roleid WHERE sys_user.user_id = ${param[0].id} AND sys_user.user_status = 1`;

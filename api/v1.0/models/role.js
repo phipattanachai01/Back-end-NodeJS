@@ -123,7 +123,7 @@ const Editrole = function (data, roleId, formattedDateTime) {
 
             let roleUpdateQuery = `UPDATE sys_role SET role_name = $1 ,role_updatedate = $2 WHERE role_id = $3`;
             let roleUpdateParams = [data.role_name, formattedDateTime, roleId];
-            console.log('🚀 ~ returnnewPromise ~ roleUpdateParams:', roleUpdateParams);
+            // console.log('🚀 ~ returnnewPromise ~ roleUpdateParams:', roleUpdateParams);
             // console.log('roleUpd',roleUpdateParams);
             await client.query(roleUpdateQuery, roleUpdateParams);
 

@@ -2,11 +2,19 @@ var rescode = require('../../../responsecode.json');
 let { dateTimeFormater } = require('../middleware/formatConverter');
 const { hashPassword, comparePassword, signAccessToken } = require('../middleware/functionAuth');
 var {} = require('../../../config/default');
-const Issue = require('../models');
+const Issue = require('../models/issue');
 
-const Issue = async function (req, res) {
+const AddIssue = async function (req, res) {
     try {
-
+        var params = [req.body.issue_name, req.body.issue_priority, req.body.issue_duedate, req.body.priority_name]
+        var data = await Issue.addIssue(params);
+        res.status(rescode.c1000.httpStatusCode).json({
+            code: rescode.c1000.businessCode,
+            message: rescode.c1000.description,
+            error: rescode.c1000.error,
+            timeReq: dateTimeFormater(new Date(), 'HH:mm:ss'),
+            data: data
+        });
     } catch (error) {
         res.status(rescode.c5001.httpStatusCode).json({
             code: rescode.c5001.businessCode,
@@ -20,4 +28,4 @@ const Issue = async function (req, res) {
 
 }
 
-module.exports = { Issue };
+module.exports = { AddIssue };

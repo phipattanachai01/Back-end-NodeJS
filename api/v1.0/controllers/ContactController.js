@@ -3,14 +3,14 @@ const { dateTimeFormater } = require('../middleware/formatConverter');
 const Contact = require('../models/contact');
 
 const CreateContact = async function (req, res) {
+    let formattedDateTime = dateTimeFormater(new Date(), 'yyyy-MM-DD HH:mm:ss');
     const data = [req.body.company_shortname, req.body.contact_fullname, req.body.contact_nickname, req.body.contact_email, req.body.contact_phone, req.body.contact_about];    
 
-    // console.log('+++++++>', data);
     
     try {
-        var sumdata = await Contact.AddContact(data);
+        var sumdata = await Contact.AddContact(data , formattedDateTime);
         
-        console.log('sumdata:', sumdata);
+        // console.log('sumdata:', sumdata);
 
         res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
@@ -52,11 +52,21 @@ const MainContact = async function (req, res) {
 };
 
 const EditContact = async function (req, res) {
-    const contactId = req.params.contactId; 
-    const data = [ req.body.contact_fullname, req.body.contact_nickname, req.body.contact_email, req.body.contact_phone, req.body.company_shortname, req.body.contact_about, contactId]; 
+    let contactId = req.params.contactId; 
+    let formattedDateTime = dateTimeFormater(new Date(), 'yyyy-MM-DD HH:mm:ss');
 
+    const data = [
+        req.body.contact_fullname,
+        req.body.contact_nickname,
+        req.body.contact_email,
+        req.body.contact_phone,
+        req.body.company_shortname,
+        req.body.contact_about,
+        contactId
+    ];
+    
     try {
-        var updatedData = await Contact.EditByContact(data);
+        var updatedData = await Contact.EditByContact(data , formattedDateTime);
 
         res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
@@ -75,6 +85,7 @@ const EditContact = async function (req, res) {
         });
     }
 };
+
 
 const DeleteContact = async function (req, res) {
     let data = [req.body.contact_id]
