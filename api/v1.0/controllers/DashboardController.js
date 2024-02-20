@@ -7,13 +7,13 @@ const DashboardUser = async function (req, res) {
 
     try {
         var data = await Dashboard.ListDashboard(dashboard);
-        console.log("🚀 ~ DashboardUser ~ data:", data)
+        // console.log("🚀 ~ DashboardUser ~ data:", data)
 
         var resultItems = data.map(item => ({
             label: label(item.table_name),
             count: item.count_result,
         }));
-        console.log("🚀 ~ resultItems ~ resultItems:", resultItems)
+        // console.log("🚀 ~ resultItems ~ resultItems:", resultItems)
 
         // var result = data.reduce((arr, tab) => {
         //     arr.push({lable: tab.table_name})

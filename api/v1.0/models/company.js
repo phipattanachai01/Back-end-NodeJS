@@ -80,11 +80,11 @@ const MainCompany = function () {
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {
-            var sqlQuery = `SELECT sys_company.company_fullname,
-            COALESCE(COUNT(sys_company_contact.contact_id), 0) AS count_result
+            var sqlQuery = `SELECT sys_company.company_id, sys_company.company_fullname,
+            COALESCE(COUNT(sys_company_contact.contact_id), 0) AS count_result, sys_company.company_status
             FROM sys_company
             LEFT JOIN sys_company_contact ON sys_company.company_id = sys_company_contact.contact_companyid
-            GROUP BY sys_company.company_fullname`;
+            GROUP BY sys_company.company_id`;
             let rows = await client.query(sqlQuery);
             resolve(rows.rows);
         } catch (error) {

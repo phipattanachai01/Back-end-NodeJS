@@ -22,6 +22,7 @@ const MainTeamUser = async function (req, res) {
             timeReq: dateTimeFormater(new Date(), 'x'),
             data: formattedData,
         });
+            console.log("🚀 ~ res.status ~ formattedData:", formattedData)
     } catch (error) {
         res.status(rescode.c5001.httpStatusCode).json({
             code: rescode.c5001.businessCode,

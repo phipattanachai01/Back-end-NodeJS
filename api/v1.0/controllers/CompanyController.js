@@ -106,8 +106,12 @@ const deleteByCompany = async function (req, res) {
 const mainByCompany = async function (req, res) {
     try {
         var data = await CreateCompany.MainCompany();
+        // console.log("🚀 ~ mainByCompany ~ data:", data)
         var resultItems = data.map(item => ({
-            [item.company_fullname]: item.count_result,
+            companyid: item.company_id,
+            CompanyFullname: item.company_fullname,
+            contactCompany: item.count_result,
+            companyStatus: item.company_status
         }));
 
         return res.status(rescode.c1000.httpStatusCode).json({

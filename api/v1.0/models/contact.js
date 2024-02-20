@@ -46,7 +46,6 @@ const DatalistByContact = function () {
             JOIN 
             sys_company ON sys_company_contact.contact_companyid = sys_company.company_id
             ORDER BY sys_company_contact.contact_id`;
-            // console.log();
             let rows = await client.query(sqlQuery);
             resolve(rows.rows);
         } catch (error) {
