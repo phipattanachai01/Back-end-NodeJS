@@ -11,6 +11,7 @@ const team = require('./team');
 const contact = require('./contact');
 const role = require('./role');
 const menu = require('./menu');
+const issue = require('./issue');
 
 
 router.use('/profile', Proflie);
@@ -24,6 +25,7 @@ router.use('/team', team);
 router.use('/contact', contact);
 router.use('/role', role);
 router.use('/menu', menu);
+router.use('/issue', issue);
 
 
 // dashboard / incomeExpenses;

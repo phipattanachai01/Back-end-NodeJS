@@ -32,11 +32,14 @@ const mainlistByUser = function () {
             user_phone, 
             user_name, 
             role_name AS user_role, 
-            user_status 
+            user_status,
+            user_roleid
         FROM 
             sys_user
         JOIN 
             sys_role  ON sys_user.user_roleid = role_id
+        ORDER BY 
+            user_id;
         `;
             console.log();
             let rows = await client.query(sqlQuery);

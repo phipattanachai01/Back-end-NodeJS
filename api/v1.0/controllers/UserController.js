@@ -83,7 +83,7 @@ const mainUser = async function (req, res) {
         res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
             message: rescode.c1000.description,
-            Data : DataList
+            data : DataList
         });
     } catch (error) {
         console.log(error);

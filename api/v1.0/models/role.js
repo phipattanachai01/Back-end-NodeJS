@@ -28,6 +28,22 @@ const Mainrole = function () {
     });
 };
 
+const roleusers = function () {
+    return new Promise(async(resolve, reject) => {
+        const client = await connection.connect();
+        try {
+            var sqlQuery = `SELECT role_name FROM sys_role`;
+            console.log();
+            let rows = await client.query(sqlQuery);
+            resolve(rows.rows);
+        } catch (error) {
+            reject(error);
+            console.log(error);
+        } finally {
+            client.release();
+        }
+    } );
+}
 // const Addrole = function (data) {
 //     return new Promise(async (resolve, reject) => {
 //         const client = await connection.connect();
@@ -215,4 +231,4 @@ const ReorganizeRoleIDs = function (roleId) {
         }
     });
 };
-module.exports = { Mainrole, Addrole, Editrole, Deleterole, ReorganizeRoleIDs };
+module.exports = { Mainrole, Addrole, Editrole, Deleterole, ReorganizeRoleIDs ,roleusers};

@@ -113,9 +113,32 @@ const DeleteRoles = async (req, res) => {
         return false;
     }
 };
+
+const RoleUsers = async (req, res) => {
+    try {
+        var roleuse = await Role.roleusers();
+        res.status(rescode.c1000.httpStatusCode).json({
+            code: rescode.c1000.businessCode,
+            message: rescode.c1000.description,
+            error: rescode.c1000.error,
+            timeReq: dateTimeFormater(new Date(), 'x'),
+            data: roleuse
+        });
+    } catch (error) {
+        res.status(rescode.c5001.httpStatusCode).json({
+            code: rescode.c5001.businessCode,
+            message: rescode.c5001.description,
+            error: rescode.c5001.error,
+            timeReq: dateTimeFormater(new Date(), 'x'),
+            catch: error.message,
+        });
+        return false;
+    }
+};
 module.exports = {
     RoleUser,
     ListRoles,
     EditRoles,
-    DeleteRoles
+    DeleteRoles,
+    RoleUsers
 };
