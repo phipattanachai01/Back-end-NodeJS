@@ -14,7 +14,7 @@ const ListRoles = async function (req, res) {
             message: rescode.c1000.description,
             error: rescode.c1000.error,
             timeReq: dateTimeFormater(new Date(), 'yyyy-MM-dd'),
-            Data: data,
+            data: data,
         });
     } catch (error) {
         res.status(rescode.c5001.httpStatusCode).json({
