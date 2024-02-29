@@ -5,7 +5,7 @@ const adduse = function (params) {
         try {
             await client.query('BEGIN');
             var sqlQuery =
-                'INSERT INTO sys_user (user_name, user_phone, user_firstname, user_lastname, user_password, user_createdate, user_roleid, user_status) VALUES ($1,$2,$3,$4,$5,$6, (SELECT role_id FROM sys_role WHERE role_name = $7), 1)';
+                'INSERT INTO sys_user (user_name, user_phone, user_firstname, user_lastname, user_password, user_createdate, user_rolename, user_status) VALUES ($1,$2,$3,$4,$5,$6, (SELECT role_id FROM sys_role WHERE role_name = $7), 1)';
             console.log();
             let rows = await client.query(sqlQuery, params);
             await client.query('COMMIT');

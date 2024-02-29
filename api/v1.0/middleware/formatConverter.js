@@ -134,7 +134,25 @@ function label(tableName) {
         default:
             return '';
     }
-}
+};
+
+// const loggedInUsers = {user};
+// function checkLogin(req, res, next) {
+//     if (user_name && user_password && user_name === user_password) {
+//         next(); 
+//     } else {
+//         res.status(401).send('Invalid username or password');
+//     }
+// }
+
+// function addToLoggedInUsers(req, res, next) {
+//     // const { username, user_password } = req.body;
+//     if (user_name && user_password) {
+//         user[user_name] = user_password;
+//     }
+//     next();
+// }
+
 
 
 module.exports = {
@@ -145,5 +163,5 @@ module.exports = {
     validateEmail,
     keysToSnake,
     getMenuName,
-    label
-};
+    label,
+    };

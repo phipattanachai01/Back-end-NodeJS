@@ -177,7 +177,6 @@ const verifyAPIKeyAndCode2 = async function (req, res, next) {
 };
 
 const signAccessToken = async function (user) {
-    console.log("🚀 ~ signAccessToken ~ user:", user)
     return new Promise((resolve, reject) => {
         const payload = {
             id: user[0].user_id,

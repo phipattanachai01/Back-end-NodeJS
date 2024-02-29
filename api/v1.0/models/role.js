@@ -32,7 +32,7 @@ const roleusers = function () {
     return new Promise(async(resolve, reject) => {
         const client = await connection.connect();
         try {
-            var sqlQuery = `SELECT role_name FROM sys_role`;
+            var sqlQuery = `SELECT role_id, role_name FROM sys_role ORDER BY role_id`;
             console.log();
             let rows = await client.query(sqlQuery);
             resolve(rows.rows);
