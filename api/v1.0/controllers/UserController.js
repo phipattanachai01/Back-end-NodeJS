@@ -87,10 +87,10 @@ const RegisterUser = async function (req, res) {
 // };
 
 const login = async function (req, res) {
-    let params = [req.body.username]; 
+    let params = [req.body.username];
     try {
-        var user = await Register.loginuser(params); 
-        console.log("🚀 ~ login ~ user:", user)
+        var user = await Register.loginuser(params);
+        console.log('🚀 ~ login ~ user:', user);
 
         if (!user.length) {
             return res.send({ status: 401, message: 'NOT FOUND' });
@@ -99,15 +99,15 @@ const login = async function (req, res) {
         var data = { req_password: req.body.user_password, password: user[0].user_password };
         let compare = await comparePassword(data);
 
-        if (compare) { 
+        if (compare) {
             var accessToken = await signAccessToken(user);
-            
+
             return res.status(rescode.c1000.httpStatusCode).json({
                 code: rescode.c1000.businessCode,
                 message: rescode.c1000.description,
-                data: {token: accessToken},
+                data: { token: accessToken },
             });
-        } else { 
+        } else {
             res.status(rescode.c9500.httpStatusCode).json({
                 code: rescode.c9500.businessCode,
                 message: rescode.c9500.description,
@@ -125,7 +125,6 @@ const login = async function (req, res) {
         });
     }
 };
-
 
 const mainUser = async function (req, res) {
     try {
@@ -247,7 +246,52 @@ const disableuser = async function (req, res) {
             message: rescode.c5001.description,
             error: rescode.c5001.error,
             timeReq: dateTimeFormater(new Date(), 'x'),
-            catch: error.message,
+        });
+    }
+};
+
+// const checkIfUserExists = async function (req, res) {
+//     try {
+//         let username = req.body.username
+//         let DuplicateUser = await Register.checkUserExists(username)
+//         res.status(rescode.c1000.httpStatusCode).json({
+//             code: rescode.c1000.businessCode,
+//             message: rescode.c1000.description,
+//             Data : DuplicateUser
+//         });
+//     } catch (error) {
+//         res.status(rescode.c1111.httpStatusCode).json({
+//             code: rescode.c1111.businessCode,
+//             message: rescode.c1111.description,
+//             error: rescode.c1111.error,
+//             timeReq: dateTimeFormater(new Date(), 'x'),
+//         });
+//     }
+// };
+
+const checkIfUserExists = async function (req, res) {
+    try {
+        let username = req.body.username;
+        let isDuplicate = await Register.checkUserExists(username);
+        if (isDuplicate) {
+            res.status(rescode.c1000.httpStatusCode).json({
+                code: rescode.c1000.businessCode,
+                message: rescode.c1000.description,
+                Data: "duplicate" // คืนค่า "duplicate" เมื่อพบ username ที่ซ้ำ
+            });
+        } else {
+            res.status(rescode.c1000.httpStatusCode).json({
+                code: rescode.c1000.businessCode,
+                message: rescode.c1000.description,
+                Data: "not duplicate" // คืนค่า "not duplicate" เมื่อไม่พบ username ที่ซ้ำ
+            });
+        }
+    } catch (error) {
+        res.status(rescode.c1111.httpStatusCode).json({
+            code: rescode.c1111.businessCode,
+            message: rescode.c1111.description,
+            error: rescode.c1111.error,
+            timeReq: dateTimeFormater(new Date(), 'x'),
         });
     }
 };
@@ -260,4 +304,5 @@ module.exports = {
     changePasswordByuser,
     disableuser,
     mainUser,
+    checkIfUserExists
 };
