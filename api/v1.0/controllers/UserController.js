@@ -16,9 +16,9 @@ const RegisterUser = async function (req, res) {
         hashPass,
         formattedDateTime,
         req.body.user_rolename,
+        req.body.user_createby
     ];
     // console.log(paramsRe);
-
     try {
         await Register.adduse(paramsRe);
         // var accessToken = await signAccessToken(user[0].user_id);
@@ -249,52 +249,26 @@ const disableuser = async function (req, res) {
         });
     }
 };
-
-// const checkIfUserExists = async function (req, res) {
-//     try {
-//         let username = req.body.username
-//         let DuplicateUser = await Register.checkUserExists(username)
-//         res.status(rescode.c1000.httpStatusCode).json({
-//             code: rescode.c1000.businessCode,
-//             message: rescode.c1000.description,
-//             Data : DuplicateUser
-//         });
-//     } catch (error) {
-//         res.status(rescode.c1111.httpStatusCode).json({
-//             code: rescode.c1111.businessCode,
-//             message: rescode.c1111.description,
-//             error: rescode.c1111.error,
-//             timeReq: dateTimeFormater(new Date(), 'x'),
-//         });
-//     }
-// };
-
-const checkIfUserExists = async function (req, res) {
+const checkUsername = async function (req, res)  {
     try {
-        let username = req.body.username;
-        let isDuplicate = await Register.checkUserExists(username);
-        if (isDuplicate) {
-            res.status(rescode.c1000.httpStatusCode).json({
-                code: rescode.c1000.businessCode,
-                message: rescode.c1000.description,
-                Data: "duplicate" // คืนค่า "duplicate" เมื่อพบ username ที่ซ้ำ
-            });
+        const username = req.body.user_name;
+        console.log("🚀 ~ checkUsername ~ username:", username)
+        const existingUser = await Register.checkUserExists(username);
+        if (existingUser) {
+            return res.status(400).json({ message: 'มีผู้ใช้งานชื่อนี้แล้ว' });
         } else {
-            res.status(rescode.c1000.httpStatusCode).json({
-                code: rescode.c1000.businessCode,
-                message: rescode.c1000.description,
-                Data: "not duplicate" // คืนค่า "not duplicate" เมื่อไม่พบ username ที่ซ้ำ
-            });
+            return res.status(200).json({ message: 'ชื่อผู้ใช้งานสามารถใช้งานได้' });
         }
     } catch (error) {
-        res.status(rescode.c1111.httpStatusCode).json({
-            code: rescode.c1111.businessCode,
-            message: rescode.c1111.description,
-            error: rescode.c1111.error,
+        res.status(rescode.c5001.httpStatusCode).json({
+            code: rescode.c5001.businessCode,
+            message: rescode.c5001.description,
+            error: rescode.c5001.error,
             timeReq: dateTimeFormater(new Date(), 'x'),
         });
     }
 };
+
 
 module.exports = {
     RegisterUser,
@@ -304,5 +278,5 @@ module.exports = {
     changePasswordByuser,
     disableuser,
     mainUser,
-    checkIfUserExists
+    checkUsername
 };

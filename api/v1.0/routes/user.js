@@ -10,5 +10,5 @@ router.post('/update/:userID', UserController.updateUser);
 router.post('/delete/:userID', UserController.deleteuse);
 router.post('/editpass', UserController.changePasswordByuser);
 router.post('/updateStatus', UserController.disableuser);
-router.post('/checkduplicate', UserController.checkIfUserExists);
+router.post('/checkduplicate', UserController.checkUsername);
 module.exports = router;

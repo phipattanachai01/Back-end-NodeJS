@@ -16,7 +16,7 @@ const ProflieUser = async function (req, res) {
             message: rescode.c1000.description,
             error: rescode.c1000.error,
             timeReq: dateTimeFormater(new Date(), 'x'),
-            data: { firstname: param[0].firstname, lastname: param[0].lastname , role: data[0].role_name},
+            data: {id:param[0].id, firstname: param[0].firstname, lastname: param[0].lastname , role: data[0].role_name},
         });
     } catch (error) {
         res.status(rescode.c5001.httpStatusCode).json({

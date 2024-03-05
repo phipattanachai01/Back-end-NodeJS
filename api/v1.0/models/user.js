@@ -1,11 +1,13 @@
+const { rows } = require('mssql');
 var { connection } = require('../../../connection');
 const adduse = function (params) {
+    console.log("🚀 ~ adduse ~ params:", params)
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {
             await client.query('BEGIN');
             var sqlQuery =
-                'INSERT INTO sys_user (user_name, user_phone, user_firstname, user_lastname, user_password, user_createdate, user_roleid, user_status) VALUES ($1,$2,$3,$4,$5,$6, (SELECT role_id FROM sys_role WHERE role_name = $7), 1)';
+                'INSERT INTO sys_user (user_name, user_phone, user_firstname, user_lastname, user_password, user_createdate, user_roleid, user_createby, user_status) VALUES ($1,$2,$3,$4,$5,$6,$7,$8, 1)';
             console.log();
             let rows = await client.query(sqlQuery, params);
             await client.query('COMMIT');
@@ -190,10 +192,10 @@ const checkUserExists = async function (username) {
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {
-            const query = 'SELECT COUNT(*) FROM sys_user WHERE user_name = $1';
-            const result = await client.query(query, [username]);
-            resolve(result.rows[0].count > 1); 
-            console.log("🚀 ~ returnnewPromise ~ result:", result.rows[0].count > 1)
+            const query = 'SELECT * FROM sys_user WHERE user_name = $1';
+            const rows = await client.query(query, [username]);
+            resolve(rows.rows.length > 0);
+            console.log("🚀 ~ returnnewPromise ~ result:", rows.rows.length > 0);
 
         } catch (error) {
             reject(error);
