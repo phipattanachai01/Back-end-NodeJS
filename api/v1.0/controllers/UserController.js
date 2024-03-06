@@ -197,6 +197,7 @@ const deleteuse = async function (req, res) {
     }
 };
 
+
 const changePasswordByuser = async function (req, res) {
     let hashPass = await hashPassword({ password: req.body.user_password });
     console.log(hashPass);
@@ -222,6 +223,7 @@ const changePasswordByuser = async function (req, res) {
         });
     }
 };
+// UserStatus
 const disableuser = async function (req, res) {
     try {
         if (!req.body.user_id || !req.body.user_status) {
