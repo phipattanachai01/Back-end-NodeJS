@@ -5,7 +5,7 @@ const CompanyController = require('../controllers/CompanyController');
 router.post('/create',CompanyController.listByCompany);
 router.post('/edit/:companyId', CompanyController.editByCompany);
 router.post('/view', CompanyController.datalist);
-router.post('/delete', CompanyController.deleteByCompany);
+router.post('/delete/:companyId', CompanyController.deleteByCompany);
 router.post('/main', CompanyController.mainByCompany);
 router.post('/status', CompanyController.StatusCompany);
 module.exports = router;

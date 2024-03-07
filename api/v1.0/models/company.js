@@ -59,13 +59,13 @@ const DatalistByCompany = function () {
     });
 };
 
-const DeleteCompany = function (data) {
+const DeleteCompany = function (companyId) {
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {
             var sqlQuery = 'DELETE FROM sys_company WHERE company_id = $1';
             console.log();
-            let rows = await client.query(sqlQuery, data);
+            let rows = await client.query(sqlQuery, [companyId]);
             resolve(rows.rows);
         } catch (error) {
             reject(error);
@@ -75,6 +75,25 @@ const DeleteCompany = function (data) {
         }
     });
 };
+
+const ReorganizeCompanyIDs = function (companyId) {
+ return new Promise(async (resolve, reject) => {
+    const client = await connection.connect();
+    try {
+         var sqlQuery = `UPDATE sys_company SET company_id = company_id - 1 WHERE company_id > $1`;
+         var rows = await client.query(sqlQuery, [companyId]);
+         await client.query(
+             "SELECT setval('sys_company_seq', COALESCE((SELECT MAX(company_id) FROM sys_company), 0))"
+         );
+         resolve(rows.rows);
+    } catch (error) {
+        reject(error);
+        console.log(error);
+    } finally {
+        client.release();
+    }
+ })
+}
 
 const MainCompany = function () {
     return new Promise(async (resolve, reject) => {
@@ -109,4 +128,4 @@ const updateCompanyStatus = async function (params) {
 };
 
 
-module.exports = { CreateCompany, updateCompany, DatalistByCompany, DeleteCompany, MainCompany, updateCompanyStatus };
+module.exports = { CreateCompany, updateCompany, DatalistByCompany, DeleteCompany, MainCompany, updateCompanyStatus , ReorganizeCompanyIDs};

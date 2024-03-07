@@ -105,7 +105,7 @@ const ReorganizeIssueIDs = function (issueId) {
             var sqlQuery = `UPDATE sys_issue SET issue_id = issue_id - 1 WHERE issue_id > $1`;
             let rows = await client.query(sqlQuery, [issueId]);
             await client.query("SELECT setval('set_issue_seq', COALESCE((SELECT MAX(issue_id) FROM sys_issue), 0))");
-            resolve(rows.rows);
+            resolve(rows.rows); 
         } catch (error) {
             reject(error);
             console.log(error);

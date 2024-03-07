@@ -84,13 +84,14 @@ const datalist = async function (req, res) {
 };
 
 const deleteByCompany = async function (req, res) {
-    let data = [req.body.company_id];
+    let companyId = req.params.companyId;
     try {
-        await CreateCompany.DeleteCompany(data);
+        await CreateCompany.DeleteCompany(companyId);
+        await CreateCompany.ReorganizeCompanyIDs(companyId);
         return res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
             message: rescode.c1000.description,
-            data: { ID: data },
+            data: { ID: companyId },
         });
     } catch (error) {
         res.status(rescode.c5001.httpStatusCode).json({
