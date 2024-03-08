@@ -200,9 +200,25 @@ const statusTeam = function (params) {
     });
 }
 
+const checkByTeam = function (CheckTeam) {
+    console.log('🚀 ~ checkEmailByContact ~ contactemail:', CheckTeam);
+    return new Promise(async (resolve, reject) => {
+        const client = await connection.connect();
+        try {
+            var sqlQuery = `SELECT * FROM set_team WHERE team_name = $1`;
+            let rows = await client.query(sqlQuery, [CheckTeam]);
+            resolve(rows.rows.length > 0);
+        } catch (error) {
+            reject(error);
+            console.log(error);
+        } finally {
+            client.release();
+        }
+    });
+};
 
 
 
-module.exports = { MainTeam, Addteam, EditTeam, DeleteTeam , ReorganizeTeamIDs, statusTeam};
+module.exports = { MainTeam, Addteam, EditTeam, DeleteTeam , ReorganizeTeamIDs, statusTeam, checkByTeam};
 
 

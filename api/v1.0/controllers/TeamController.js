@@ -151,7 +151,27 @@ const disableTeam =  async function (req, res) {
         })
 
     }
-}
+};
 
-module.exports = { MainTeamUser, AddTeamUser, EditTeamUser, DeleteTeamUser , disableTeam};
+const checkTeam = async function (req, res)  {
+    try {
+        const CheckTeam = req.body.team_name;
+        console.log("🚀 ~ checkUsername ~ username:", CheckTeam)
+        const existingTeam = await Team.checkByTeam(CheckTeam);
+        if (existingTeam) {
+            return res.status(400).json({ message: 'มีผู้ใช้งานชื่อนี้แล้ว' });
+        } else {
+            return res.status(200).json({ message: 'ชื่อผู้ใช้งานสามารถใช้งานได้' });
+        }
+    } catch (error) {
+        res.status(rescode.c5001.httpStatusCode).json({
+            code: rescode.c5001.businessCode,
+            message: rescode.c5001.description,
+            error: rescode.c5001.error,
+            timeReq: dateTimeFormater(new Date(), 'x'),
+        });
+    }
+};
+
+module.exports = { MainTeamUser, AddTeamUser, EditTeamUser, DeleteTeamUser , disableTeam, checkTeam};
 
