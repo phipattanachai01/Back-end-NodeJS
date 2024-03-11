@@ -38,19 +38,18 @@ const AddTeamUser = async function (req, res) {
     let formattedDateTime = dateTimeFormater(new Date(), 'yyyy-MM-DD HH:mm:ss');
 
     try {
-        const { teamName, userFirstNames } = req.body;
+        const data = [req.body.team_name, req.body.user_firstname]
 
-        if (!teamName || !userFirstNames || !Array.isArray(userFirstNames)) {
-            return res.status(rescode.c4000.httpStatusCode).json({
-                code: rescode.c4000.businessCode,
-                message: rescode.c4000.description,
-                error: rescode.c4000.error,
+        if (!req.body.team_name || !req.body.user_firstname || !Array.isArray(req.body.user_firstname)) {
+            return res.status(rescode.c5001.httpStatusCode).json({
+                code: rescode.c5001.businessCode,
+                message: rescode.c5001.description,
                 timeReq: dateTimeFormater(new Date(), 'x'),
                 catch: 'Invalid request body',
             });
         }
 
-        const result = await Team.Addteam({ teamName, userFirstNames, formattedDateTime});
+        const result = await Team.Addteam(data, formattedDateTime);
 
         res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,

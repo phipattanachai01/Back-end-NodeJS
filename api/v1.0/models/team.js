@@ -58,8 +58,9 @@ const MainTeam = function () {
 //         }
 //     });
 // };
-const Addteam = function (data) {
-    // console.log("🚀 ~ Addteam ~ data:", [data.teamName, data]);
+const Addteam = function (data , formattedDateTime) {
+    console.log("🚀 ~ Addteam ~ data:", data)
+    console.log("🚀 ~ Addteam ~ data:", [formattedDateTime]);
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {
@@ -69,15 +70,16 @@ const Addteam = function (data) {
                 INSERT INTO set_team (team_name, team_createdate, team_status) 
                 VALUES ($1, $2, 1) 
                 RETURNING team_id`;
-            const teamResult = await client.query(teamInsertQuery, [data.teamName, data.formattedDateTime]);
+            const teamResult = await client.query(teamInsertQuery, [data[0], formattedDateTime]);
             const teamId = teamResult.rows[0].team_id;
+            console.log("🚀 ~ returnnewPromise ~ teamId:", teamId)
 
             const userInsertQuery = `
                 INSERT INTO set_team_user (team_user_teamid, team_user_userid, team_user_createdate)
                 SELECT $1, user_id, $2 
                 FROM sys_user
                 WHERE user_firstname = ANY($3)`;
-            await client.query(userInsertQuery, [teamId, data.formattedDateTime, data.userFirstNames]);
+            await client.query(userInsertQuery, [teamId, formattedDateTime, data[1]]);
 
             await client.query('COMMIT');
 
