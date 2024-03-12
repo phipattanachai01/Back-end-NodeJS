@@ -115,4 +115,39 @@ const ReorganizeIssueIDs = function (issueId) {
     });
 };
 
-module.exports = { main, addIssue, updateIssue, deleteIssue, ReorganizeIssueIDs };
+
+const Priority = function () {
+    return new Promise(async (resolve, reject) => {
+        const client = await connection.connect();
+        try {
+            let sqlQuery = `SELECT * FROM sys_priority ORDER BY priority_id`;
+            let rows = await client.query(sqlQuery);
+            console.log(rows.rows);
+            resolve(rows.rows);
+        } catch (error) {
+            reject(error);
+            console.log(error);
+        } finally {
+            client.release();
+        }
+    });
+};
+
+
+const typesDate = function () {
+    return new Promise(async (resolve, reject) => {
+        const client = await connection.connect();
+        try {
+            let sqlQuery = `SELECT * FROM set_issue_type ORDER BY issue_type_id`;
+            let rows = await client.query(sqlQuery);
+            console.log(rows.rows);
+            resolve(rows.rows);
+        } catch (error) {
+            reject(error);
+            console.log(error);
+        } finally {
+            client.release();
+        }
+    });
+};
+module.exports = { main, addIssue, updateIssue, deleteIssue, ReorganizeIssueIDs , Priority, typesDate};

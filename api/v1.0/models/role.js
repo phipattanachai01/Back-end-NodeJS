@@ -93,7 +93,7 @@ const Addrole = function (data, formattedDateTime) {
         try {
             await client.query('BEGIN');
 
-            let roleQuery = `INSERT INTO sys_role (role_name, role_status, role_createdate) VALUES ($1, 1, $2) RETURNING role_id`;
+            let roleQuery = `INSERT INTO sys_role (role_name, role_status, role_delete, role_createdate) VALUES ($1, 1, 0, $2) RETURNING role_id`;
             let roleParams = [data.role_name, formattedDateTime];
             const roleResult = await client.query(roleQuery, roleParams);
             const roleId = roleResult.rows[0].role_id;

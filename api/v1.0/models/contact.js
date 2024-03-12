@@ -7,10 +7,10 @@ const AddContact = function (data, formattedDateTime) {
         try {
             await client.query('BEGIN');
             const sqlQuery = `
-                INSERT INTO sys_company_contact 
+                INSERT INTO company_contact 
                 (contact_companyid, contact_fullname, contact_nickname, contact_email, contact_phone, 
-                    contact_about, contact_createdate)
-                VALUES ($1, $2, $3, $4, $5, $6, $7)
+                    contact_about, contact_createdate, contact_delete)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, 0)
                 `;
             const rows = await client.query(sqlQuery, [...Object.values(data), formattedDateTime]);
             await client.query('COMMIT');
@@ -30,16 +30,16 @@ const DatalistByContact = function () {
         const client = await connection.connect();
         try {
             var sqlQuery = `SELECT 
-            sys_company_contact.contact_id,
-            sys_company_contact.contact_nickname, 
-            sys_company.company_shortname, 
-            sys_company_contact.contact_email, 
-            sys_company_contact.contact_phone 
+            company_contact.contact_id,
+            company_contact.contact_nickname, 
+            company.company_shortname, 
+            company_contact.contact_email, 
+            company_contact.contact_phone 
             FROM 
-            sys_company_contact
+            company_contact
             JOIN 
-            sys_company ON sys_company_contact.contact_companyid = sys_company.company_id
-            ORDER BY sys_company_contact.contact_id`;
+            company ON company_contact.contact_companyid = company.company_id
+            ORDER BY company_contact.contact_id`;
             let rows = await client.query(sqlQuery);
             resolve(rows.rows);
         } catch (error) {
@@ -130,7 +130,7 @@ const EditByContact = function (data, formattedDateTime) {
             // const about = data[5];
             // console.log("🚀 ~ returnnewPromise ~ about:", about)
             const sqlQuery = `
-                UPDATE sys_company_contact 
+                UPDATE company_contact 
                 SET contact_fullname = $1,
                     contact_nickname = $2,
                     contact_email = $3,
@@ -174,10 +174,10 @@ const DeleteByContact = function (contactId) {
         try {
             await client.query('BEGIN');
 
-            var deleteQuery = 'DELETE FROM sys_company_contact WHERE contact_id = $1';
+            var deleteQuery = 'DELETE FROM company_contact WHERE contact_id = $1';
             await client.query(deleteQuery, [contactId]);
 
-            var updateQuery = 'UPDATE sys_company_contact SET contact_id = contact_id - 1 WHERE contact_id > $1';
+            var updateQuery = 'UPDATE company_contact SET contact_id = contact_id - 1 WHERE contact_id > $1';
             await client.query(updateQuery, [contactId]);
 
             await client.query('COMMIT');
@@ -198,10 +198,10 @@ const ReorganizeContactIDs = function (contactId) {
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {
-            var sqlQuery = `UPDATE sys_company_contact SET contact_id = contact_id - 1 WHERE contact_id > $1`;
+            var sqlQuery = `UPDATE company_contact SET contact_id = contact_id - 1 WHERE contact_id > $1`;
             var rows = await client.query(sqlQuery, [contactId]);
             await client.query(
-                "SELECT setval('sys_company_contact_seq', COALESCE((SELECT MAX(contact_id) FROM sys_company_contact), 0))"
+                "SELECT setval('company_contact_seq', COALESCE((SELECT MAX(contact_id) FROM company_contact), 0))"
             );
             resolve(rows.rows);
         } catch (error) {
@@ -218,7 +218,7 @@ const checkEmailByContact = function (contactemail) {
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {
-            var sqlQuery = `SELECT * FROM sys_company_contact WHERE contact_email = $1`;
+            var sqlQuery = `SELECT * FROM company_contact WHERE contact_email = $1`;
             let rows = await client.query(sqlQuery, [contactemail]);
             resolve(rows.rows.length > 0);
         } catch (error) {

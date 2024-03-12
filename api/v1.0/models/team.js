@@ -58,28 +58,65 @@ const MainTeam = function () {
 //         }
 //     });
 // };
+// const Addteam = function (data , formattedDateTime) {
+//     console.log("🚀 ~ Addteam ~ data:", data)
+//     console.log("🚀 ~ Addteam ~ data:", data[1])
+//     // console.log("🚀 ~ Addteam ~ data:", [formattedDateTime]);
+//     return new Promise(async (resolve, reject) => {
+//         const client = await connection.connect();
+//         try {
+//             await client.query('BEGIN');
+
+//             const teamInsertQuery = `
+//                 INSERT INTO set_team (team_name, team_createdate, team_status, team_delete) 
+//                 VALUES ($1, $2, 1, 0) 
+//                 RETURNING team_id`;
+//             const teamResult = await client.query(teamInsertQuery, [data[0], formattedDateTime]);
+//             const teamId = teamResult.rows[0].team_id;
+//             console.log("🚀 ~ returnnewPromise ~ teamId:", teamId)
+
+//             const userInsertQuery = `
+//                 INSERT INTO set_team_user (team_user_teamid, team_user_userid, team_user_createdate)
+//                 SELECT $1, unnest($2::int[]), $3`;
+//             await client.query(userInsertQuery, [teamId, data[1] , formattedDateTime]);
+
+//             await client.query('COMMIT');
+
+//             resolve({ teamId });
+//         } catch (error) {
+//             await client.query('ROLLBACK');
+//             reject(error);
+//             console.error(error);
+//         } finally {
+//             client.release();
+//         }
+//     });
+// };
+
 const Addteam = function (data , formattedDateTime) {
     console.log("🚀 ~ Addteam ~ data:", data)
-    console.log("🚀 ~ Addteam ~ data:", [formattedDateTime]);
+    console.log("🚀 ~ Addteam ~ data:", data[1])
+    // console.log("🚀 ~ Addteam ~ data:", [formattedDateTime]);
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {
             await client.query('BEGIN');
 
             const teamInsertQuery = `
-                INSERT INTO set_team (team_name, team_createdate, team_status) 
-                VALUES ($1, $2, 1) 
+                INSERT INTO set_team (team_name, team_createdate, team_status, team_delete) 
+                VALUES ($1, $2, 1, 0) 
                 RETURNING team_id`;
             const teamResult = await client.query(teamInsertQuery, [data[0], formattedDateTime]);
             const teamId = teamResult.rows[0].team_id;
             console.log("🚀 ~ returnnewPromise ~ teamId:", teamId)
 
-            const userInsertQuery = `
-                INSERT INTO set_team_user (team_user_teamid, team_user_userid, team_user_createdate)
-                SELECT $1, user_id, $2 
-                FROM sys_user
-                WHERE user_firstname = ANY($3)`;
-            await client.query(userInsertQuery, [teamId, formattedDateTime, data[1]]);
+            // Check if user_firstname is provided before inserting user data
+            if (data[1] && data[1].length > 0) {
+                const userInsertQuery = `
+                    INSERT INTO set_team_user (team_user_teamid, team_user_userid, team_user_createdate)
+                    SELECT $1, unnest($2::int[]), $3`;
+                await client.query(userInsertQuery, [teamId, data[1], formattedDateTime]);
+            }
 
             await client.query('COMMIT');
 
@@ -93,7 +130,6 @@ const Addteam = function (data , formattedDateTime) {
         }
     });
 };
-
 
 const EditTeam = function (data, teamId, formattedDateTime) {
     // console.log("🚀 ~ EditTeam ~ teamId:", teamId)

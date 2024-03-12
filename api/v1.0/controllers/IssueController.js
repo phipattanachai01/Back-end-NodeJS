@@ -135,8 +135,55 @@ const DeleteIssue = async function (req, res) {
             timeReq: dateTimeFormater(new Date(), 'x'),
         });
     }
-}
+};
 
-module.exports = {MainIssue, AddIssue, UpdateIssue, DeleteIssue };
+const ListPriority = async function (req, res) {
+    try {
+       var data = await Issue.Priority();
+       console.log("🚀 ~ MainIssue ~ data:", data)
+       res.status(rescode.c1000.httpStatusCode).json({
+           code: rescode.c1000.businessCode,
+           message: rescode.c1000.description,
+           error: rescode.c1000.error,
+           timeReq: dateTimeFormater(new Date(), 'HH:mm:ss'),
+           data: data
+       });
+    } catch (error) {
+       res.status(rescode.c5001.httpStatusCode).json({
+           code: rescode.c5001.businessCode,
+           message: rescode.c5001.description,
+           error: rescode.c5001.error,
+           timeReq: dateTimeFormater(new Date(), 'x'),
+           catch: error.message,
+       });
+       return false;
+    }
+   };
+
+
+   const ListTypesDate = async function (req, res) {
+    try {
+       var data = await Issue.typesDate();
+       console.log("🚀 ~ MainIssue ~ data:", data)
+       res.status(rescode.c1000.httpStatusCode).json({
+           code: rescode.c1000.businessCode,
+           message: rescode.c1000.description,
+           error: rescode.c1000.error,
+           timeReq: dateTimeFormater(new Date(), 'HH:mm:ss'),
+           data: data
+       });
+    } catch (error) {
+       res.status(rescode.c5001.httpStatusCode).json({
+           code: rescode.c5001.businessCode,
+           message: rescode.c5001.description,
+           error: rescode.c5001.error,
+           timeReq: dateTimeFormater(new Date(), 'x'),
+           catch: error.message,
+       });
+       return false;
+    }
+   };
+
+module.exports = {MainIssue, AddIssue, UpdateIssue, DeleteIssue ,ListPriority, ListTypesDate};
 
 

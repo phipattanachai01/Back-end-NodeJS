@@ -123,13 +123,13 @@ const validateEmail = email => {
 };
 function label(tableName) {
     switch (tableName) {
-        case 'sys_company':
+        case 'company':
             return 'Partner register';
         case 'sys_user_status_1':
             return 'Active';
         case 'sys_user_status_0':
             return 'Inactive';
-        case 'sys_company_contact':
+        case 'company_contact':
             return 'Contact user';
         default:
             return '';

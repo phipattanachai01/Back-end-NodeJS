@@ -34,20 +34,47 @@ const MainTeamUser = async function (req, res) {
     }
 };
 
+// const AddTeamUser = async function (req, res) {
+//     let formattedDateTime = dateTimeFormater(new Date(), 'yyyy-MM-DD HH:mm:ss');
+
+//     try {
+//         const data = [req.body.team_name, req.body.user_id]
+
+//         // if (!req.body.team_name || !req.body.user_firstname || !Array.isArray(req.body.user_firstname)) {
+//         //     return res.status(rescode.c5001.httpStatusCode).json({
+//         //         code: rescode.c5001.businessCode,
+//         //         message: rescode.c5001.description,
+//         //         timeReq: dateTimeFormater(new Date(), 'x'),
+//         //         catch: 'Invalid request body',
+//         //     });
+//         // }
+
+//         const result = await Team.Addteam(data, formattedDateTime);
+
+//         res.status(rescode.c1000.httpStatusCode).json({
+//             code: rescode.c1000.businessCode,
+//             message: rescode.c1000.description,
+//             error: rescode.c1000.error,
+//             timeReq: dateTimeFormater(new Date(), 'x'),
+//             data: result,
+//         });
+//     } catch (error) {
+//         res.status(rescode.c5001.httpStatusCode).json({
+//             code: rescode.c5001.businessCode,
+//             message: rescode.c5001.description,
+//             error: rescode.c5001.error,
+//             timeReq: dateTimeFormater(new Date(), 'x'),
+//             catch: error.message,
+//         });
+//     }
+// };
+
 const AddTeamUser = async function (req, res) {
     let formattedDateTime = dateTimeFormater(new Date(), 'yyyy-MM-DD HH:mm:ss');
 
     try {
-        const data = [req.body.team_name, req.body.user_firstname]
-
-        if (!req.body.team_name || !req.body.user_firstname || !Array.isArray(req.body.user_firstname)) {
-            return res.status(rescode.c5001.httpStatusCode).json({
-                code: rescode.c5001.businessCode,
-                message: rescode.c5001.description,
-                timeReq: dateTimeFormater(new Date(), 'x'),
-                catch: 'Invalid request body',
-            });
-        }
+        const data = [req.body.team_name, req.body.user_id]
+        console.log("🚀 ~ AddTeamUser ~ data:", data)
 
         const result = await Team.Addteam(data, formattedDateTime);
 

@@ -7,7 +7,7 @@ const DashboardUser = async function (req, res) {
 
     try {
         var data = await Dashboard.ListDashboard(dashboard);
-        // console.log("🚀 ~ DashboardUser ~ data:", data)
+        console.log("🚀 ~ DashboardUser ~ data:", data)
 
         var resultItems = data.map(item => ({
             label: label(item.table_name),
@@ -30,7 +30,7 @@ const DashboardUser = async function (req, res) {
             timeReq: dateTimeFormater(new Date(), 'x'),
             data: resultItems,
         });
-            // console.log("🚀 ~ res.status ~ resultItems:", resultItems)
+            console.log("🚀 ~ res.status ~ resultItems:", resultItems)
     } catch (error) {
         res.status(rescode.c5001.httpStatusCode).json({
             code: rescode.c5001.businessCode,
