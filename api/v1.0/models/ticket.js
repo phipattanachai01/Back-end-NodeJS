@@ -1,25 +1,14 @@
 const { connection } = require('../../../connection');
 
-const addTicket = function () {
+const addTicket = function (params) {
     return new Promise(async (resolve, reject) => {
         client = await connection.connect();
         try {
             await client.query('BEGIN');
 
-            let sqlQuery = `INSERT INTO sys_ticket (ticket_typeid, ticket_title, ticket_issueid, ticket_tag, ticket_companyid, ticket_company_contactid, ticket_cc, ticket_teamid, ticket_userid, ticket_details)
-            SELECT 
-                (SELECT type_id FROM sys_type WHERE type_name = $1), 
-                $2,
-                (SELECT issue_id FROM sys_issue WHERE issue_name = $3),
-                (SELECT tag_id FROM sys_tags WHERE tag_name = $4),
-                (SELECT company_id FROM sys_company WHERE company_fullname = $5),
-                (SELECT contact_id FROM sys_company_contact WHERE contact_fullname = $6),
-                $7,
-                (SELECT team_id FROM set_team WHERE team_name = $8),
-                1,
-                $9;
-            `;
-            let rows = client.query(sqlQuery)
+            let sqlQuery = `INSERT INTO ticket (ticket_code, ticket_orderdate, ticket_notification_status, ticket_statusid, ticket_type, ticket_title, ticket_issueid, ticket_companyid, ticket_company_contactid, ticket_cc, ticket_teamid, ticket_userid, ticket_details, ticket_delete, ticket_createdate)
+            VALUES ($1, $2, $3, 1, $4, $5, $6, $7, $8, $9, $10, $11, $12, 0, $13)`;
+            let rows = client.query(sqlQuery, params);
             await client.query('COMMIT');
             resolve(rows.rows);
         } catch (error) {
@@ -31,9 +20,17 @@ const addTicket = function () {
         }
     });
 };
+async function getLatestTicketCodeNumberFromDatabase() {
+    const client = await connection.connect();
+    try {
+        const queryResult = await client.query('SELECT MAX(CAST(SUBSTRING(ticket_code, 10) AS INTEGER)) AS max_ticket_code_number FROM ticket');
+        const maxTicketCodeNumber = queryResult.rows[0].max_ticket_code_number || 0;
+        return maxTicketCodeNumber;
+    } catch (error) {
+        throw error;
+    }
+};
 
 
 
- 
-
-module.exports = {addTicket}
+module.exports = { addTicket , getLatestTicketCodeNumberFromDatabase};

@@ -2,7 +2,7 @@
 // var differenceInDays = require('date-fns/differenceInDays');
 // var localeTH = require('date-fns/locale/th');
 // var { addYears } = require('date-fns');
-
+const { getLatestTicketCodeNumberFromDatabase } = require('../models/ticket')
 const Moment = require('moment');
 const MomentRange = require('moment-range');
 const moment = MomentRange.extendMoment(Moment);
@@ -136,6 +136,31 @@ function label(tableName) {
     }
 };
 
+function generateTicketCode() {
+    let currentDate = new Date();
+    let year = currentDate.getFullYear();
+    let month = ('0' + (currentDate.getMonth() + 1)).slice(-2);
+    let day = ('0' + currentDate.getDate()).slice(-2);
+
+    let formattedDateTime = `${year}${month}${day}`; 
+    let latestTicketCodeNumber =  getLatestTicketCodeNumberFromDatabase(); 
+    getLatestTicketCodeNumberFromDatabase().then(async (latestTicketCodeNumber) => {
+        let paddedNumber = String(latestTicketCodeNumber + 1).padStart(3, '0'); 
+        let formattedDateTime = dateTimeFormater(new Date(), 'yyyyMMdd'); 
+        let ticketCode = `T${formattedDateTime}-${paddedNumber}`;
+        console.log(ticketCode); 
+    }).catch((error) => {
+        console.error(error); 
+    });
+    
+    let paddedNumber = String(latestTicketCodeNumber + 1).padStart(3, '0'); 
+    let ticketCode = `T${formattedDateTime}-${paddedNumber}`;
+    return ticketCode;
+}
+
+
+
+
 
 // const loggedInUsers = {user};
 // function checkLogin(req, res, next) {
@@ -165,4 +190,5 @@ module.exports = {
     keysToSnake,
     getMenuName,
     label,
+    generateTicketCode
     };
