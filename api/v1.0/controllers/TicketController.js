@@ -10,12 +10,13 @@ const CreateTicket = async function (req, res) {
     console.log("🚀 ~ CreateTicket ~ ticketCode:", ticketCode)
 
     try {
-        var params = [req.body.ticket_code,
+        var params = [
             formattedOrderDateTime, 
             req.body.ticket_notification_status,
             req.body.ticket_type,
             req.body.ticket_title,
             req.body.ticket_issueid,
+            req.body.ticket_tagid,
             req.body.ticket_companyid,
             req.body.ticket_company_contactid,
             req.body.ticket_cc,
@@ -32,7 +33,7 @@ const CreateTicket = async function (req, res) {
             message: rescode.c1000.description,
             error: rescode.c1000.error,
             timeReq: dateTimeFormater(new Date(), 'HH:mm:ss'),
-            data: data
+            data: params
         });
     } catch (error) {
         res.status(rescode.c5001.httpStatusCode).json({
@@ -47,4 +48,25 @@ const CreateTicket = async function (req, res) {
 
 };
 
-module.exports = { CreateTicket}
+const CompanyTicket = async function (req, res) {
+    try {
+        var DataList = await Ticket.DataCompany();
+        res.status(rescode.c1000.httpStatusCode).json({
+            code: rescode.c1000.businessCode,
+            message: rescode.c1000.description,
+            data: DataList,
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(rescode.c5001.httpStatusCode).json({
+            code: rescode.c5001.businessCode,
+            message: rescode.c5001.description,
+            error: rescode.c5001.error,
+            timeReq: dateTimeFormater(new Date(), 'x'),
+            catch: error.message,
+        });
+    }
+};
+
+
+module.exports = { CreateTicket , CompanyTicket}
