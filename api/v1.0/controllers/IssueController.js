@@ -184,6 +184,30 @@ const ListPriority = async function (req, res) {
     }
    };
 
-module.exports = {MainIssue, AddIssue, UpdateIssue, DeleteIssue ,ListPriority, ListTypesDate};
+   const CheckIssueName = async function (req, res) {
+    let issueName = req.body.issue_name;
+    try {
+        var existingIssue = await Issue.checkIssue(issueName);
+        console.log("🚀 ~ CheckIssueName ~ existingIssue:", existingIssue)
+        if(existingIssue) {
+            return res.status(400).json({ message: 'มีผู้ใช้งานชื่อนี้แล้ว' });
+        } else {
+            return res.status(200).json({ message: 'ชื่อผู้ใช้งานสามารถใช้งานได้' });
+        }
+        
+    } catch (error) {
+        console.log(error);
+        return res.status(rescode.c5001.httpStatusCode).json({
+            code: rescode.c5001.businessCode,
+            message: rescode.c5001.description,
+            error: rescode.c5001.error,
+            timeReq: dateTimeFormater(new Date(), 'x'),
+            catch: error.message,
+        });
+    }
+}
+
+
+module.exports = {MainIssue, AddIssue, UpdateIssue, DeleteIssue ,ListPriority, ListTypesDate, CheckIssueName};
 
 

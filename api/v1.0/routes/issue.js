@@ -8,5 +8,7 @@ router.post('/update/:IssueId',IssueController.UpdateIssue);
 router.post('/delete/:IssueId',IssueController.DeleteIssue);
 router.post('/priority',IssueController.ListPriority);
 router.post('/types-date',IssueController.ListTypesDate);
+router.post('/check-issuename',IssueController.CheckIssueName);
+
 
 module.exports = router;

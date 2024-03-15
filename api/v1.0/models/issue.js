@@ -143,4 +143,19 @@ const typesDate = function () {
         }
     });
 };
-module.exports = { main, addIssue, updateIssue, deleteIssue, ReorganizeIssueIDs , Priority, typesDate};
+
+const checkIssue = async function (issueName) {
+    return new Promise(async (resolve, reject) => {
+        const client = await connection.connect();
+        try {
+            let sqlQuery = `SELECT * FROM set_issue WHERE issue_name = $1`;
+            let rows = await client.query(sqlQuery, [issueName]);
+            resolve(rows.rows.length > 0);
+        } catch (error) {
+            reject(error);
+        } finally {
+            client.release();
+        }
+    })
+}
+module.exports = { main, addIssue, updateIssue, deleteIssue, ReorganizeIssueIDs , Priority, typesDate , checkIssue};
