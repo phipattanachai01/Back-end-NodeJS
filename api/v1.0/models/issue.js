@@ -17,7 +17,7 @@ const main = function () {
     });
 };
 const addIssue = function (params) {
-    console.log("🚀 ~ addIssue ~ params:", params)
+    // console.log("🚀 ~ addIssue ~ params:", params)
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {

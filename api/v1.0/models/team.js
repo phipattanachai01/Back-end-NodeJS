@@ -1,11 +1,12 @@
 var { connection } = require('../../../connection');
-
+const { generateTeamCode } = require('../middleware/formatConverter') 
 const MainTeam = function () {
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {
             var sqlQuery = `SELECT 
-            set_team.team_id AS teamId,
+            set_team.team_id AS team_id,
+            set_team.team_code AS team_code,
             set_team.team_name,
             COALESCE(STRING_AGG(sys_user.user_firstname, ', '), '0') AS user_firstname,
             COUNT(set_team_user.team_user_userid) AS number_of_people
@@ -30,83 +31,24 @@ const MainTeam = function () {
     });
 };
 
-// const Addteam = function (data) {
-//     console.log("🚀 ~ Addteam ~ data:", [data.teamName, data.formattedDateTime])
-//     return new Promise(async (resolve, reject) => {
-//         const client = await connection.connect();
-//         try {
-//             // const { teamName, userFirstNames , formattedDateTime } = data;
-//             const teamInsertQuery = `INSERT INTO set_team (team_name , team_createdate) VALUES ($1,$2) RETURNING team_id`;
-//             const teamResult = await client.query(teamInsertQuery, [data.teamName, data.formattedDateTime]);
-//             console.log("🚀 ~ returnnewPromise ~ teamResult:", teamResult)
-//             const teamId = teamResult.rows[0].team_id;
-//             console.log("🚀 ~ returnnewPromise ~ teamId:", teamId)
-            
-//             const userInsertQuery = `
-//         INSERT INTO set_team_user (team_user_teamid, team_user_userid, team_user_createdate)
-//         SELECT $1, user_id, $2
-//         FROM sys_user
-//         WHERE user_firstname = ANY($3)`;
-//         await client.query(userInsertQuery, [teamId, data.formattedDateTime, data.userFirstNames]);
-
-//             resolve({ teamId });
-//         } catch (error) {
-//             reject(error);
-//             console.log(error);
-//         } finally {
-//             client.release();
-//         }
-//     });
-// };
-// const Addteam = function (data , formattedDateTime) {
-//     console.log("🚀 ~ Addteam ~ data:", data)
-//     console.log("🚀 ~ Addteam ~ data:", data[1])
-//     // console.log("🚀 ~ Addteam ~ data:", [formattedDateTime]);
-//     return new Promise(async (resolve, reject) => {
-//         const client = await connection.connect();
-//         try {
-//             await client.query('BEGIN');
-
-//             const teamInsertQuery = `
-//                 INSERT INTO set_team (team_name, team_createdate, team_status, team_delete) 
-//                 VALUES ($1, $2, 1, 0) 
-//                 RETURNING team_id`;
-//             const teamResult = await client.query(teamInsertQuery, [data[0], formattedDateTime]);
-//             const teamId = teamResult.rows[0].team_id;
-//             console.log("🚀 ~ returnnewPromise ~ teamId:", teamId)
-
-//             const userInsertQuery = `
-//                 INSERT INTO set_team_user (team_user_teamid, team_user_userid, team_user_createdate)
-//                 SELECT $1, unnest($2::int[]), $3`;
-//             await client.query(userInsertQuery, [teamId, data[1] , formattedDateTime]);
-
-//             await client.query('COMMIT');
-
-//             resolve({ teamId });
-//         } catch (error) {
-//             await client.query('ROLLBACK');
-//             reject(error);
-//             console.error(error);
-//         } finally {
-//             client.release();
-//         }
-//     });
-// };
-
 const Addteam = function (data , formattedDateTime) {
-    console.log("🚀 ~ Addteam ~ data:", data)
-    console.log("🚀 ~ Addteam ~ data:", data[1])
-    // console.log("🚀 ~ Addteam ~ data:", [formattedDateTime]);
+
+
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {
             await client.query('BEGIN');
 
+            const maxTeamCodeNumber = await getLatesetTeamcodeNumberFromDatabase(client);
+            console.log("🚀 ~ returnnewPromise ~ maxTeamCodeNumber:", maxTeamCodeNumber)
+            const teamCode = generateTeamCode(maxTeamCodeNumber); 
+            console.log("🚀 ~ returnnewPromise ~ teamCode:", teamCode)
+
             const teamInsertQuery = `
-                INSERT INTO set_team (team_name, team_createdate, team_status, team_delete) 
-                VALUES ($1, $2, 1, 0) 
+                INSERT INTO set_team (team_code, team_name, team_createdate, team_status, team_delete) 
+                VALUES ($1, $2, $3, 1, 0) 
                 RETURNING team_id`;
-            const teamResult = await client.query(teamInsertQuery, [data[0], formattedDateTime]);
+            const teamResult = await client.query(teamInsertQuery, [teamCode, data[0], formattedDateTime]);
             const teamId = teamResult.rows[0].team_id;
             console.log("🚀 ~ returnnewPromise ~ teamId:", teamId)
 
@@ -254,6 +196,19 @@ const checkByTeam = function (CheckTeam) {
         }
     });
 };
+
+
+async function getLatesetTeamcodeNumberFromDatabase(client) {
+    try {
+        const queryResult = await client.query(
+            'SELECT MAX(CAST(SUBSTRING(team_code FROM 5) AS INTEGER)) AS max_team_code_number FROM set_team WHERE team_code <> \'\''
+        );
+        const maxTeamCodeNumber = queryResult.rows[0].max_team_code_number || 0;
+        return maxTeamCodeNumber;
+    } catch (error) {
+        throw error;
+    }
+}
 
 
 

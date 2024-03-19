@@ -7,7 +7,7 @@ const Issue = require('../models/issue');
 const MainIssue = async function (req, res) {
  try {
     var data = await Issue.main();
-    console.log("🚀 ~ MainIssue ~ data:", data)
+    // console.log("🚀 ~ MainIssue ~ data:", data)
     // var issuecreatedate = data.reduce((arr, tab) => {
     //     if (tab.issue_duedate === 60) {
     //         arr.push({label: 'ok'});
@@ -140,7 +140,7 @@ const DeleteIssue = async function (req, res) {
 const ListPriority = async function (req, res) {
     try {
        var data = await Issue.Priority();
-       console.log("🚀 ~ MainIssue ~ data:", data)
+    //    console.log("🚀 ~ MainIssue ~ data:", data)
        res.status(rescode.c1000.httpStatusCode).json({
            code: rescode.c1000.businessCode,
            message: rescode.c1000.description,
@@ -164,7 +164,7 @@ const ListPriority = async function (req, res) {
    const ListTypesDate = async function (req, res) {
     try {
        var data = await Issue.typesDate();
-       console.log("🚀 ~ MainIssue ~ data:", data)
+    //    console.log("🚀 ~ MainIssue ~ data:", data)
        res.status(rescode.c1000.httpStatusCode).json({
            code: rescode.c1000.businessCode,
            message: rescode.c1000.description,

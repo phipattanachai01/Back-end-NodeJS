@@ -9,7 +9,8 @@ const MainTeamUser = async function (req, res) {
         const result = await Team.MainTeam();
         // console.log('======>',result);
         const formattedData = result.map(item => ({
-            teamID: item.teamid,
+            team_id: item.team_id,
+            team_code: item.team_code,
             team_name: item.team_name,
             user_firstname: item.user_firstname,
             number_of_people: item.number_of_people,

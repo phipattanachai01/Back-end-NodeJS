@@ -115,7 +115,13 @@ function getMenuName(index) {
             return '';
     }
 }
+function convertDaysToMinutes(days) {
+    return moment.duration(days, 'days').asMinutes();
+}
 
+function convertHoursToMinutes(hours) {
+    return moment.duration(hours, 'hours').asMinutes();
+}
 const validateEmail = email => {
     return email.match(
         /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
@@ -136,27 +142,6 @@ function label(tableName) {
     }
 };
 
-// function generateTicketCode() {
-//     let currentDate = new Date();
-//     let year = currentDate.getFullYear();
-//     let month = ('0' + (currentDate.getMonth() + 1)).slice(-2);
-//     let day = ('0' + currentDate.getDate()).slice(-2);
-
-//     let formattedDateTime = `${year}${month}${day}`; 
-//     let latestTicketCodeNumber =  getLatestTicketCodeNumberFromDatabase(); 
-//     getLatestTicketCodeNumberFromDatabase().then(async (latestTicketCodeNumber) => {
-//         let paddedNumber = String(latestTicketCodeNumber + 1).padStart(3, '0'); 
-//         let formattedDateTime = dateTimeFormater(new Date(), 'yyyyMMdd'); 
-//         let ticketCode = `T${formattedDateTime}-${paddedNumber}`;
-//         console.log(ticketCode); 
-//     }).catch((error) => {
-//         console.error(error); 
-//     });
-    
-//     let paddedNumber = String(latestTicketCodeNumber + 1).padStart(3, '0'); 
-//     let ticketCode = `T${formattedDateTime}-${paddedNumber}`;
-//     return ticketCode;
-// }
 
 function generateTicketCode(maxTicketCodeNumber) {
     const currentDate = new Date();
@@ -170,24 +155,16 @@ function generateTicketCode(maxTicketCodeNumber) {
 }
 
 
+const generateTeamCode = (maxTeamCodeNumber) => {
+    const digits = 5; 
+    const prefix = 'TEAM'; 
+    const paddedNumber = String(maxTeamCodeNumber + 1).padStart(digits, '0'); 
+    return `${prefix}${paddedNumber}`; 
+};
 
 
-// const loggedInUsers = {user};
-// function checkLogin(req, res, next) {
-//     if (user_name && user_password && user_name === user_password) {
-//         next(); 
-//     } else {
-//         res.status(401).send('Invalid username or password');
-//     }
-// }
 
-// function addToLoggedInUsers(req, res, next) {
-//     // const { username, user_password } = req.body;
-//     if (user_name && user_password) {
-//         user[user_name] = user_password;
-//     }
-//     next();
-// }
+
 
 
 
@@ -196,10 +173,13 @@ module.exports = {
     dateTimeFormater,
     dateSubString,
     dateDiff,
+    convertDaysToMinutes,
+    convertHoursToMinutes,
     validateEmail,
     keysToSnake,
     getMenuName,
     label,
-    generateTicketCode
+    generateTicketCode,
+    generateTeamCode
     // generateTicketCode
     };
