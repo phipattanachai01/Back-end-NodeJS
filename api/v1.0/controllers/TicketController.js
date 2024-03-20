@@ -89,9 +89,10 @@ const CreateTicket = async function (req, res) {
             req.body.ticket_cc,
             req.body.ticket_teamid,
             req.body.ticket_userid,
-            req.body.ticket_detailid,
             formattedDateTime,
+            // req.body.detail_details,
         ];
+        console.log("🚀 ~ CreateTicket ~ params:", params)
         // console.log('🚀 ~ CreateTicket ~ params:', params);
         // console.log("🚀 ~ AddIssue ~ params:", params)
         var data = await Ticket.addTicket(params);
