@@ -156,13 +156,15 @@ const addTicket = async function (params) {
             ticket_tagid, ticket_companyid, ticket_company_contactid, 
             ticket_cc, ticket_teamid, ticket_userid, ticket_delete, 
             ticket_createdate)
-            VALUES ($1, $2, $3, 1, $4, $5, $6, $7, $8, $9, $10, $11, $12, 0, $13)
-            RETURNING ticket_id, ticket_userid, ticket_createdate`;
+            VALUES ($1, $2, $3, 1, $4, $5, $6, $7, $8, $9, $10, $11, unnest($12::int[], 0, $13)
+            RETURNING ticket_id, ticket_userid, ticket_statusid, ticket_createdate`;
 
             let ticketRows = await client.query(sqlQueryTicket, [newTicketCode, ...Object.values(params)]);
 
             let ticket_id = ticketRows.rows[0].ticket_id;
             console.log('🚀 ~ returnnewPromise ~ ticket_id:', ticket_id);
+
+            let ticket_statusid = ticketRows.rows[1].ticket_statusid;
 
             let ticket_userid = ticketRows.rows[0].ticket_userid;
             console.log("🚀 ~ returnnewPromise ~ ticket_userid:", ticket_userid)
@@ -177,12 +179,18 @@ const addTicket = async function (params) {
                     detail_details, detail_createdate
                 ) VALUES ($1, $2, 0, $3, $4)`;
                 let rowsTicketDetail = await client.query(sqlQueryTicketDetail, [
-                    ticket_userid,
+                    params.detail_userid,
                     ticket_id,
                     params.detail_details,
                     ticket_createdate,]);
+
+            let sqlQueryTicketStatus = `INSERT INTO ticket_status (ticket_status_stautusid, ticket_status_ticketid, ticket_status_createdate) VALUES ($1, $2, $3)`
+            let rowsTicketStatus = await client.query(sqlQueryTicketStatus, [ticket_statusid, ticket_id, ticket_createdate]);
+            
+            // let sqlQueryTicketNotifications = `INSERT INTO sys_notification (notify_ticketid, notify_userid, notify_status, notify_topic, notify_detail, notify_createdate) VALUES ($1, $2, 0, $3, $4, $5)`;
+            // let rowsNotification = await client.query(sqlQueryTicketNotifications, [ ticket_id, ticket_userid, ])
             await client.query('COMMIT');
-            resolve(rowsTicketDetail);
+            resolve(rowsTicketStatus);
         } catch (error) {
             await client.query('ROLLBACK');
             reject(error);

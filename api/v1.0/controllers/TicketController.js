@@ -51,7 +51,7 @@ const DatalistByTicket = async function (req, res) {
             }
             let comparisonResult = sum < resultDate ? 1 : 0;
             // console.log("🚀 ~ Result ~ comparisonResult:", comparisonResult)
-            item.ticket_notification = comparisonResult; 
+            item.ticket_overdue = comparisonResult; 
         });
 
         res.status(rescode.c1000.httpStatusCode).json({
