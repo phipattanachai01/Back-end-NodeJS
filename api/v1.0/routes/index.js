@@ -12,7 +12,7 @@ const contact = require('./contact');
 const role = require('./role');
 const menu = require('./menu');
 const issue = require('./issue');
-
+const tag = require('./tag');
 
 router.use('/profile', Proflie);
 router.use('/dashboard', dashboard);
@@ -26,6 +26,7 @@ router.use('/contact', contact);
 router.use('/role', role);
 router.use('/menu', menu);
 router.use('/issue', issue);
+router.use('/tag', tag);
 
 
 // dashboard / incomeExpenses;

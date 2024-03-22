@@ -83,14 +83,16 @@ const CreateTicket = async function (req, res) {
             req.body.ticket_type,
             req.body.ticket_title,
             req.body.ticket_issueid,
-            req.body.ticket_tagid,
             req.body.ticket_companyid,
             req.body.ticket_company_contactid,
             req.body.ticket_cc,
             req.body.ticket_teamid,
-            req.body.ticket_userid,
             formattedDateTime,
-            // req.body.detail_details,
+            req.body.ticket_userid,
+            req.body.ticket_tagid,
+            req.body.detail_details,
+            req.body.detail_userid,
+
         ];
         console.log("🚀 ~ CreateTicket ~ params:", params)
         // console.log('🚀 ~ CreateTicket ~ params:', params);

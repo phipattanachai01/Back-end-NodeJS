@@ -138,8 +138,10 @@ const MainTicket = async function () {
 //     });
 // };
 
+
+
 const addTicket = async function (params) {
-    console.log('🚀 ~ addTicket ~ params:', params);
+    console.log("🚀 ~ addTicket ~ params:", params);
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {
@@ -149,46 +151,79 @@ const addTicket = async function (params) {
             const newTicketCode = generateTicketCode(maxTicketCodeNumber);
             console.log('🚀 ~ returnnewPromise ~ newTicketCode:', newTicketCode);
 
+            // const tagIds = params[5].split(',');
+            
+            // const Assign = params[10].split(',');
+            console.log("🚀 ~ returnnewPromise ~ params:", params[10])
+
+            
+
+
             let sqlQueryTicket = `
             INSERT INTO ticket (
-            ticket_code, ticket_orderdate, ticket_notification_status, 
-            ticket_statusid, ticket_type, ticket_title, ticket_issueid, 
-            ticket_tagid, ticket_companyid, ticket_company_contactid, 
-            ticket_cc, ticket_teamid, ticket_userid, ticket_delete, 
-            ticket_createdate)
-            VALUES ($1, $2, $3, 1, $4, $5, $6, $7, $8, $9, $10, $11, unnest($12::int[], 0, $13)
-            RETURNING ticket_id, ticket_userid, ticket_statusid, ticket_createdate`;
+                ticket_code, ticket_orderdate, ticket_notification_status, 
+                ticket_statusid, ticket_type, ticket_title, ticket_issueid, 
+                 ticket_companyid, ticket_company_contactid, 
+                ticket_cc, ticket_teamid, ticket_delete, 
+                ticket_createdate)
+            VALUES (
+                $1, $2, $3, 1, $4,  $5, $6, $7, $8, $9, $10, 0, $11)
+            RETURNING ticket_id, ticket_statusid, ticket_createdate , ticket_teamid`;
+            
+            
+            let ticketRows = await client.query(sqlQueryTicket, [
+                newTicketCode,
+                params[0],  // ticket_orderdate
+                params[1],  // ticket_notification_status
+                params[2],  // ticket_type
+                params[3],  // ticket_title
+                params[4],  // ticket_issueid
+                params[5],  // ticket_companyid
+                params[6],  // ticket_company_contactid
+                params[7],  // ticket_cc
+                params[8],  // ticket_teamid
+                params[9],  // ticket_createdate
+            ]);
+            
 
-            let ticketRows = await client.query(sqlQueryTicket, [newTicketCode, ...Object.values(params)]);
 
             let ticket_id = ticketRows.rows[0].ticket_id;
             console.log('🚀 ~ returnnewPromise ~ ticket_id:', ticket_id);
 
-            let ticket_statusid = ticketRows.rows[1].ticket_statusid;
-
-            let ticket_userid = ticketRows.rows[0].ticket_userid;
-            console.log("🚀 ~ returnnewPromise ~ ticket_userid:", ticket_userid)
-
-            let ticket_createdate = ticketRows.rows[0].ticket_createdate;
-            console.log("🚀 ~ returnnewPromise ~ ticket_createdate:", ticket_createdate)
+            let ticket_statusid = ticketRows.rows[0].ticket_statusid;
+            console.log("🚀 ~ returnnewPromise ~ ticket_statusid:", ticket_statusid)
             
+            // let ticket_userid = ticketRows.rows[0].ticket_userid;
+            
+            let ticket_createdate = ticketRows.rows[0].ticket_createdate;
+            
+            let ticket_teamid = ticketRows.rows[0].ticket_teamid;
 
+            let sqlQueryTicketAssign = `INSERT INTO ticket_assign (assign_ticketid, assign_teamid, assign_userid, assign_createdate) VALUES ($1, $2, unnest($3::int[]), $4)`;
+            let rowsTicketAssign = await client.query(sqlQueryTicketAssign, [ticket_id, ticket_teamid, params[10], ticket_createdate]);
+
+            let sqlQueryTag = `INSERT INTO ticket_tags (ticket_tags_tagid,ticket_tags_ticketid, ticket_tags_createdate) VALUES (unnest($1::int[]), $2, $3)`;
+            let rowsTag = await client.query(sqlQueryTag, [params[11], ticket_id, ticket_createdate]);
+            
             let sqlQueryTicketDetail = `
                 INSERT INTO ticket_detail (
                     detail_userid, detail_ticketid, detail_type, 
                     detail_details, detail_createdate
                 ) VALUES ($1, $2, 0, $3, $4)`;
-                let rowsTicketDetail = await client.query(sqlQueryTicketDetail, [
-                    params.detail_userid,
-                    ticket_id,
-                    params.detail_details,
-                    ticket_createdate,]);
 
-            let sqlQueryTicketStatus = `INSERT INTO ticket_status (ticket_status_stautusid, ticket_status_ticketid, ticket_status_createdate) VALUES ($1, $2, $3)`
-            let rowsTicketStatus = await client.query(sqlQueryTicketStatus, [ticket_statusid, ticket_id, ticket_createdate]);
-            
-            // let sqlQueryTicketNotifications = `INSERT INTO sys_notification (notify_ticketid, notify_userid, notify_status, notify_topic, notify_detail, notify_createdate) VALUES ($1, $2, 0, $3, $4, $5)`;
-            // let rowsNotification = await client.query(sqlQueryTicketNotifications, [ ticket_id, ticket_userid, ])
+            let rowsTicketDetail = await client.query(sqlQueryTicketDetail,[params[13], ticket_id, params[12], ticket_createdate]);
+
+            let sqlQueryTicketStatus = `
+                INSERT INTO ticket_status (
+                    ticket_status_statusid, ticket_status_ticketid, ticket_status_createdate
+                ) VALUES ($1, $2, $3)`;
+
+            let rowsTicketStatus = await client.query(sqlQueryTicketStatus, [
+                ticket_statusid,
+                ticket_id,
+                ticket_createdate
+            ]);
+
             await client.query('COMMIT');
             resolve(rowsTicketStatus);
         } catch (error) {
@@ -199,6 +234,7 @@ const addTicket = async function (params) {
         }
     });
 };
+
 
 const DataCompany = async function () {
     return new Promise(async (resolve, reject) => {
