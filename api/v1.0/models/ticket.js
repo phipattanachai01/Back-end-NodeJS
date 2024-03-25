@@ -52,7 +52,7 @@ const MainTicket = async function () {
             set_issue.issue_priority, 
             set_issue.issue_duedate, 
             set_issue.issue_type,
-            ticket.ticket_statusid,
+            ticket_status.ticket_status_statusid,
             set_team.team_name
         FROM 
             ticket
@@ -61,9 +61,10 @@ const MainTicket = async function () {
         JOIN 
             company ON ticket.ticket_companyid = company.company_id
         JOIN 
-            set_status ON ticket.ticket_statusid = set_status.status_id
+            ticket_status ON ticket.ticket_id = ticket_status.ticket_status_ticketid -- Join ticket_status table based on ticket_id
         JOIN 
             set_team ON ticket.ticket_teamid = set_team.team_id
+        ORDER BY ticket.ticket_id;
         `;
             let rows = await client.query(sqlQuery);
             resolve(rows.rows);
@@ -151,24 +152,16 @@ const addTicket = async function (params) {
             const newTicketCode = generateTicketCode(maxTicketCodeNumber);
             console.log('🚀 ~ returnnewPromise ~ newTicketCode:', newTicketCode);
 
-            // const tagIds = params[5].split(',');
-            
-            // const Assign = params[10].split(',');
-            console.log("🚀 ~ returnnewPromise ~ params:", params[10])
-
-            
-
-
             let sqlQueryTicket = `
             INSERT INTO ticket (
                 ticket_code, ticket_orderdate, ticket_notification_status, 
-                ticket_statusid, ticket_type, ticket_title, ticket_issueid, 
+                 ticket_type, ticket_title, ticket_issueid, 
                  ticket_companyid, ticket_company_contactid, 
                 ticket_cc, ticket_teamid, ticket_delete, 
                 ticket_createdate)
             VALUES (
-                $1, $2, $3, 1, $4,  $5, $6, $7, $8, $9, $10, 0, $11)
-            RETURNING ticket_id, ticket_statusid, ticket_createdate , ticket_teamid`;
+                $1, $2, $3, $4,  $5, $6, $7, $8, $9, $10, 0, $11)
+            RETURNING ticket_id,  ticket_createdate , ticket_teamid`;
             
             
             let ticketRows = await client.query(sqlQueryTicket, [
@@ -184,14 +177,13 @@ const addTicket = async function (params) {
                 params[8],  // ticket_teamid
                 params[9],  // ticket_createdate
             ]);
-            
 
 
             let ticket_id = ticketRows.rows[0].ticket_id;
             console.log('🚀 ~ returnnewPromise ~ ticket_id:', ticket_id);
 
-            let ticket_statusid = ticketRows.rows[0].ticket_statusid;
-            console.log("🚀 ~ returnnewPromise ~ ticket_statusid:", ticket_statusid)
+            // let ticket_statusid = ticketRows.rows[0].ticket_statusid;
+            // console.log("🚀 ~ returnnewPromise ~ ticket_statusid:", ticket_statusid)
             
             // let ticket_userid = ticketRows.rows[0].ticket_userid;
             
@@ -201,9 +193,11 @@ const addTicket = async function (params) {
 
             let sqlQueryTicketAssign = `INSERT INTO ticket_assign (assign_ticketid, assign_teamid, assign_userid, assign_createdate) VALUES ($1, $2, unnest($3::int[]), $4)`;
             let rowsTicketAssign = await client.query(sqlQueryTicketAssign, [ticket_id, ticket_teamid, params[10], ticket_createdate]);
+            console.log("🚀 ~ returnnewPromise ~ rowsTicketAssign:", rowsTicketAssign)
 
             let sqlQueryTag = `INSERT INTO ticket_tags (ticket_tags_tagid,ticket_tags_ticketid, ticket_tags_createdate) VALUES (unnest($1::int[]), $2, $3)`;
             let rowsTag = await client.query(sqlQueryTag, [params[11], ticket_id, ticket_createdate]);
+            console.log("🚀 ~ returnnewPromise ~ rowsTag:", rowsTag)
             
             let sqlQueryTicketDetail = `
                 INSERT INTO ticket_detail (
@@ -216,10 +210,9 @@ const addTicket = async function (params) {
             let sqlQueryTicketStatus = `
                 INSERT INTO ticket_status (
                     ticket_status_statusid, ticket_status_ticketid, ticket_status_createdate
-                ) VALUES ($1, $2, $3)`;
+                ) VALUES (1, $1, $2)`;
 
             let rowsTicketStatus = await client.query(sqlQueryTicketStatus, [
-                ticket_statusid,
                 ticket_id,
                 ticket_createdate
             ]);
