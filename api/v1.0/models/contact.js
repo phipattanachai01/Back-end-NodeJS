@@ -32,7 +32,7 @@ const DatalistByContact = function () {
             var sqlQuery = `SELECT 
             company_contact.contact_id,
             company_contact.contact_nickname, 
-            company.company_shortname, 
+            company.company_fullname, 
             company_contact.contact_email, 
             company_contact.contact_phone 
             FROM 

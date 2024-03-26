@@ -61,7 +61,7 @@ const MainTicket = async function () {
         JOIN 
             company ON ticket.ticket_companyid = company.company_id
         JOIN 
-            ticket_status ON ticket.ticket_id = ticket_status.ticket_status_ticketid -- Join ticket_status table based on ticket_id
+            ticket_status ON ticket.ticket_id = ticket_status.ticket_status_ticketid 
         JOIN 
             set_team ON ticket.ticket_teamid = set_team.team_id
         ORDER BY ticket.ticket_id;

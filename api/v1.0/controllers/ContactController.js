@@ -41,19 +41,19 @@ const CreateContact = async function (req, res) {
 const MainContact = async function (req, res) {
     try {
         var data = await Contact.DatalistByContact();
-        var main = data.map(item => ({
-            contactId: item.contact_id,
-            contactNickname: item.contact_nickname,
-            companyShortname: item.company_shortname,
-            contactEmail: item.contact_email,
-            contactPhone: item.contact_phone,
-        }))
+        // var main = data.map(item => ({
+        //     contactId: item.contact_id,
+        //     contactNickname: item.contact_nickname,
+        //     companyShortname: item.company_shortname,
+        //     contactEmail: item.contact_email,
+        //     contactPhone: item.contact_phone,
+        // }))
         res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
             message: rescode.c1000.description,
             error: rescode.c1000.error,
             timeReq: dateTimeFormater(new Date(), 'x'),
-            data : main
+            data : data
         });
     } catch (error) {
         res.status(rescode.c5001.httpStatusCode).json({
