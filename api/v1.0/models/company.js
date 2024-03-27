@@ -46,7 +46,7 @@ const DatalistByCompany = function () {
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {
-            var sqlQuery = 'SELECT * FROM company ORDER BY company_id';
+            var sqlQuery = 'SELECT * FROM company WHERE company_delete = 0 ORDER BY company_id ';
             console.log();
             let rows = await client.query(sqlQuery);
             resolve(rows.rows);

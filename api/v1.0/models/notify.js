@@ -1,4 +1,4 @@
-var {connection} = require('../../../connection')
+var {connection} = require('../../../connection');
 
 const MainNotification = async function () {
     return new Promise(async (resolve, reject) => {
@@ -38,7 +38,44 @@ const MainNotification = async function () {
         } catch (error) {
             reject(error);
             console.log(error);
+        } finally {
+            client.release();
         }
     })
 };
-module.exports = { MainNotification }
+
+const listnoti = async function (param) {
+    return new Promise(async (resolve, reject) => {
+        const client = await connection.connect();
+        try {
+            let sqlQuery = `SELECT notify_id, notify_topic, notify_detail FROM noti_message WHERE notify_userid = $1`;
+            let rows = await client.query(sqlQuery , param);
+            console.log(rows.rows);
+            resolve(rows.rows);
+        } catch (error) {
+            reject(error);
+            console.log(error);
+        } finally {
+            client.release();
+        }
+    });
+}
+
+const updateStatusNoti = async function (param) {
+    return new Promise(async (resolve, reject) => {
+        const client = await connection.connect();
+        try {
+            let sqlQuery = `UPDATE noti_message SET notify_status = $1 WHERE notify_id = $2`;
+            let rows = await client.query(sqlQuery , param);
+            console.log(rows.rows);
+            resolve(rows.rows);
+        } catch (error) {
+            reject(error);
+            console.log(error);
+        } finally {
+            client.release();
+        }
+    });
+}
+
+module.exports = { MainNotification, listnoti, updateStatusNoti}

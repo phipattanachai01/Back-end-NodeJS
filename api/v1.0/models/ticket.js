@@ -37,6 +37,7 @@
 
 const { generateTicketCode } = require('../middleware/formatConverter');
 const { connection } = require('../../../connection');
+const { query } = require('mssql');
 
 const MainTicket = async function () {
     return new Promise(async (resolve, reject) => {
@@ -161,7 +162,7 @@ const addTicket = async function (params) {
                 ticket_createdate)
             VALUES (
                 $1, $2, $3, $4,  $5, $6, $7, $8, $9, $10, 0, $11)
-            RETURNING ticket_id,  ticket_createdate , ticket_teamid`;
+            RETURNING ticket_id,  ticket_createdate , ticket_teamid , ticket_code , ticket_title`;
             
             
             let ticketRows = await client.query(sqlQueryTicket, [
@@ -182,6 +183,10 @@ const addTicket = async function (params) {
             let ticket_id = ticketRows.rows[0].ticket_id;
             console.log('🚀 ~ returnnewPromise ~ ticket_id:', ticket_id);
 
+            let ticket_code = ticketRows.rows[0].ticket_code;
+
+            let ticket_title = ticketRows.rows[0].ticket_title;
+
             // let ticket_statusid = ticketRows.rows[0].ticket_statusid;
             // console.log("🚀 ~ returnnewPromise ~ ticket_statusid:", ticket_statusid)
             
@@ -191,9 +196,12 @@ const addTicket = async function (params) {
             
             let ticket_teamid = ticketRows.rows[0].ticket_teamid;
 
-            let sqlQueryTicketAssign = `INSERT INTO ticket_assign (assign_ticketid, assign_teamid, assign_userid, assign_createdate) VALUES ($1, $2, unnest($3::int[]), $4)`;
+            let sqlQueryTicketAssign = `INSERT INTO ticket_assign (assign_ticketid, assign_teamid, assign_userid, assign_createdate) VALUES ($1, $2, unnest($3::int[]), $4) RETURNING assign_userid`;
             let rowsTicketAssign = await client.query(sqlQueryTicketAssign, [ticket_id, ticket_teamid, params[10], ticket_createdate]);
             console.log("🚀 ~ returnnewPromise ~ rowsTicketAssign:", rowsTicketAssign)
+
+            let assignUserIds = rowsTicketAssign.rows.map(row => row.assign_userid);
+            console.log("🚀 ~ returnnewPromise ~ assign_userid:", assignUserIds)
 
             let sqlQueryTag = `INSERT INTO ticket_tags (ticket_tags_tagid,ticket_tags_ticketid, ticket_tags_createdate) VALUES (unnest($1::int[]), $2, $3)`;
             let rowsTag = await client.query(sqlQueryTag, [params[11], ticket_id, ticket_createdate]);
@@ -216,7 +224,19 @@ const addTicket = async function (params) {
                 ticket_id,
                 ticket_createdate
             ]);
+            console.log("🚀 ~ returnnewPromise ~ rowsTicketStatus:", rowsTicketStatus)
 
+            let notifyDetail = `${ticket_title} Ticket code: ${ticket_code}`;
+            for (let userId of assignUserIds) {
+                console.log("🚀 ~ returnnewPromise ~ notifyDetail:", notifyDetail)
+                let sqlQueryTicketNotifications = `
+                    INSERT INTO noti_message (notify_ticketid, notify_userid, notify_status, notify_topic, notify_detail, notify_createdate)
+                    VALUES ($1, $2, 0, 'คำสั่ง Ticket ใหม่', $3, $4)`;
+                
+                let rowsNotifications = await client.query(sqlQueryTicketNotifications, [ticket_id, userId, notifyDetail, ticket_createdate]);
+                console.log("🚀 ~ returnnewPromise ~ rowsNotifications:", rowsNotifications);
+            }
+            
             await client.query('COMMIT');
             resolve(rowsTicketStatus);
         } catch (error) {

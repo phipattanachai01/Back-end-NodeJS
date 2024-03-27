@@ -87,7 +87,7 @@ const deleteByCompany = async function (req, res) {
     let companyId = req.params.companyId;
     try {
         await CreateCompany.DeleteCompany(companyId);
-        await CreateCompany.ReorganizeCompanyIDs(companyId);
+        // await CreateCompany.ReorganizeCompanyIDs(companyId);
         return res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
             message: rescode.c1000.description,
