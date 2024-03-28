@@ -5,55 +5,39 @@ const Ticket = require('../models/ticket');
 const moment = require('moment');
 
 const DatalistByTicket = async function (req, res) {
+    let params = req.body.company_id ? [req.body.company_id] : null; 
     try {
-        let data = await Ticket.MainTicket();
-        // var a = moment([2007, 0, 29]);
-        // console.log('🚀 ~ DatalistByTicket ~ a:', a);
-        // var b = moment([2007, 0, 28]);
-        // console.log('🚀 ~ DatalistByTicket ~ b:', b);
-        // a.diff(b, 'days'); // 1
-        // console.log('🚀 ~ DatalistByTicket ~ data:', data);
-        // var time = moment();
-        // console.log('🚀 ~ DatalistByTicket ~ time:', time);
-        // var time2 = new Date();
-        // console.log('🚀 ~ DatalistByTicket ~ time:', time2);
-
+        let data = await Ticket.MainTicket(params);
+        
         let Result = data.map(item => {
-            let id = (item.ticket_id)
-            // console.log("🚀 ~ Result ~ id:", id)
+            
             let a = moment();
-            // console.log('🚀 ~ Result ~ a:', a);
             let b = moment(item.ticket_orderdate);
-            // console.log('🚀 ~ Result ~ b:', b);
             let resultDate = a.diff(b, 'minute');
-            // console.log('🚀 ~ Result ~ resultDate:', resultDate);
             let c = item.issue_type;
-            // console.log('🚀 ~ Result ~ c:', c);
             let d = item.issue_duedate;
-            // console.log('🚀 ~ Result ~ d:', d);
             let sum;
             switch(c) {
                 case 1:
                     sum = convertDaysToMinutes(d);
-                    // console.log("🚀 ~ Result ~ sum:", sum)
                     break;
-                    // return sum;
                 case 2:
                     sum = convertHoursToMinutes(d);
-                    // console.log("🚀 ~ Result ~ sum:", sum)
                     break;
-                    // return sum;
                 case 3:
                     sum =  d;
-                    // console.log("🚀 ~ Result ~ sum:", sum)
                     break;
                
             }
             let comparisonResult = sum < resultDate ? 1 : 0;
-            // console.log("🚀 ~ Result ~ comparisonResult:", comparisonResult)
             item.ticket_overdue = comparisonResult; 
         });
-
+        
+        let result = data.reduce((arr, tab) => {
+            arr.push({lable: tab.ticket_id})
+            return arr;
+        },[])
+        console.log("🚀 ~ result ~ result:", result)
         res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
             message: rescode.c1000.description,

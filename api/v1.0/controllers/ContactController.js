@@ -6,7 +6,7 @@ const CreateContact = async function (req, res) {
     let formattedDateTime = dateTimeFormater(new Date(), 'yyyy-MM-DD HH:mm:ss');
     const data = 
     [
-        req.body.company_shortname, 
+        req.body.contact_companyid, 
         req.body.contact_fullname, 
         req.body.contact_nickname, 
         req.body.contact_email, 

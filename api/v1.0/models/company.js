@@ -77,23 +77,21 @@ const DeleteCompany = function (companyId) {
 };
 
 const ReorganizeCompanyIDs = function (companyId) {
- return new Promise(async (resolve, reject) => {
-    const client = await connection.connect();
-    try {
-         var sqlQuery = `UPDATE company SET company_id = company_id - 1 WHERE company_id > $1`;
-         var rows = await client.query(sqlQuery, [companyId]);
-         await client.query(
-             "SELECT setval('company_seq', COALESCE((SELECT MAX(company_id) FROM company), 0))"
-         );
-         resolve(rows.rows);
-    } catch (error) {
-        reject(error);
-        console.log(error);
-    } finally {
-        client.release();
-    }
- })
-}
+    return new Promise(async (resolve, reject) => {
+        const client = await connection.connect();
+        try {
+            var sqlQuery = `UPDATE company SET company_id = company_id - 1 WHERE company_id > $1`;
+            var rows = await client.query(sqlQuery, [companyId]);
+            await client.query("SELECT setval('company_seq', COALESCE((SELECT MAX(company_id) FROM company), 0))");
+            resolve(rows.rows);
+        } catch (error) {
+            reject(error);
+            console.log(error);
+        } finally {
+            client.release();
+        }
+    });
+};
 
 const MainCompany = function () {
     return new Promise(async (resolve, reject) => {
@@ -129,7 +127,7 @@ const updateCompanyStatus = async function (params) {
 };
 
 const ViewTicket = function (params) {
-    console.log("🚀 ~ ViewTicket ~ params:", params)
+    console.log('🚀 ~ ViewTicket ~ params:', params);
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {
@@ -145,7 +143,7 @@ const ViewTicket = function (params) {
             set_issue.issue_duedate,
             set_issue.issue_type,
             set_team.team_name,
-            ticket.ticket_statusid
+            ticket_status.ticket_status_statusid
         FROM
         company
         JOIN
@@ -155,7 +153,7 @@ const ViewTicket = function (params) {
         JOIN
             company_contact ON ticket.ticket_company_contactid = company_contact.contact_id
         JOIN
-            set_status ON ticket.ticket_statusid = set_status.status_id
+            ticket_status ON ticket.ticket_id = ticket_status.ticket_status_ticketid 
         JOIN
             set_team ON ticket.ticket_teamid = set_team.team_id
              WHERE company.company_id = $1 AND company.company_delete = 0;
@@ -169,12 +167,11 @@ const ViewTicket = function (params) {
         } finally {
             client.release();
         }
-    });      
- };
- 
- 
- const ViewCompany = function (params) {
-    console.log("🚀 ~ ViewCompany ~ params:", params)
+    });
+};
+
+const ViewCompany = function (params) {
+    console.log('🚀 ~ ViewCompany ~ params:', params);
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {
@@ -197,9 +194,38 @@ const ViewTicket = function (params) {
         } finally {
             client.release();
         }
-    });      
- };
- 
+    });
+};
 
+const CountContactCompany = function () {
+    return new Promise(async (resolve, reject) => {
+        const client = await connection.connect();
+        try {
+            var sqlQuery = `
+            SELECT COUNT(contact_id) AS count_contact 
+            FROM company_contact 
+            WHERE contact_companyid = 1`;
+            console.log();
+            let rows = await client.query(sqlQuery);
+            resolve(rows.rows);
+        } catch (error) {
+            reject(error);
+            console.log(error);
+        } finally {
+            client.release();
+        }
+    });
+};
 
-module.exports = { CreateCompany, updateCompany, DatalistByCompany, DeleteCompany, MainCompany, updateCompanyStatus , ReorganizeCompanyIDs, ViewTicket, ViewCompany};
+module.exports = {
+    CreateCompany,
+    updateCompany,
+    DatalistByCompany,
+    DeleteCompany,
+    MainCompany,
+    updateCompanyStatus,
+    ReorganizeCompanyIDs,
+    ViewTicket,
+    ViewCompany,
+    CountContactCompany,
+};
