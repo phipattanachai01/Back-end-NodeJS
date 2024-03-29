@@ -8,5 +8,7 @@ router.post('/view', CompanyController.datalist);
 router.post('/delete/:companyId', CompanyController.deleteByCompany);
 router.post('/main', CompanyController.mainByCompany);
 router.post('/status', CompanyController.StatusCompany);
-router.post('/viewbyticket', CompanyController.ViewByTicket);
+// router.post('/viewbyticket', CompanyController.ViewByTicket);
+router.post('/count', CompanyController.countContact);
+router.post('/listname', CompanyController.listName);
 module.exports = router;

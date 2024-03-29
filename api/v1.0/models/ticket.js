@@ -55,7 +55,10 @@ const MainTicket = async function (params) {
             ticket.ticket_orderdate, 
             ticket.ticket_type, 
             ticket.ticket_title,
+            company.company_id,
             company.company_shortname,
+            company.company_fullname,
+            company_contact.contact_nickname,
             set_issue.issue_priority, 
             set_issue.issue_duedate, 
             set_issue.issue_type,
@@ -67,6 +70,8 @@ const MainTicket = async function (params) {
             set_issue ON ticket.ticket_issueid = set_issue.issue_id
         JOIN 
             company ON ticket.ticket_companyid = company.company_id
+        JOIN
+            company_contact ON ticket.ticket_company_contactid = company_contact.contact_id
         JOIN 
             ticket_status ON ticket.ticket_id = ticket_status.ticket_status_ticketid 
         JOIN 

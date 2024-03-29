@@ -149,46 +149,98 @@ const StatusCompany = async function (req, res) {
     }
 };
 
-const ViewByTicket = async function (req, res) {
-    let params = [req.body.company_id]
- try {
-    var data = await CreateCompany.ViewTicket(params);
-    return res.status(rescode.c1000.httpStatusCode).json({
-        code: rescode.c1000.businessCode,
-        message: rescode.c1000.description,
-        data: data,
-    });
- } catch (error) {
-    res.status(rescode.c5001.httpStatusCode).json({
-        code: rescode.c5001.businessCode,
-        message: rescode.c5001.description,
-        error: rescode.c5001.error,
-        timeReq: dateTimeFormater(new Date(), 'x'),
-        catch: error.message,
-    });
-    return false;
- }
- };
- const ViewByContact = async function (req, res) {
-    let params = [req.body.company_id]
- try {
-    var data = await CreateCompany.ViewCompany(params);
-    return res.status(rescode.c1000.httpStatusCode).json({
-        code: rescode.c1000.businessCode,
-        message: rescode.c1000.description,
-        data: data,
-    });
- } catch (error) {
-    res.status(rescode.c5001.httpStatusCode).json({
-        code: rescode.c5001.businessCode,
-        message: rescode.c5001.description,
-        error: rescode.c5001.error,
-        timeReq: dateTimeFormater(new Date(), 'x'),
-        catch: error.message,
-    });
-    return false;
- }
- };
- 
+// const ViewByTicket = async function (req, res) {
+//     let params = [req.body.company_id]
+//  try {
+//     var data = await CreateCompany.ViewTicket(params);
+//     return res.status(rescode.c1000.httpStatusCode).json({
+//         code: rescode.c1000.businessCode,
+//         message: rescode.c1000.description,
+//         data: data,
+//     });
+//  } catch (error) {
+//     res.status(rescode.c5001.httpStatusCode).json({
+//         code: rescode.c5001.businessCode,
+//         message: rescode.c5001.description,
+//         error: rescode.c5001.error,
+//         timeReq: dateTimeFormater(new Date(), 'x'),
+//         catch: error.message,
+//     });
+//     return false;
+//  }
+//  };
+const ViewByContact = async function (req, res) {
+    let params = [req.body.company_id];
+    try {
+        var data = await CreateCompany.ViewCompany(params);
+        return res.status(rescode.c1000.httpStatusCode).json({
+            code: rescode.c1000.businessCode,
+            message: rescode.c1000.description,
+            data: data,
+        });
+    } catch (error) {
+        res.status(rescode.c5001.httpStatusCode).json({
+            code: rescode.c5001.businessCode,
+            message: rescode.c5001.description,
+            error: rescode.c5001.error,
+            timeReq: dateTimeFormater(new Date(), 'x'),
+            catch: error.message,
+        });
+        return false;
+    }
+};
 
-module.exports = { createByCompany, editByCompany, datalist, deleteByCompany, mainByCompany, StatusCompany, ViewByTicket, ViewByContact };
+const countContact = async function (req, res) {
+    let params = [req.body.company_id];
+    try {
+        var data = await CreateCompany.CountContactCompany(params);
+        return res.status(rescode.c1000.httpStatusCode).json({
+            code: rescode.c1000.businessCode,
+            message: rescode.c1000.description,
+            data: data,
+        });
+    } catch (error) {
+        res.status(rescode.c5001.httpStatusCode).json({
+            code: rescode.c5001.businessCode,
+            message: rescode.c5001.description,
+            error: rescode.c5001.error,
+            timeReq: dateTimeFormater(new Date(), 'x'),
+            catch: error.message,
+        });
+        return false;
+    }
+};
+
+const listName = async function (req, res) {
+    let params = [req.body.company_id]
+ try {
+    var data = await CreateCompany.ListOfNames(params);
+    return res.status(rescode.c1000.httpStatusCode).json({
+        code: rescode.c1000.businessCode,
+        message: rescode.c1000.description,
+        data: data,
+    });
+ } catch (error) {
+    res.status(rescode.c5001.httpStatusCode).json({
+        code: rescode.c5001.businessCode,
+        message: rescode.c5001.description,
+        error: rescode.c5001.error,
+        timeReq: dateTimeFormater(new Date(), 'x'),
+        catch: error.message,
+    });
+    return false;
+ }
+ };
+
+
+module.exports = {
+    createByCompany,
+    editByCompany,
+    datalist,
+    deleteByCompany,
+    mainByCompany,
+    StatusCompany,
+    ViewByContact,
+    countContact,
+    listName
+};
