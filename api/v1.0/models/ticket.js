@@ -1,51 +1,8 @@
 const { generateTicketCode } = require('../middleware/formatConverter');
 const { connection } = require('../../../connection');
-// const { query } = require('mssql');
 
-// const MainTicket = async function (params) {
-//     console.log("🚀 ~ MainTicket ~ params:", params)
-//     return new Promise(async (resolve, reject) => {
-//         const client = await connection.connect();
-//         try {
-//             let sqlQuery = `SELECT 
-//             ticket.ticket_id, 
-//             ticket.ticket_code, 
-//             ticket.ticket_orderdate, 
-//             ticket.ticket_type, 
-//             ticket.ticket_title,
-//             company.company_shortname,
-//             set_issue.issue_priority, 
-//             set_issue.issue_duedate, 
-//             set_issue.issue_type,
-//             ticket_status.ticket_status_statusid,
-//             set_team.team_name
-//         FROM 
-//             ticket
-//         JOIN 
-//             set_issue ON ticket.ticket_issueid = set_issue.issue_id
-//         JOIN 
-//             company ON ticket.ticket_companyid = company.company_id
-//         JOIN 
-//             ticket_status ON ticket.ticket_id = ticket_status.ticket_status_ticketid 
-//         JOIN 
-//             set_team ON ticket.ticket_teamid = set_team.team_id where 1=1`;
-//             if (params[1]) {
-//                 sqlQuery += ` AND company_id = $2`; 
-//             }
-
-//             sqlQuery += `ORDER BY ticket.ticket_id`;
-//             let rows = await client.query(sqlQuery , params);
-//             resolve(rows.rows);
-//         } catch (error) {
-//             await client.query('ROLLBACK');
-//             reject(error);
-//         } finally {
-//             client.release();
-//         }
-//     });
-// };
 const MainTicket = async function (params) {
-    console.log("🚀 ~ MainTicket ~ params:", params)
+    // console.log("🚀 ~ MainTicket ~ params:", params[13])
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {
@@ -64,7 +21,7 @@ const MainTicket = async function (params) {
             set_issue.issue_type,
             ticket_status.ticket_status_statusid,
             set_team.team_name
-        FROM 
+        FROM
             ticket
         JOIN 
             set_issue ON ticket.ticket_issueid = set_issue.issue_id
@@ -75,7 +32,9 @@ const MainTicket = async function (params) {
         JOIN 
             ticket_status ON ticket.ticket_id = ticket_status.ticket_status_ticketid 
         JOIN 
-            set_team ON ticket.ticket_teamid = set_team.team_id `; 
+            set_team ON ticket.ticket_teamid = set_team.team_id
+        JOIN
+            ticket_detail ON ticket.ticket_id = ticket_detail.detail_ticketid`; 
             if (params && params[0] !== null) { 
                 sqlQuery += ` WHERE ticket.ticket_companyid = $1`; 
 
@@ -97,7 +56,7 @@ const MainTicket = async function (params) {
 };
 
 const addTicket = async function (params) {
-    console.log('🚀 ~ addTicket ~ params:', params);
+    console.log('🚀 ~ addTicket ~ params:', params[13]);
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {
@@ -105,7 +64,7 @@ const addTicket = async function (params) {
 
             const maxTicketCodeNumber = await getLatestTicketCodeNumberFromDatabase(client);
             const newTicketCode = generateTicketCode(maxTicketCodeNumber);
-            console.log('🚀 ~ returnnewPromise ~ newTicketCode:', newTicketCode);
+            // console.log('🚀 ~ returnnewPromise ~ newTicketCode:', newTicketCode);
 
             let sqlQueryTicket = `
             INSERT INTO ticket (
@@ -133,16 +92,11 @@ const addTicket = async function (params) {
             ]);
 
             let ticket_id = ticketRows.rows[0].ticket_id;
-            console.log('🚀 ~ returnnewPromise ~ ticket_id:', ticket_id);
+            // console.log('🚀 ~ returnnewPromise ~ ticket_id:', ticket_id);
 
             let ticket_code = ticketRows.rows[0].ticket_code;
 
             let ticket_title = ticketRows.rows[0].ticket_title;
-
-            // let ticket_statusid = ticketRows.rows[0].ticket_statusid;
-            // console.log("🚀 ~ returnnewPromise ~ ticket_statusid:", ticket_statusid)
-
-            // let ticket_userid = ticketRows.rows[0].ticket_userid;
 
             let ticket_createdate = ticketRows.rows[0].ticket_createdate;
 
@@ -155,18 +109,18 @@ const addTicket = async function (params) {
                 params[10],
                 ticket_createdate,
             ]);
-            console.log('🚀 ~ returnnewPromise ~ rowsTicketAssign:', rowsTicketAssign);
+            // console.log('🚀 ~ returnnewPromise ~ rowsTicketAssign:', rowsTicketAssign);
 
             let assignUserIds = rowsTicketAssign.rows.map(row => row.assign_userid);
-            console.log('🚀 ~ returnnewPromise ~ assign_userid:', assignUserIds);
+            // console.log('🚀 ~ returnnewPromise ~ assign_userid:', assignUserIds);
 
             let sqlQueryTag = `INSERT INTO ticket_tags (ticket_tags_tagid,ticket_tags_ticketid, ticket_tags_createdate) VALUES (unnest($1::int[]), $2, $3)`;
             let rowsTag = await client.query(sqlQueryTag, [params[11], ticket_id, ticket_createdate]);
-            console.log('🚀 ~ returnnewPromise ~ rowsTag:', rowsTag);
+            // console.log('🚀 ~ returnnewPromise ~ rowsTag:', rowsTag);
 
             let sqlQueryTicketDetail = `
                 INSERT INTO ticket_detail (
-                    detail_userid, detail_ticketid, detail_type, 
+                    detail_createby, detail_ticketid, detail_type, 
                     detail_details, detail_createdate
                 ) VALUES ($1, $2, 0, $3, $4)`;
 
@@ -183,11 +137,11 @@ const addTicket = async function (params) {
                 ) VALUES (1, $1, $2)`;
 
             let rowsTicketStatus = await client.query(sqlQueryTicketStatus, [ticket_id, ticket_createdate]);
-            console.log('🚀 ~ returnnewPromise ~ rowsTicketStatus:', rowsTicketStatus);
+            // console.log('🚀 ~ returnnewPromise ~ rowsTicketStatus:', rowsTicketStatus);
 
             let notifyDetail = `${ticket_title} Ticket code: ${ticket_code}`;
             for (let userId of assignUserIds) {
-                console.log('🚀 ~ returnnewPromise ~ notifyDetail:', notifyDetail);
+                // console.log('🚀 ~ returnnewPromise ~ notifyDetail:', notifyDetail);
                 let sqlQueryTicketNotifications = `
                     INSERT INTO noti_message (notify_ticketid, notify_userid, notify_status, notify_topic, notify_detail, notify_createdate)
                     VALUES ($1, $2, 0, 'คำสั่ง Ticket ใหม่', $3, $4)`;
@@ -198,7 +152,7 @@ const addTicket = async function (params) {
                     notifyDetail,
                     ticket_createdate,
                 ]);
-                console.log('🚀 ~ returnnewPromise ~ rowsNotifications:', rowsNotifications);
+                // console.log('🚀 ~ returnnewPromise ~ rowsNotifications:', rowsNotifications);
             }
 
             await client.query('COMMIT');
@@ -212,11 +166,152 @@ const addTicket = async function (params) {
     });
 };
 
+const listDetail = async function(params) {
+    console.log("🚀 ~ listEdit ~ params:", params);
+    return new Promise(async (resolve, reject) => {
+        const client = await connection.connect();
+        try {
+            let sqlQuery = `SELECT 
+                ticket.ticket_id,
+                ticket.ticket_code,
+                ticket.ticket_title,
+                ticket.ticket_createdate,
+                ticket_detail.detail_details,
+                ticket_detail.detail_createby,
+                sys_user.user_firstname AS "use_createby"
+            FROM ticket
+            JOIN ticket_detail ON ticket.ticket_id = ticket_detail.detail_ticketid
+            JOIN sys_user ON ticket_detail.detail_createby = sys_user.user_id
+            WHERE ticket.ticket_id = $1 AND ticket.ticket_delete = 0`;
+            let rows = await client.query(sqlQuery, params);
+            resolve(rows.rows);
+        } catch (error) {
+            reject(error);
+        } finally {
+            client.release();
+        }
+    });
+};
+
+const listEdit = async function(params) {
+    console.log("🚀 ~ listEdit ~ params:", params);
+    return new Promise(async (resolve, reject) => {
+        const client = await connection.connect();
+        try {
+            let sqlQuery = `SELECT 
+            ticket.ticket_id,
+            ticket.ticket_createdate,
+            ticket_status.ticket_status_statusid,
+            ticket.ticket_companyid,
+            company.company_fullname,
+            ticket.ticket_type,
+            set_issue.issue_priority,
+            COALESCE(STRING_AGG(CAST(ticket_tags.ticket_tags_tagid AS TEXT), ', '), '0') AS ticket_tags,
+            set_issue.issue_duedate,
+            set_issue.issue_type,
+            ticket_detail.detail_updateby,
+            CASE 
+                WHEN ticket_detail.detail_updateby IS NULL THEN NULL
+                ELSE COALESCE('"' || update_user.user_firstname || '"', '""')
+            END AS "user_updateby"
+        FROM 
+            ticket
+        JOIN 
+            ticket_status ON ticket.ticket_id = ticket_status.ticket_status_ticketid 
+        JOIN 
+            ticket_detail ON ticket.ticket_id = ticket_detail.detail_ticketid
+        JOIN 
+            company ON ticket.ticket_companyid = company.company_id
+        JOIN 
+            set_issue ON ticket.ticket_issueid = set_issue.issue_id
+        LEFT JOIN 
+            sys_user AS update_user ON ticket_detail.detail_updateby = update_user.user_id
+        LEFT JOIN 
+            ticket_tags ON ticket.ticket_id = ticket_tags.ticket_tags_ticketid
+        WHERE 
+            ticket.ticket_id = $1 
+            AND ticket.ticket_delete = 0
+            GROUP BY
+            ticket.ticket_id,
+            ticket.ticket_createdate,
+            ticket_status.ticket_status_statusid,
+            ticket.ticket_companyid,
+            company.company_fullname,
+            ticket.ticket_type,
+            set_issue.issue_priority,
+            set_issue.issue_duedate,
+            set_issue.issue_type,
+            ticket_detail.detail_updateby,
+            update_user.user_firstname
+        `;
+            let rows = await client.query(sqlQuery, params);
+            resolve(rows.rows);
+        } catch (error) {
+            reject(error);
+        } finally {
+            client.release();
+        }
+    });
+};
+
+const updateTicket = async function(params) {
+    console.log("🚀 ~ update ~ params:", params);
+    return new Promise(async (resolve, reject) => {
+        const client = await connection.connect();
+        try {
+            let sqlQuery = `UPDATE ticket 
+            SET 
+                ticket_status_statusid = $2, 
+                ticket_companyid = $3, 
+                ticket_type = $4, 
+                ticket_issueid = $5, 
+                ticket_tagid = $6, 
+                ticket_teamid = $7, 
+            WHERE ticket_id = $1`;
+
+            await client.query(sqlQuery, params);
+            resolve("Update successful");
+        } catch (error) {
+            reject(error);
+        } finally {
+            client.release();
+        }
+    });
+};
+
+
+const listEditTeam = async function (params) {
+    return new Promise(async (resolve, reject) => {
+        const client = await connection.connect();
+        try {
+            let sqlQuery = `SELECT 
+            ticket_id,
+            ticket_teamid,
+            COALESCE(STRING_AGG(CAST(ticket_assign.assign_userid AS TEXT), ', '), '0') AS assign_user,
+            COALESCE(STRING_AGG(CAST(sys_user.user_firstname AS TEXT), ', '), '0') AS user_assign
+        FROM ticket
+        JOIN ticket_assign ON ticket.ticket_id = ticket_assign.assign_ticketid
+        JOIN sys_user ON ticket_assign.assign_userid = sys_user.user_id
+        WHERE 
+            ticket.ticket_id = $1 
+            AND ticket.ticket_delete = 0
+            GROUP BY ticket.ticket_id       
+        `;
+        let rows = await client.query(sqlQuery, params);
+            resolve(rows.rows);
+        } catch (error) {
+            reject(error);
+        } finally {
+            client.release();
+        }
+    });
+};
+
 const DataCompany = async function () {
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {
-            const sqlQuery = await client.query(`SELECT 
+            let sqlQuery = await client.query(`SELECT 
             company.company_id, 
             company.company_fullname 
         FROM company`);
@@ -266,6 +361,26 @@ const assignUser = async function (taem_id) {
     });
 };
 
+
+
+const deleteTicket = async function() {
+    return new Promise(async (resolve, reject) => {
+        const client = await connection.connect();
+        try {
+            await client.query('BEGIN');
+            let sqlQuery = `UPDATE ticket SET ticket_delete = $1 WHERE ticket_id = $2`;
+            let rows = await client.query(sqlQuery, [1]);
+            
+            await client.query('COMMIT');
+            resolve(rows);
+        } catch (error) {
+            await client.query('ROLLBACK');
+            reject(error);
+        } finally {
+            client.release();
+        }
+    });
+}
 const DataNotification = async function (ticket_id) {
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
@@ -295,4 +410,4 @@ async function getLatestTicketCodeNumberFromDatabase(client) {
     }
 }
 
-module.exports = { MainTicket, addTicket, DataCompany, DatacontactByCompany, assignUser, DataNotification };
+module.exports = { MainTicket, addTicket, updateTicket, DataCompany, DatacontactByCompany, listDetail, listEdit, listEditTeam, assignUser, DataNotification, deleteTicket };

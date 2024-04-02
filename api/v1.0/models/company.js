@@ -6,7 +6,7 @@ const CreateCompany = function (data) {
         try {
             await client.query('BEGIN');
             var sqlQuery =
-                'INSERT INTO company (company_fullname, company_shortname, company_about, company_domain, company_linetoken, company_createdate,company_status, company_delete) VALUES($1,$2,$3,$4,$5,$6,1,0)';
+                'INSERT INTO company (company_fullname, company_shortname, company_about, company_domain, company_createdate,company_status, company_delete) VALUES($1,$2,$3,$4,$5,1,0)';
             let rows = await client.query(sqlQuery, data);
             await client.query('COMMIT');
             resolve(rows.rows);
@@ -126,76 +126,7 @@ const updateCompanyStatus = async function (params) {
     }
 };
 
-// const ViewTicket = function (params) {
-//     console.log('🚀 ~ ViewTicket ~ params:', params);
-//     return new Promise(async (resolve, reject) => {
-//         const client = await connection.connect();
-//         try {
-//             var sqlQuery = `
-//             SELECT
-//             ticket.ticket_id,
-//             ticket.ticket_code,
-//             company_contact.contact_nickname,
-//             ticket.ticket_type,
-//             ticket.ticket_title,
-//             set_issue.issue_priority,
-//             ticket.ticket_orderdate,
-//             set_issue.issue_duedate,
-//             set_issue.issue_type,
-//             set_team.team_name,
-//             ticket_status.ticket_status_statusid
-//         FROM
-//         company
-//         JOIN
-//             ticket ON company.company_id = ticket_companyid
-//         JOIN
-//             set_issue ON ticket.ticket_issueid = set_issue.issue_id
-//         JOIN
-//             company_contact ON ticket.ticket_company_contactid = company_contact.contact_id
-//         JOIN
-//             ticket_status ON ticket.ticket_id = ticket_status.ticket_status_ticketid 
-//         JOIN
-//             set_team ON ticket.ticket_teamid = set_team.team_id
-//              WHERE company.company_id = $1 AND company.company_delete = 0
-//         `;
-//             console.log();
-//             let rows = await client.query(sqlQuery, params);
-//             resolve(rows.rows);
-//         } catch (error) {
-//             reject(error);
-//             console.log(error);
-//         } finally {
-//             client.release();
-//         }
-//     });
-// };
 
-const ViewCompany = function (params) {
-    console.log('🚀 ~ ViewCompany ~ params:', params);
-    return new Promise(async (resolve, reject) => {
-        const client = await connection.connect();
-        try {
-            var sqlQuery = `
-            SELECT company_id ,
-                   contact_nickname ,
-                   company_fullname ,
-                   contact_email ,
-                   contact_phone
-            FROM company
-            INNER JOIN company_contact ON company.company_id = company_contact.contact_companyid
-            WHERE company.company_id = $1 AND company.company_delete = 0;
-         `;
-            console.log();
-            let rows = await client.query(sqlQuery, params);
-            resolve(rows.rows);
-        } catch (error) {
-            reject(error);
-            console.log(error);
-        } finally {
-            client.release();
-        }
-    });
-};
 
 const CountContactCompany = function (params) {
     return new Promise(async (resolve, reject) => {
@@ -229,7 +160,9 @@ const ListOfNames = function (params) {
             company_id,
             contact_id,
             contact_nickname,
-            contact_phone
+            contact_phone,
+            contact_email,
+            company.company_fullname
             FROM company_contact 
             JOIN company ON company_contact.contact_companyid = company.company_id 
             WHERE company.company_id = $1`;
@@ -253,7 +186,6 @@ module.exports = {
     updateCompanyStatus,
     // ReorganizeCompanyIDs,
     // ViewTicket,
-    ViewCompany,
     CountContactCompany,
     ListOfNames
 };

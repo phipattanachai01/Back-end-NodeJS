@@ -10,7 +10,6 @@ const createByCompany = async function (req, res) {
         req.body.company_shortname,
         req.body.company_about,
         req.body.company_dormain,
-        req.body.company_linetoken,
         formattedDateTime,
     ];
     try {
@@ -169,26 +168,7 @@ const StatusCompany = async function (req, res) {
 //     return false;
 //  }
 //  };
-const ViewByContact = async function (req, res) {
-    let params = [req.body.company_id];
-    try {
-        var data = await CreateCompany.ViewCompany(params);
-        return res.status(rescode.c1000.httpStatusCode).json({
-            code: rescode.c1000.businessCode,
-            message: rescode.c1000.description,
-            data: data,
-        });
-    } catch (error) {
-        res.status(rescode.c5001.httpStatusCode).json({
-            code: rescode.c5001.businessCode,
-            message: rescode.c5001.description,
-            error: rescode.c5001.error,
-            timeReq: dateTimeFormater(new Date(), 'x'),
-            catch: error.message,
-        });
-        return false;
-    }
-};
+
 
 const countContact = async function (req, res) {
     let params = [req.body.company_id];
@@ -240,7 +220,6 @@ module.exports = {
     deleteByCompany,
     mainByCompany,
     StatusCompany,
-    ViewByContact,
     countContact,
     listName
 };

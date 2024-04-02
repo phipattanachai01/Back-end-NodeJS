@@ -28,18 +28,18 @@ const connection = new Pool({
     port: dbConfigR.port,
 });
 
-// try {
-//     var minioClient = new Minio.Client({
-//         endPoint: minioConfig.endPoint,
-//         port: Number(minioConfig.port),
-//         useSSL: minioConfig.useSSL === 'true',
-//         accessKey: minioConfig.accessKey,
-//         secretKey: minioConfig.secretKey,
-//     });
-// } catch (error) {
-//     console.log(error);
-// }
+try {
+    var minioClient = new Minio.Client({
+        endPoint: minioConfig.endPoint,
+        port: Number(minioConfig.port),
+        useSSL: minioConfig.useSSL === 'true',
+        accessKey: minioConfig.accessKey,
+        secretKey: minioConfig.secretKey,
+    });
+} catch (error) {
+    console.log(error);
+}
 
-// const minioconnection = minioClient;
+const minioconnection = minioClient;
 
-module.exports = { connectionW, connectionR, connection };
+module.exports = { connectionW, connectionR, connection, minioconnection };

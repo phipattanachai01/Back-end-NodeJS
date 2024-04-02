@@ -15,7 +15,7 @@ const MainNotification = async function () {
              UNION ALL
              SELECT 3 AS status_id, 'Resolved' AS status_name
              UNION ALL
-             SELECT 4 AS status_id, 'Waiting on 3rd Party' AS status_name
+             SELECT 4 AS status_id, 'Waiting On 3rd Party' AS status_name
              UNION ALL
              SELECT 5 AS status_id, 'Waiting On Customer' AS status_name
              UNION ALL
@@ -50,7 +50,7 @@ const listnoti = async function (param) {
         try {
             let sqlQuery = `SELECT notify_id, notify_topic, notify_detail FROM noti_message WHERE notify_userid = $1`;
             let rows = await client.query(sqlQuery , param);
-            console.log(rows.rows);
+            console.log("🚀 ~ returnnewPromise ~ rows:", rows.rows)
             resolve(rows.rows);
         } catch (error) {
             reject(error);
@@ -67,7 +67,7 @@ const updateStatusNoti = async function (param) {
         try {
             let sqlQuery = `UPDATE noti_message SET notify_status = $1 WHERE notify_id = $2`;
             let rows = await client.query(sqlQuery , param);
-            console.log(rows.rows);
+            // console.log(rows.rows);
             resolve(rows.rows);
         } catch (error) {
             reject(error);

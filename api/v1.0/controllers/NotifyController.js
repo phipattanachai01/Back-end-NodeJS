@@ -8,18 +8,15 @@ const MainNotify = async function (req, res) {
     try {
         let data = await Notify.MainNotification();
 
-        let totalCount = data.reduce((acc, item) => acc + item.status_count, 0);
 
         let Resultdata = data.map((item) =>{
-            // let id = item.status_id;
             let count = item.status_count;
-            let percentage = ((count / totalCount) * 100).toFixed(2);
+            
+            let percentage = Math.abs((count / 1000) * 100); 
+            let formattedPercentage = percentage % 1 === 0 ? parseInt(percentage) : percentage.toFixed(1);
 
-            // console.log("🚀 ~ Resultdata ~ count:", count);
-            // console.log("🚀 ~ Resultdata ~ id:", id);
-            // console.log("🚀 ~ Resultdata ~ percentage:", percentage);
 
-            item.percentage = percentage;
+            item.percentage = formattedPercentage + '%'; 
 
             return item;
         });
@@ -30,7 +27,6 @@ const MainNotify = async function (req, res) {
             data: Resultdata
         });
         
-        console.log("🚀 ~ res.status ~ data:", data);
     } catch (error) {
         console.error(error); 
         res.status(rescode.c5001.httpStatusCode).json({
@@ -52,6 +48,7 @@ const listNotification = async function (req, res) {
             timeReq: dateTimeFormater(new Date(), 'yyyy-MM-dd'),
             data: data,
         });
+            // console.log("🚀 ~ res.status ~ data:", data)
     } catch (error) {
         res.status(rescode.c5001.httpStatusCode).json({
             code: rescode.c5001.businessCode,

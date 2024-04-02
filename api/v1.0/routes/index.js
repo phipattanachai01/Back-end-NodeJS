@@ -13,6 +13,7 @@ const role = require('./role');
 const menu = require('./menu');
 const issue = require('./issue');
 const tag = require('./tag');
+const file = require('./file');
 
 router.use('/profile', Proflie);
 router.use('/dashboard', dashboard);
@@ -27,7 +28,7 @@ router.use('/role', role);
 router.use('/menu', menu);
 router.use('/issue', issue);
 router.use('/tag', tag);
-
+router.use('/file',file)
 
 // dashboard / incomeExpenses;
 

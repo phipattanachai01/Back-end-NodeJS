@@ -16,6 +16,7 @@ const MainTeam = function () {
             set_team_user ON set_team.team_id = set_team_user.team_user_teamid
             LEFT JOIN 
             sys_user ON set_team_user.team_user_userid = sys_user.user_id
+            WHERE set_team.team_delete = 0
             GROUP BY 
             set_team.team_id, set_team.team_name
             ORDER BY 
@@ -32,6 +33,10 @@ const MainTeam = function () {
 };
 
 const Addteam = function (data , formattedDateTime) {
+console.log("🚀 ~ Addteam ~ data[0]:", data[0])
+console.log("🚀 ~ Addteam ~ data[1]:", data[1])
+console.log("🚀 ~ Addteam ~ data[2]:", data[2])
+// console.log("🚀 ~ Addteam ~ data[3]:", data[3])
 
 
     return new Promise(async (resolve, reject) => {
@@ -45,19 +50,19 @@ const Addteam = function (data , formattedDateTime) {
             console.log("🚀 ~ returnnewPromise ~ teamCode:", teamCode)
 
             const teamInsertQuery = `
-                INSERT INTO set_team (team_code, team_name, team_createdate, team_status, team_delete) 
-                VALUES ($1, $2, $3, 1, 0) 
+                INSERT INTO set_team (team_code, team_name, team_linetoken, team_createdate, team_status, team_delete) 
+                VALUES ($1, $2, $3, $4, 1, 0) 
                 RETURNING team_id`;
-            const teamResult = await client.query(teamInsertQuery, [teamCode, data[0], formattedDateTime]);
-            const teamId = teamResult.rows[0].team_id;
+                const teamResult = await client.query(teamInsertQuery, [teamCode, data[0], data[1], formattedDateTime]);
+                const teamId = teamResult.rows[0].team_id;
             console.log("🚀 ~ returnnewPromise ~ teamId:", teamId)
 
             // Check if user_firstname is provided before inserting user data
-            if (data[1] && data[1].length > 0) {
+            if (data[2] && data[2].length > 0) {
                 const userInsertQuery = `
                     INSERT INTO set_team_user (team_user_teamid, team_user_userid, team_user_createdate)
                     SELECT $1, unnest($2::int[]), $3`;
-                await client.query(userInsertQuery, [teamId, data[1], formattedDateTime]);
+                await client.query(userInsertQuery, [teamId, data[2], formattedDateTime]);
             }
 
             await client.query('COMMIT');

@@ -59,7 +59,6 @@ const DatalistByTicket = async function (req, res) {
 };
 const CreateTicket = async function (req, res) {
     let formattedDateTime = dateTimeFormater(new Date(), 'yyyy-MM-DD HH:mm:ss');
-    // let formattedOrderDateTime = dateTimeFormater(new Date(), 'yyyy-MM-DD HH:mm:ss');
     try {
         var params = [
             req.body.ticket_orderdate,
@@ -75,8 +74,7 @@ const CreateTicket = async function (req, res) {
             req.body.ticket_userid,
             req.body.ticket_tagid,
             req.body.detail_details,
-            req.body.detail_userid,
-
+            req.body.detail_createby
         ];
         console.log("🚀 ~ CreateTicket ~ params:", params)
         // console.log('🚀 ~ CreateTicket ~ params:', params);
@@ -88,7 +86,7 @@ const CreateTicket = async function (req, res) {
             message: rescode.c1000.description,
             error: rescode.c1000.error,
             timeReq: dateTimeFormater(new Date(), 'HH:mm:ss'),
-            data: data,
+            // data: data,
         });
     } catch (error) {
         res.status(rescode.c5001.httpStatusCode).json({
@@ -102,6 +100,72 @@ const CreateTicket = async function (req, res) {
     }
 };
 
+const listdetailByTicket = async function (req, res) {
+
+    let params = [req.body.ticket_id];
+    try{
+        var DataList = await Ticket.listDetail(params);
+        res.status(rescode.c1000.httpStatusCode).json({
+            code: rescode.c1000.businessCode,
+            message: rescode.c1000.description,
+            data: DataList,
+        });
+    } catch (error) {
+        return res.status(rescode.c5001.httpStatusCode).json({
+            code: rescode.c5001.businessCode,
+            message: rescode.c5001.description,
+            error: rescode.c5001.error,
+            timeReq: dateTimeFormater(new Date(), 'x'),
+            catch: error.message
+        });
+        return false;
+    }
+};
+
+
+const listeditlByTicket = async function (req, res) {
+
+    let params = [req.body.ticket_id];
+    try{
+        var DataList = await Ticket.listEdit(params);
+        res.status(rescode.c1000.httpStatusCode).json({
+            code: rescode.c1000.businessCode,
+            message: rescode.c1000.description,
+            data: DataList,
+        });
+    } catch (error) {
+        return res.status(rescode.c5001.httpStatusCode).json({
+            code: rescode.c5001.businessCode,
+            message: rescode.c5001.description,
+            error: rescode.c5001.error,
+            timeReq: dateTimeFormater(new Date(), 'x'),
+            catch: error.message
+        });
+        return false;
+    }
+};
+
+const listeditTeamByTicket = async function (req, res) {
+
+    let params = [req.body.ticket_id];
+    try{
+        var DataList = await Ticket.listEditTeam(params);
+        res.status(rescode.c1000.httpStatusCode).json({
+            code: rescode.c1000.businessCode,
+            message: rescode.c1000.description,
+            data: DataList,
+        });
+    } catch (error) {
+        return res.status(rescode.c5001.httpStatusCode).json({
+            code: rescode.c5001.businessCode,
+            message: rescode.c5001.description,
+            error: rescode.c5001.error,
+            timeReq: dateTimeFormater(new Date(), 'x'),
+            catch: error.message
+        });
+        return false;
+    }
+}
 const CompanyTicket = async function (req, res) {
     try {
         var DataList = await Ticket.DataCompany();
@@ -119,8 +183,30 @@ const CompanyTicket = async function (req, res) {
             timeReq: dateTimeFormater(new Date(), 'x'),
             catch: error.message,
         });
+        return false;
     }
 };
+
+const deleteByTicket = async function(req, res) {
+    let params = []
+    try{
+        res.status(rescode.c1000.httpStatusCode).json({
+            code: rescode.c1000.businessCode,
+            message: rescode.c1000.description,
+            data: DataList,
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(rescode.c5001.httpStatusCode).json({
+            code: rescode.c5001.businessCode,
+            message: rescode.c5001.description,
+            error: rescode.c5001.error,
+            timeReq: dateTimeFormater(new Date(), 'x'),
+            catch: error.message,
+        });
+        return false;
+    }
+}
 
 const ContactCompany = async function (req, res) {
     let contactcompany = [req.body.contact_companyid];
@@ -189,8 +275,11 @@ const AssignTeamUsers = async function (req, res) {
 module.exports = {
     DatalistByTicket,
     CreateTicket,
+    listdetailByTicket,
     CompanyTicket,
     ContactCompany,
     AssignTeamUsers,
     CheckNotificationTicket,
+    listeditlByTicket,
+    listeditTeamByTicket
 };

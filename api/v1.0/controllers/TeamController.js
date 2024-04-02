@@ -74,10 +74,10 @@ const AddTeamUser = async function (req, res) {
     let formattedDateTime = dateTimeFormater(new Date(), 'yyyy-MM-DD HH:mm:ss');
 
     try {
-        const data = [req.body.team_name, req.body.user_id]
-        console.log("🚀 ~ AddTeamUser ~ data:", data)
+        let data = [req.body.team_name, req.body.team_linetoken, req.body.user_id];
+        // console.log("🚀 ~ AddTeamUser ~ data:", data);
 
-        const result = await Team.Addteam(data, formattedDateTime);
+        let result = await Team.Addteam(data , formattedDateTime); 
 
         res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,

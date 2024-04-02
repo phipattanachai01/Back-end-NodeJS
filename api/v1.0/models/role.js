@@ -11,12 +11,10 @@ const Mainrole = function () {
             sys_role.role_status,
             sys_role.role_createdate,
             COUNT(sys_user.user_roleid) AS userCount
-        FROM sys_role
-        LEFT JOIN sys_user ON sys_role.role_id = sys_user.user_roleid
-        GROUP BY sys_role.role_id, sys_role.role_name, sys_role.role_status, sys_role.role_createdate
-        ORDER BY sys_role.role_id
-        `;
-            console.log();
+            FROM sys_role
+            LEFT JOIN sys_user ON sys_role.role_id = sys_user.user_roleid
+            GROUP BY sys_role.role_id, sys_role.role_name, sys_role.role_status, sys_role.role_createdate
+            ORDER BY sys_role.role_id`;
             let rows = await client.query(sqlQuery);
             resolve(rows.rows);
         } catch (error) {
