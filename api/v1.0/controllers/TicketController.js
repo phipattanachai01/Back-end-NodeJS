@@ -10,7 +10,6 @@ const DatalistByTicket = async function (req, res) {
         let data = await Ticket.MainTicket(params);
         
         let Result = data.map(item => {
-            
             let a = moment();
             let b = moment(item.ticket_orderdate);
             let resultDate = a.diff(b, 'minute');
@@ -31,7 +30,15 @@ const DatalistByTicket = async function (req, res) {
             }
             let comparisonResult = sum < resultDate ? 1 : 0;
             item.ticket_overdue = comparisonResult; 
+            item.ticket_orderdate = moment(item.ticket_orderdate).format('DD/MM/YYYY HH:mm');
         });
+
+        let countOverdue = data.reduce((count, item) => {
+            if (item.ticket_overdue === 1) {
+                count++;
+            }
+            return count;
+        }, 0);
         
         let result = data.reduce((arr, tab) => {
             arr.push({lable: tab.ticket_id})
@@ -44,6 +51,7 @@ const DatalistByTicket = async function (req, res) {
             error: rescode.c1000.error,
             timeReq: dateTimeFormater(new Date(), 'HH:mm:ss'),
             data: data,
+            countOverdue: countOverdue
         });
     } catch (error) {
         console.log('🚀 ~ DatalistByTicket ~ error:', error);
@@ -104,11 +112,61 @@ const listdetailByTicket = async function (req, res) {
 
     let params = [req.body.ticket_id];
     try{
-        var DataList = await Ticket.listDetail(params);
-        res.status(rescode.c1000.httpStatusCode).json({
+        var dataList = await Ticket.listDetail(params);        
+        var transformedData = dataList.reduce((acc, item) => {
+            item.ticket_createdate = moment(item.ticket_createdate).format('ddd, DD MMM YYYY [at] HH:mm');
+            acc.push(item);
+            return acc;
+        }, []);
+            res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
             message: rescode.c1000.description,
-            data: DataList,
+            data: transformedData
+        });
+    } catch (error) {
+        return res.status(rescode.c5001.httpStatusCode).json({
+            code: rescode.c5001.businessCode,
+            message: rescode.c5001.description,
+            error: rescode.c5001.error,
+            timeReq: dateTimeFormater(new Date(), 'x'),
+            catch: error.message
+        });
+        return false;
+    }
+};
+
+const CountByTicket = async function (req, res) {
+
+    let params = [req.body.ticket_id];
+    try{
+        var datacount = await Ticket.countTicket(params);        
+            res.status(rescode.c1000.httpStatusCode).json({
+            code: rescode.c1000.businessCode,
+            message: rescode.c1000.description,
+            data: datacount
+        });
+    } catch (error) {
+        return res.status(rescode.c5001.httpStatusCode).json({
+            code: rescode.c5001.businessCode,
+            message: rescode.c5001.description,
+            error: rescode.c5001.error,
+            timeReq: dateTimeFormater(new Date(), 'x'),
+            catch: error.message
+        });
+        return false;
+    }
+};
+
+
+const ViewByTicket = async function (req, res) {
+
+    let params = [req.body.ticket_id];
+    try{
+        var datacount = await Ticket.ViewTicket(params);        
+            res.status(rescode.c1000.httpStatusCode).json({
+            code: rescode.c1000.businessCode,
+            message: rescode.c1000.description,
+            data: datacount
         });
     } catch (error) {
         return res.status(rescode.c5001.httpStatusCode).json({
@@ -127,23 +185,49 @@ const listeditlByTicket = async function (req, res) {
 
     let params = [req.body.ticket_id];
     try{
-        var DataList = await Ticket.listEdit(params);
+        var dataList = await Ticket.listEdit(params);
+        var transformedData = dataList.reduce((acc, item) => {
+            item.ticket_createdate = moment(item.ticket_createdate).format(' DD MMMM YYYY HH:mm A');
+            acc.push(item);
+            return acc;
+        }, []);
         res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
             message: rescode.c1000.description,
-            data: DataList,
+            data: transformedData
         });
     } catch (error) {
-        return res.status(rescode.c5001.httpStatusCode).json({
+        res.status(rescode.c5001.httpStatusCode).json({
             code: rescode.c5001.businessCode,
             message: rescode.c5001.description,
             error: rescode.c5001.error,
             timeReq: dateTimeFormater(new Date(), 'x'),
-            catch: error.message
+            catch: error.message,
         });
         return false;
-    }
+}
 };
+const AddNoteByTicket = async function (req, res) {
+    let formattedDateTime = dateTimeFormater(new Date(), 'yyyy-MM-DD HH:mm:ss');
+    let params = [req.body.ticket_id, req.body.detail_details, formattedDateTime]
+    try {
+        var data = await Ticket.addNote(params);
+        res.status(rescode.c1000.httpStatusCode).json({
+            code: rescode.c1000.businessCode,
+            message: rescode.c1000.description,
+            data: data
+        });
+    } catch (error) {
+        res.status(rescode.c5001.httpStatusCode).json({
+            code: rescode.c5001.businessCode,
+            message: rescode.c5001.description,
+            error: rescode.c5001.error,
+            timeReq: dateTimeFormater(new Date(), 'x'),
+            catch: error.message,
+        });
+        return false;
+}
+}
 
 const listeditTeamByTicket = async function (req, res) {
 
@@ -156,15 +240,15 @@ const listeditTeamByTicket = async function (req, res) {
             data: DataList,
         });
     } catch (error) {
-        return res.status(rescode.c5001.httpStatusCode).json({
+        res.status(rescode.c5001.httpStatusCode).json({
             code: rescode.c5001.businessCode,
             message: rescode.c5001.description,
             error: rescode.c5001.error,
             timeReq: dateTimeFormater(new Date(), 'x'),
-            catch: error.message
+            catch: error.message,
         });
         return false;
-    }
+}
 }
 const CompanyTicket = async function (req, res) {
     try {
@@ -175,8 +259,7 @@ const CompanyTicket = async function (req, res) {
             data: DataList,
         });
     } catch (error) {
-        console.log(error);
-        return res.status(rescode.c5001.httpStatusCode).json({
+        res.status(rescode.c5001.httpStatusCode).json({
             code: rescode.c5001.businessCode,
             message: rescode.c5001.description,
             error: rescode.c5001.error,
@@ -184,20 +267,19 @@ const CompanyTicket = async function (req, res) {
             catch: error.message,
         });
         return false;
-    }
+}
 };
 
 const deleteByTicket = async function(req, res) {
-    let params = []
+    let params = [req.body.ticket_id];
     try{
+        var dataDelete = await Ticket.deleteTicket(params);
         res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
             message: rescode.c1000.description,
-            data: DataList,
         });
     } catch (error) {
-        console.log(error);
-        return res.status(rescode.c5001.httpStatusCode).json({
+        res.status(rescode.c5001.httpStatusCode).json({
             code: rescode.c5001.businessCode,
             message: rescode.c5001.description,
             error: rescode.c5001.error,
@@ -205,7 +287,7 @@ const deleteByTicket = async function(req, res) {
             catch: error.message,
         });
         return false;
-    }
+}
 }
 
 const ContactCompany = async function (req, res) {
@@ -225,8 +307,32 @@ const ContactCompany = async function (req, res) {
             message: rescode.c5001.description,
             error: rescode.c5001.error,
             timeReq: dateTimeFormater(new Date(), 'x'),
+            catch: error.message
+        });
+    }
+};
+
+const updateByTicket = async function (req, res) {
+    let params = [ req.body.ticket_id , req.body.ticket_status_statusid]
+    try {
+        var data = await Ticket.updateTicket(params);
+        console.log("🚀 ~ updateByTicket ~ data:", data)
+        res.status(rescode.c1000.httpStatusCode).json({
+            code: rescode.c1000.businessCode,
+            message: rescode.c1000.description,
+            error: rescode.c1000.error,
+            timeReq: dateTimeFormater(new Date(), 'x'),
+            data: data
+        });
+    } catch (error) {
+        res.status(rescode.c5001.httpStatusCode).json({
+            code: rescode.c5001.businessCode,
+            message: rescode.c5001.description,
+            error: rescode.c5001.error,
+            timeReq: dateTimeFormater(new Date(), 'x'),
             catch: error.message,
         });
+        return false;
     }
 };
 
@@ -246,7 +352,7 @@ const CheckNotificationTicket = async function (req, res) {
             message: rescode.c5001.description,
             error: rescode.c5001.error,
             timeReq: dateTimeFormater(new Date(), 'x'),
-            catch: error.message,
+            catch: error.message
         });
     }
 };
@@ -268,7 +374,7 @@ const AssignTeamUsers = async function (req, res) {
             message: rescode.c5001.description,
             error: rescode.c5001.error,
             timeReq: dateTimeFormater(new Date(), 'x'),
-            catch: error.message,
+            catch: error.message
         });
     }
 };
@@ -277,9 +383,14 @@ module.exports = {
     CreateTicket,
     listdetailByTicket,
     CompanyTicket,
+    ViewByTicket,
     ContactCompany,
     AssignTeamUsers,
     CheckNotificationTicket,
+    updateByTicket,
     listeditlByTicket,
-    listeditTeamByTicket
+    listeditTeamByTicket,
+    CountByTicket,
+    deleteByTicket,
+    AddNoteByTicket
 };
