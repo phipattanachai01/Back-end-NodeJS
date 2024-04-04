@@ -12,6 +12,7 @@ const uploadFile = async function uploadFile(req, res) {
     var start = new Date();
     try {
         var file = req.file.originalname.split('.');
+        console.log("🚀 ~ uploadFile ~ req:", req.file)
 
         switch (req.headers['file-type']) {
             case '1':

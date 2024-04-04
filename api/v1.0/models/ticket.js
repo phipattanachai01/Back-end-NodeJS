@@ -224,18 +224,35 @@ const ViewTicket = async function (params) {
             let sqlQuery = `SELECT
             ticket.ticket_id, 
             ticket.ticket_code, 
+            ticket.ticket_createdate,
             ticket.ticket_orderdate, 
             ticket.ticket_type, 
             ticket.ticket_title,
             company.company_id,
-            company.company_shortname,
             company.company_fullname,
-            company_contact.contact_nickname,
+            company_contact.contact_fullname,
             set_issue.issue_priority, 
             set_issue.issue_duedate, 
             set_issue.issue_type,
             ticket_status.ticket_status_statusid,
-            set_team.team_name
+            set_team.team_id,
+            set_team.team_name,
+            COALESCE(
+                STRING_AGG(DISTINCT CAST(ticket_assign.assign_userid AS TEXT), ', '), 
+                '0'
+            ) AS assign_user,
+            COALESCE(
+                STRING_AGG(DISTINCT CAST(sys_user.user_firstname AS TEXT), ', '), 
+                '0'
+            ) AS user_assign,
+            COALESCE(
+                STRING_AGG(DISTINCT CAST(ticket_tags.ticket_tags_tagid AS TEXT), ', '), 
+                '0'
+            ) AS ticket_tags,
+            COALESCE(
+                STRING_AGG(DISTINCT CAST(set_tag.tag_name AS TEXT), ', '), 
+                '0'
+            ) AS tag_names
         FROM
             ticket
         JOIN 
@@ -248,27 +265,34 @@ const ViewTicket = async function (params) {
             ticket_status ON ticket.ticket_id = ticket_status.ticket_status_ticketid 
         JOIN 
             set_team ON ticket.ticket_teamid = set_team.team_id
-        JOIN
-            ticket_detail ON ticket.ticket_id = ticket_detail.detail_ticketid
-            WHERE ticket.ticket_delete = 0
+        LEFT JOIN 
+            ticket_assign ON ticket.ticket_id = ticket_assign.assign_ticketid
+        LEFT JOIN 
+            sys_user ON ticket_assign.assign_userid = sys_user.user_id
+        LEFT JOIN 
+            ticket_tags ON ticket.ticket_id = ticket_tags.ticket_tags_ticketid
+        LEFT JOIN 
+            set_tag ON ticket_tags.ticket_tags_tagid = set_tag.tag_id
+        WHERE 
+            ticket.ticket_delete = 0
             AND ticket.ticket_id = $1
         GROUP BY 
             ticket.ticket_id,
             ticket.ticket_code, 
+            ticket.ticket_createdate,
             ticket.ticket_orderdate, 
             ticket.ticket_type, 
             ticket.ticket_title,
             company.company_id,
-            company.company_shortname,
             company.company_fullname,
-            company_contact.contact_nickname,
+            company_contact.contact_fullname,
             set_issue.issue_priority, 
             set_issue.issue_duedate, 
             set_issue.issue_type,
             ticket_status.ticket_status_statusid,
+            set_team.team_id,
             set_team.team_name
-        
-            `; 
+        `; 
             let rows = await client.query(sqlQuery, params);
             resolve(rows.rows);
         } catch (error) {
@@ -305,13 +329,31 @@ const listDetail = async function(params) {
 };
 
 
+const addMainNote = async function () {
+    return new Promise(async (resolve, reject) => {
+        const client = await connection.connect();
+        try {
+            let sqlQuery = `SELECT * FROM ticket_detail WHERE detail_ticketid = 1 
+            AND detail_access = 1 
+            OR detail_access = 0 
+            AND detail_type = 1 
+            OR detail_type = 2`;
+            let rows = await client.query(sqlQuery);
+            resolve(rows);
+        } catch (error) {
+            reject(error);
+        } finally {
+            client.release();
+        }
+    });
+}
 
 const listEdit = async function(params) {
     console.log("🚀 ~ listEdit ~ params:", params);
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {
-            let sqlQuery = `SELECT 
+            let sqlQuery = `SELECT
             ticket.ticket_id,
             ticket.ticket_createdate,
             ticket_status.ticket_status_statusid,
@@ -319,15 +361,13 @@ const listEdit = async function(params) {
             company.company_fullname,
             ticket.ticket_type,
             set_issue.issue_priority,
-            COALESCE(STRING_AGG(CAST(ticket_tags.ticket_tags_tagid AS TEXT), ', '), '0') AS ticket_tags,
+            STRING_AGG(DISTINCT CAST(ticket_tags.ticket_tags_tagid AS TEXT), ', ') AS ticket_tags,
             set_issue.issue_duedate,
             set_issue.issue_type,
-            ticket_detail.detail_updateby,
-            CASE 
-                WHEN ticket_detail.detail_updateby IS NULL THEN NULL
-                ELSE COALESCE('"' || update_user.user_firstname || '"', '""')
-            END AS "user_updateby"
-        FROM 
+            MAX(ticket_detail.detail_updateby) AS detail_updateby,
+            COALESCE(MAX('"' || sys_user.user_firstname || '"'), '""') AS user_updateby,
+            STRING_AGG(DISTINCT set_tag.tag_name, ', ') AS tag_names
+        FROM
             ticket
         JOIN 
             ticket_status ON ticket.ticket_id = ticket_status.ticket_status_ticketid 
@@ -338,13 +378,15 @@ const listEdit = async function(params) {
         JOIN 
             set_issue ON ticket.ticket_issueid = set_issue.issue_id
         LEFT JOIN 
-            sys_user AS update_user ON ticket_detail.detail_updateby = update_user.user_id
+            sys_user ON ticket_detail.detail_updateby = sys_user.user_id
         LEFT JOIN 
             ticket_tags ON ticket.ticket_id = ticket_tags.ticket_tags_ticketid
+        LEFT JOIN 
+            set_tag ON ticket_tags.ticket_tags_tagid = set_tag.tag_id
         WHERE 
             ticket.ticket_id = $1 
             AND ticket.ticket_delete = 0
-            GROUP BY
+        GROUP BY
             ticket.ticket_id,
             ticket.ticket_createdate,
             ticket_status.ticket_status_statusid,
@@ -353,9 +395,8 @@ const listEdit = async function(params) {
             ticket.ticket_type,
             set_issue.issue_priority,
             set_issue.issue_duedate,
-            set_issue.issue_type,
-            ticket_detail.detail_updateby,
-            update_user.user_firstname
+            set_issue.issue_type
+        
         `;
             let rows = await client.query(sqlQuery, params);
             resolve(rows.rows);
@@ -389,11 +430,12 @@ const updateTicket = async function(params) {
 
 
 const addNote = async function (params) {
+    console.log("🚀 ~ addNote ~ params:", params)
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {
-            let sqlQuery = `INSERT INTO ticket_detail (detail_ticketid, detail_type, detail_details, detail_access, detail_createdate)
-            VALUES ($1, 2, $2, 0, $3)
+            let sqlQuery = `INSERT INTO ticket_detail (detail_ticketid, detail_type, detail_details, detail_access, detail_updateby, detail_createdate)
+            VALUES ($1, 2, $2, 0, $3, $4)
             `;
             let rows = await client.query(sqlQuery, params);
             resolve(rows.rows);
@@ -403,7 +445,7 @@ const addNote = async function (params) {
             client.release();
         }
     });
-}
+};
 
 const listEditTeam = async function (params) {
     return new Promise(async (resolve, reject) => {

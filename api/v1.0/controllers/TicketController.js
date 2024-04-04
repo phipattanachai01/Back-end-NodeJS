@@ -182,15 +182,18 @@ const ViewByTicket = async function (req, res) {
 
 
 const listeditlByTicket = async function (req, res) {
-
     let params = [req.body.ticket_id];
-    try{
+    try {
         var dataList = await Ticket.listEdit(params);
-        var transformedData = dataList.reduce((acc, item) => {
-            item.ticket_createdate = moment(item.ticket_createdate).format(' DD MMMM YYYY HH:mm A');
-            acc.push(item);
-            return acc;
-        }, []);
+        
+        var transformedData = dataList.map(item => {
+            item.ticket_createdate = moment(item.ticket_createdate).format('DD MMMM YYYY HH:mm A');
+            
+            var userUpdateBy = item.user_updateby === "\"\"" ? null : item.user_updateby.replace(/"/g, '');
+            console.log("🚀 ~ Result ~ userUpdateBy:", userUpdateBy)
+            return { ...item, user_updateby: userUpdateBy };
+        });
+        
         res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
             message: rescode.c1000.description,
@@ -205,11 +208,12 @@ const listeditlByTicket = async function (req, res) {
             catch: error.message,
         });
         return false;
-}
+    }
 };
+
 const AddNoteByTicket = async function (req, res) {
     let formattedDateTime = dateTimeFormater(new Date(), 'yyyy-MM-DD HH:mm:ss');
-    let params = [req.body.ticket_id, req.body.detail_details, formattedDateTime]
+    let params = [req.body.ticket_id, req.body.detail_details, req.body.detail_updateby, formattedDateTime]
     try {
         var data = await Ticket.addNote(params);
         res.status(rescode.c1000.httpStatusCode).json({
