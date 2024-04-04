@@ -4,7 +4,7 @@ const FILENAME = __filename.replace(/^.*[\\\/]/, '');
 const { listBuckets, makeBucket, putObjectUploadFile, copyObjectCpoyFile } = require('../helper/minio');
 const functionBasicCenter = require('../middleware/functionBasicCenter');
 const { dateTimeFormater, keysToCamel } = require('../middleware/formatConverter');
-const Log = require('../models/Log');
+const Log = require('../models/log');
 
 var { MINIO_BUCKET, minioConfig } = require('../../../config/default');
 
