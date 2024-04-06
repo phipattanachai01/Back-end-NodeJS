@@ -90,14 +90,11 @@ const login = async function (req, res) {
     let params = [req.body.username];
     try {
         var user = await Register.loginuser(params);
-        console.log('🚀 ~ login ~ user:', user);
-
-        if (!user.length) {
-            return res.send({ status: 401, message: 'NOT FOUND' });
-        }
+        console.log("🚀 ~ login ~ user:", user)
 
         var data = { req_password: req.body.user_password, password: user[0].user_password };
         let compare = await comparePassword(data);
+        console.log("🚀 ~ login ~ data:", data)
 
         if (compare) {
             var accessToken = await signAccessToken(user);

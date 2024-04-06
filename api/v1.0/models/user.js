@@ -58,7 +58,11 @@ const loginuser = function (paramuser) {
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {
-            var sqlQuery = 'SELECT * FROM sys_user WHERE user_name  = $1 AND user_status = 1';
+            var sqlQuery = `SELECT user_id, user_name, 
+            user_status, user_password, 
+            role_id FROM sys_user JOIN sys_role 
+            ON sys_user.user_roleid = sys_role.role_id 
+            WHERE user_name  = $1 AND user_status = 1`;
             console.log();
             let rows = await client.query(sqlQuery, paramuser);
             resolve(rows.rows);

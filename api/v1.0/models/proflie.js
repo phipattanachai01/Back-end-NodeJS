@@ -1,4 +1,3 @@
-const { param } = require('express-validator');
 var { connectionW, connectionR } = require('../../../connection');
 
 // var connection_write = require('../../../connection_write')

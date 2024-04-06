@@ -1,13 +1,18 @@
 var rescode = require('../../../responsecode.json');
 let { dateTimeFormater, generateTicketCode , convertDaysToMinutes, convertHoursToMinutes} = require('../middleware/formatConverter');
 var {} = require('../../../config/default');
+let { verityMidToken } = require('../middleware/functionAuth');
 const Ticket = require('../models/ticket');
 const moment = require('moment');
 
 const DatalistByTicket = async function (req, res) {
-    let params = req.body.company_id ? [req.body.company_id] : null; 
+    let params = req.body.company_id ? [req.body.company_id] : null;
+    let userId = req.user.id;
+    let role = req.user.role
+    console.log("🚀 ~ DatalistByTicket ~ role:", role)
+    // console.log("🚀 ~ DatalistByTicket ~ userId:", userId)
     try {
-        let data = await Ticket.MainTicket(params);
+        let data = await Ticket.MainTicket(params, userId, role);
         
         let Result = data.map(item => {
             let a = moment();
@@ -44,7 +49,7 @@ const DatalistByTicket = async function (req, res) {
             arr.push({lable: tab.ticket_id})
             return arr;
         },[])
-        console.log("🚀 ~ result ~ result:", result)
+        // console.log("🚀 ~ result ~ result:", result)
         res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
             message: rescode.c1000.description,
@@ -67,6 +72,7 @@ const DatalistByTicket = async function (req, res) {
 };
 const CreateTicket = async function (req, res) {
     let formattedDateTime = dateTimeFormater(new Date(), 'yyyy-MM-DD HH:mm:ss');
+    let userId = req.user.id;
     try {
         var params = [
             req.body.ticket_orderdate,
@@ -82,7 +88,7 @@ const CreateTicket = async function (req, res) {
             req.body.ticket_userid,
             req.body.ticket_tagid,
             req.body.detail_details,
-            req.body.detail_createby
+            userId        
         ];
         console.log("🚀 ~ CreateTicket ~ params:", params)
         // console.log('🚀 ~ CreateTicket ~ params:', params);
@@ -109,8 +115,9 @@ const CreateTicket = async function (req, res) {
 };
 
 const listdetailByTicket = async function (req, res) {
-
-    let params = [req.body.ticket_id];
+    let userId = req.user.id;
+    let params = [req.body.ticket_id, userId];
+    // console.log("🚀 ~ MainNoteByTicket ~ a:", userId);
     try{
         var dataList = await Ticket.listDetail(params);        
         var transformedData = dataList.reduce((acc, item) => {
@@ -159,14 +166,19 @@ const CountByTicket = async function (req, res) {
 
 
 const ViewByTicket = async function (req, res) {
-
     let params = [req.body.ticket_id];
     try{
-        var datacount = await Ticket.ViewTicket(params);        
+        var data = await Ticket.ViewTicket(params);        
+        var transformedData = data.reduce((acc, item) => {
+            item.ticket_createdate = moment(item.ticket_createdate).format('DD/MM/YYYY HH:mm');
+            item.ticket_orderdate = moment(item.ticket_orderdate).format('DD/MM/YYYY HH:mm');
+            acc.push(item);
+            return acc;
+        }, []);
             res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
             message: rescode.c1000.description,
-            data: datacount
+            data: transformedData
         });
     } catch (error) {
         return res.status(rescode.c5001.httpStatusCode).json({
@@ -213,13 +225,14 @@ const listeditlByTicket = async function (req, res) {
 
 const AddNoteByTicket = async function (req, res) {
     let formattedDateTime = dateTimeFormater(new Date(), 'yyyy-MM-DD HH:mm:ss');
-    let params = [req.body.ticket_id, req.body.detail_details, req.body.detail_updateby, formattedDateTime]
+    let userID = req.user.id;
+    let params = [req.body.ticket_id, req.body.detail_details, req.body.detail_access, userID, formattedDateTime]
     try {
         var data = await Ticket.addNote(params);
         res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
             message: rescode.c1000.description,
-            data: data
+            // data: data
         });
     } catch (error) {
         res.status(rescode.c5001.httpStatusCode).json({
@@ -231,7 +244,8 @@ const AddNoteByTicket = async function (req, res) {
         });
         return false;
 }
-}
+};
+
 
 const listeditTeamByTicket = async function (req, res) {
 
@@ -253,7 +267,7 @@ const listeditTeamByTicket = async function (req, res) {
         });
         return false;
 }
-}
+};
 const CompanyTicket = async function (req, res) {
     try {
         var DataList = await Ticket.DataCompany();
@@ -382,6 +396,45 @@ const AssignTeamUsers = async function (req, res) {
         });
     }
 };
+
+const Tags = async function (req, res) {
+
+    try {
+        var Tags = await Ticket.tagTicket();
+        res.status(rescode.c1000.httpStatusCode).json({
+            code: rescode.c1000.businessCode,
+            message: rescode.c1000.description,
+            data: Tags
+        });
+    } catch (error) {
+        return res.status(rescode.c5001.httpStatusCode).json({
+            code: rescode.c5001.businessCode,
+            message: rescode.c5001.description,
+            error: rescode.c5001.error,
+            timeReq: dateTimeFormater(new Date(), 'x'),
+            catch: error.message
+        });
+    }
+}
+const Finddate = async function(req, res) {
+    let dataDate = [req.body.ticket_createdate, req.body.ticket_createdate]
+    try{
+        var DataDate = await Ticket.Finddate(dataDate);
+        res.status(rescode.c1000.httpStatusCode).json({
+            code: rescode.c1000.businessCode,
+            message: rescode.c1000.description,
+            data: DataDate
+        });
+    } catch (error) {
+        return res.status(rescode.c5001.httpStatusCode).json({
+            code: rescode.c5001.businessCode,
+            message: rescode.c5001.description,
+            error: rescode.c5001.error,
+            timeReq: dateTimeFormater(new Date(), 'x'),
+            catch: error.message
+        });
+    }
+}
 module.exports = {
     DatalistByTicket,
     CreateTicket,
@@ -396,5 +449,7 @@ module.exports = {
     listeditTeamByTicket,
     CountByTicket,
     deleteByTicket,
-    AddNoteByTicket
+    AddNoteByTicket,
+    Finddate,
+    Tags
 };

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const DashboardController = require('../controllers/DashboardController');
 
-router.post('/MainDashboard', DashboardController.DashboardUser);
+const functionAuth = require('../middleware/functionAuth');
+router.post('/MainDashboard', functionAuth.verityMidToken, DashboardController.DashboardUser);
 
 module.exports = router;

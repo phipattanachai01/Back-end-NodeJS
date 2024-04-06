@@ -63,7 +63,7 @@ const verityMidToken = async function (req, res, next) {
                 });
             }
             req.user = decoded;
-            // console.log('===',req.user);
+            // console.log("🚀 ~ returnjwt.verify ~ req:", req.user)
             next();
         });
     } catch (error) {
@@ -177,16 +177,18 @@ const verifyAPIKeyAndCode2 = async function (req, res, next) {
 };
 
 const signAccessToken = async function (user) {
+    console.log("🚀 ~ signAccessToken ~ user:", user)
     return new Promise((resolve, reject) => {
         const payload = {
             id: user[0].user_id,
             user: user[0].user_name,
-            password: user[0].user_password,
             status: user[0].user_status,
             phone: user[0].user_phone,
             firstname: user[0].user_firstname,
             lastname: user[0].user_lastname,
+            role:user[0].role_id
         };
+        // console.log("🚀 ~ returnnewPromise ~ payload:", payload)
         const secret = process.env.TOKEN_SECRET;
         const options = {
             expiresIn: '8h',

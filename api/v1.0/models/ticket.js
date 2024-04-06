@@ -1,66 +1,176 @@
 const { generateTicketCode } = require('../middleware/formatConverter');
 const { connection } = require('../../../connection');
 
-const MainTicket = async function (params) {
+// const MainTicket = async function (params, userId) {
+//     console.log("🚀 ~ MainTicket ~ userId:", userId)
+//     return new Promise(async (resolve, reject) => {
+//         const client = await connection.connect();
+//         try {
+//             let sqlQuery = `SELECT
+//             ticket.ticket_id, 
+//             ticket.ticket_code, 
+//             ticket.ticket_orderdate, 
+//             ticket.ticket_type, 
+//             ticket.ticket_title,
+//             company.company_id,
+//             company.company_shortname,
+//             company.company_fullname,
+//             company_contact.contact_nickname,
+//             set_issue.issue_priority, 
+//             set_issue.issue_duedate, 
+//             set_issue.issue_type,
+//             ticket_status.ticket_status_statusid,
+//             set_team.team_name
+//         FROM
+//             ticket
+//         JOIN 
+//             set_issue ON ticket.ticket_issueid = set_issue.issue_id
+//         JOIN 
+//             company ON ticket.ticket_companyid = company.company_id
+//         JOIN
+//             company_contact ON ticket.ticket_company_contactid = company_contact.contact_id
+//         JOIN 
+//             ticket_status ON ticket.ticket_id = ticket_status.ticket_status_ticketid 
+//         JOIN 
+//             set_team ON ticket.ticket_teamid = set_team.team_id
+//         JOIN
+//             ticket_detail ON ticket.ticket_id = ticket_detail.detail_ticketid
+//         JOIN
+//             ticket_assign ON ticket_assign.assign_ticketid = ticket.ticket_id
+//         JOIN
+//             sys_user ON ticket_assign.assign_userid = sys_user.user_id
+            
+//             WHERE ticket.ticket_delete = 0
+        // GROUP BY 
+        //     ticket.ticket_id,
+        //     ticket.ticket_code, 
+        //     ticket.ticket_orderdate, 
+        //     ticket.ticket_type, 
+        //     ticket.ticket_title,
+        //     company.company_id,
+        //     company.company_shortname,
+        //     company.company_fullname,
+        //     company_contact.contact_nickname,
+        //     set_issue.issue_priority, 
+        //     set_issue.issue_duedate, 
+        //     set_issue.issue_type,
+        //     ticket_status.ticket_status_statusid,
+        //     set_team.team_name
+//             `;
+//             if (params && params.user_id !== undefined && params.user_id !== 1) {
+//                 console.log("🚀 ~ returnnewPromise ~ params:", params.userid)
+//                 sqlQuery += ` AND sys_user.user_id = $1`;
+//                 let rows = await client.query(sqlQuery, userId);
+//                 resolve(rows.rows);
+//             } 
+//             if (params && params.company_id !== undefined) {
+                 
+//                 sqlQuery += ` AND ticket.ticket_companyid = $1`; 
+
+//                 sqlQuery += ` ORDER BY ticket.ticket_id`;
+//                 let rows = await client.query(sqlQuery, params);
+//                 resolve(rows.rows);
+//             } else {
+//                 sqlQuery += ` ORDER BY ticket.ticket_id`;
+//                 let rows = await client.query(sqlQuery);
+//                 resolve(rows.rows);
+//             }
+//         } catch (error) {
+//             await client.query('ROLLBACK');
+//             reject(error);
+//         } finally {
+//             client.release();
+//         }
+//     });
+// };
+
+const MainTicket = async function (params, userId, role) {
+    console.log("🚀 ~ MainTicket ~ userId:", userId)
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {
-            let sqlQuery = `SELECT
-            ticket.ticket_id, 
-            ticket.ticket_code, 
-            ticket.ticket_orderdate, 
-            ticket.ticket_type, 
-            ticket.ticket_title,
-            company.company_id,
-            company.company_shortname,
-            company.company_fullname,
-            company_contact.contact_nickname,
-            set_issue.issue_priority, 
-            set_issue.issue_duedate, 
-            set_issue.issue_type,
-            ticket_status.ticket_status_statusid,
-            set_team.team_name
-        FROM
-            ticket
-        JOIN 
-            set_issue ON ticket.ticket_issueid = set_issue.issue_id
-        JOIN 
-            company ON ticket.ticket_companyid = company.company_id
-        JOIN
-            company_contact ON ticket.ticket_company_contactid = company_contact.contact_id
-        JOIN 
-            ticket_status ON ticket.ticket_id = ticket_status.ticket_status_ticketid 
-        JOIN 
-            set_team ON ticket.ticket_teamid = set_team.team_id
-        JOIN
-            ticket_detail ON ticket.ticket_id = ticket_detail.detail_ticketid
-            WHERE ticket.ticket_delete = 0
-        GROUP BY 
-            ticket.ticket_id,
-            ticket.ticket_code, 
-            ticket.ticket_orderdate, 
-            ticket.ticket_type, 
-            ticket.ticket_title,
-            company.company_id,
-            company.company_shortname,
-            company.company_fullname,
-            company_contact.contact_nickname,
-            set_issue.issue_priority, 
-            set_issue.issue_duedate, 
-            set_issue.issue_type,
-            ticket_status.ticket_status_statusid,
-            set_team.team_name
-            `; 
-            if (params && params[0] !== null) { 
-                sqlQuery += ` AND ticket.ticket_companyid = $1`; 
-
-                sqlQuery += ` ORDER BY ticket.ticket_id`;
-                let rows = await client.query(sqlQuery, params);
-                resolve(rows.rows);
-            } else {
-                sqlQuery += ` ORDER BY ticket.ticket_id`;
+            let sqlQuery = `
+                SELECT
+                    ticket.ticket_id, 
+                    ticket.ticket_code, 
+                    ticket.ticket_orderdate, 
+                    ticket.ticket_type, 
+                    ticket.ticket_title,
+                    company.company_id,
+                    company.company_shortname,
+                    company.company_fullname,
+                    company_contact.contact_nickname,
+                    set_issue.issue_priority, 
+                    set_issue.issue_duedate, 
+                    set_issue.issue_type,
+                    ticket_status.ticket_status_statusid,
+                    set_team.team_name
+                FROM
+                    ticket
+                JOIN 
+                    set_issue ON ticket.ticket_issueid = set_issue.issue_id
+                JOIN 
+                    company ON ticket.ticket_companyid = company.company_id
+                JOIN
+                    company_contact ON ticket.ticket_company_contactid = company_contact.contact_id
+                JOIN 
+                    ticket_status ON ticket.ticket_id = ticket_status.ticket_status_ticketid 
+                JOIN 
+                    set_team ON ticket.ticket_teamid = set_team.team_id
+                JOIN
+                    ticket_detail ON ticket.ticket_id = ticket_detail.detail_ticketid
+                JOIN
+                    ticket_assign ON ticket_assign.assign_ticketid = ticket.ticket_id
+                JOIN
+                    sys_user ON ticket_assign.assign_userid = sys_user.user_id
+                WHERE 
+                    ticket.ticket_delete = 0
+            `;
+            if (role && role == 1) {
+                sqlQuery += `
+                    GROUP BY 
+                        ticket.ticket_id,
+                        ticket.ticket_code, 
+                        ticket.ticket_orderdate, 
+                        ticket.ticket_type, 
+                        ticket.ticket_title,
+                        company.company_id,
+                        company.company_shortname,
+                        company.company_fullname,
+                        company_contact.contact_nickname,
+                        set_issue.issue_priority, 
+                        set_issue.issue_duedate, 
+                        set_issue.issue_type,
+                        ticket_status.ticket_status_statusid,
+                        set_team.team_name
+                    ORDER BY ticket.ticket_id
+                `;
                 let rows = await client.query(sqlQuery);
                 resolve(rows.rows);
+            } else {
+                if (userId && userId !== 0) {
+                    sqlQuery += ` AND sys_user.user_id = $1
+                    GROUP BY 
+                        ticket.ticket_id,
+                        ticket.ticket_code, 
+                        ticket.ticket_orderdate, 
+                        ticket.ticket_type, 
+                        ticket.ticket_title,
+                        company.company_id,
+                        company.company_shortname,
+                        company.company_fullname,
+                        company_contact.contact_nickname,
+                        set_issue.issue_priority, 
+                        set_issue.issue_duedate, 
+                        set_issue.issue_type,
+                        ticket_status.ticket_status_statusid,
+                        set_team.team_name
+                    `;
+                    let rows = await client.query(sqlQuery, [userId]);
+                    resolve(rows.rows);
+                } else {
+                    reject("Invalid userId");
+                }
             }
         } catch (error) {
             await client.query('ROLLBACK');
@@ -70,6 +180,116 @@ const MainTicket = async function (params) {
         }
     });
 };
+
+
+// const MainTicket = async function (params, userId) {
+//     console.log("🚀 ~ MainTicket ~ userId:", userId)
+//     return new Promise(async (resolve, reject) => {
+//         const client = await connection.connect();
+//         try {
+//             let sqlQuery;
+//             let queryParams = [];
+//             if (userId && userId !== undefined && userId !== 1) {
+//                 sqlQuery = `SELECT
+//                     ticket.ticket_id, 
+//                     ticket.ticket_code, 
+//                     ticket.ticket_orderdate, 
+//                     ticket.ticket_type, 
+//                     ticket.ticket_title,
+//                     company.company_id,
+//                     company.company_shortname,
+//                     company.company_fullname,
+//                     company_contact.contact_nickname,
+//                     set_issue.issue_priority, 
+//                     set_issue.issue_duedate, 
+//                     set_issue.issue_type,
+//                     ticket_status.ticket_status_statusid,
+//                     set_team.team_name
+//                 FROM
+//                     ticket
+//                 JOIN 
+//                     set_issue ON ticket.ticket_issueid = set_issue.issue_id
+//                 JOIN 
+//                     company ON ticket.ticket_companyid = company.company_id
+//                 JOIN
+//                     company_contact ON ticket.ticket_company_contactid = company_contact.contact_id
+//                 JOIN 
+//                     ticket_status ON ticket.ticket_id = ticket_status.ticket_status_ticketid 
+//                 JOIN 
+//                     set_team ON ticket.ticket_teamid = set_team.team_id
+//                 JOIN
+//                     ticket_detail ON ticket.ticket_id = ticket_detail.detail_ticketid
+//                 JOIN
+//                     ticket_assign ON ticket_assign.assign_ticketid = ticket.ticket_id
+//                 JOIN
+//                     sys_user ON ticket_assign.assign_userid = sys_user.user_id
+//                 WHERE ticket.ticket_delete = 0
+//                 AND sys_user.user_id = $1
+//                 GROUP BY 
+//                     ticket.ticket_id,
+//                     ticket.ticket_code, 
+//                     ticket.ticket_orderdate, 
+//                     ticket.ticket_type, 
+//                     ticket.ticket_title,
+//                     company.company_id,
+//                     company.company_shortname,
+//                     company.company_fullname,
+//                     company_contact.contact_nickname,
+//                     set_issue.issue_priority, 
+//                     set_issue.issue_duedate, 
+//                     set_issue.issue_type,
+//                     ticket_status.ticket_status_statusid,
+//                     set_team.team_name`;
+//                 queryParams.push(userId);
+//             } else {
+//                 sqlQuery = `SELECT DISTINCT
+//                     ticket.ticket_id, 
+//                     ticket.ticket_code, 
+//                     ticket.ticket_orderdate, 
+//                     ticket.ticket_type, 
+//                     ticket.ticket_title,
+//                     company.company_id,
+//                     company.company_shortname,
+//                     company.company_fullname,
+//                     company_contact.contact_nickname,
+//                     set_issue.issue_priority, 
+//                     set_issue.issue_duedate, 
+//                     set_issue.issue_type,
+//                     ticket_status.ticket_status_statusid,
+//                     set_team.team_name
+//                 FROM
+//                     ticket
+//                 JOIN 
+//                     set_issue ON ticket.ticket_issueid = set_issue.issue_id
+//                 JOIN 
+//                     company ON ticket.ticket_companyid = company.company_id
+//                 JOIN
+//                     company_contact ON ticket.ticket_company_contactid = company_contact.contact_id
+//                 JOIN 
+//                     ticket_status ON ticket.ticket_id = ticket_status.ticket_status_ticketid 
+//                 JOIN 
+//                     set_team ON ticket.ticket_teamid = set_team.team_id
+//                 JOIN
+//                     ticket_detail ON ticket.ticket_id = ticket_detail.detail_ticketid
+//                 JOIN
+//                     ticket_assign ON ticket_assign.assign_ticketid = ticket.ticket_id
+//                 JOIN
+//                     sys_user ON ticket_assign.assign_userid = sys_user.user_id
+//                 WHERE ticket.ticket_delete = 0
+//                 ORDER BY ticket.ticket_id
+//                 `;
+//             };
+//             let rows = await client.query(sqlQuery, queryParams);
+//             resolve(rows.rows);
+//         } catch (error) {
+//             await client.query('ROLLBACK');
+//             reject(error);
+//         } finally {
+//             client.release();
+//         }
+//     });
+// };
+
 
 const countTicket = async function (params) {
     return new Promise(async (resolve, reject) => {
@@ -226,11 +446,15 @@ const ViewTicket = async function (params) {
             ticket.ticket_code, 
             ticket.ticket_createdate,
             ticket.ticket_orderdate, 
+            ticket.ticket_cc,
+            ticket.ticket_notification_status,
             ticket.ticket_type, 
             ticket.ticket_title,
             company.company_id,
             company.company_fullname,
             company_contact.contact_fullname,
+            set_issue.issue_id,
+            set_issue.issue_name,
             set_issue.issue_priority, 
             set_issue.issue_duedate, 
             set_issue.issue_type,
@@ -280,12 +504,16 @@ const ViewTicket = async function (params) {
             ticket.ticket_id,
             ticket.ticket_code, 
             ticket.ticket_createdate,
-            ticket.ticket_orderdate, 
+            ticket.ticket_orderdate,
+            ticket.ticket_cc,
+            ticket.ticket_notification_status,
             ticket.ticket_type, 
             ticket.ticket_title,
             company.company_id,
             company.company_fullname,
             company_contact.contact_fullname,
+            set_issue.issue_id,
+            set_issue.issue_name,
             set_issue.issue_priority, 
             set_issue.issue_duedate, 
             set_issue.issue_type,
@@ -306,18 +534,29 @@ const listDetail = async function(params) {
         const client = await connection.connect();
         try {
             let sqlQuery = `SELECT 
-                ticket.ticket_id,
-                ticket.ticket_code,
-                ticket.ticket_title,
-                ticket.ticket_createdate,
-                ticket_detail.detail_details,
-                ticket_detail.detail_createby,
-                sys_user.user_firstname AS "use_createby"
-            FROM ticket
-            JOIN ticket_detail ON ticket.ticket_id = ticket_detail.detail_ticketid
+            ticket_detail.detail_id,
+	        ticket_detail.detail_type,
+	        ticket_detail.detail_access,
+            ticket.ticket_id,
+            ticket.ticket_code,
+            ticket.ticket_title,
+            ticket_detail.detail_details,
+            ticket.ticket_createdate,
+            ticket_detail.detail_createby,
+            sys_user.user_firstname AS "use_createby"
+            FROM ticket_detail
+            JOIN ticket ON ticket_detail.detail_ticketid = ticket.ticket_id
             JOIN sys_user ON ticket_detail.detail_createby = sys_user.user_id
-            WHERE ticket.ticket_id = $1 AND ticket.ticket_delete = 0 AND ticket_detail.detail_type = 1
-            AND ticket_detail.detail_access = 1`;
+            WHERE detail_ticketid = $1 
+            AND (detail_access = 1 OR (detail_owner = $2 AND detail_access = 0))
+            ORDER BY ticket_detail.detail_createdate`;
+            // let sqlQuery = `SELECT             
+            // ticket_detail.detail_details
+            // FROM ticket_detail 
+            // WHERE detail_ticketid = $1 
+            // AND (detail_access = 1 OR detail_owner = $2 AND detail_access = 0) 
+            // ORDER BY ticket_detail.detail_createdate
+            // `;
             let rows = await client.query(sqlQuery, params);
             resolve(rows.rows);
         } catch (error) {
@@ -329,17 +568,29 @@ const listDetail = async function(params) {
 };
 
 
-const addMainNote = async function () {
+
+const MainNote = async function (params, token) {
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {
-            let sqlQuery = `SELECT * FROM ticket_detail WHERE detail_ticketid = 1 
-            AND detail_access = 1 
-            OR detail_access = 0 
-            AND detail_type = 1 
-            OR detail_type = 2`;
-            let rows = await client.query(sqlQuery);
-            resolve(rows);
+            let sqlQuery = `
+            SELECT ticket.ticket_id,
+            ticket.ticket_code,
+            ticket.ticket_title,
+            ticket.ticket_createdate,
+            ticket_detail.detail_details,
+            ticket_detail.detail_createby,
+            sys_user.user_firstname AS "use_createby"
+            FROM ticket
+            JOIN ticket_detail ON ticket.ticket_id = ticket_detail.detail_ticketid
+            JOIN sys_user ON ticket_detail.detail_createby = sys_user.user_id
+            WHERE ticket.ticket_id = $1 AND ticket.ticket_delete = 0 AND ticket_detail.detail_type = 1
+            AND ticket_detail.detail_access = 1 
+            AND (detail_access = 1 OR detail_owner = $2 AND detail_access = 0) 
+            ORDER BY ticket_detail.detail_createdate            
+            `;
+            let rows = await client.query(sqlQuery, params);
+            resolve(rows.rows);
         } catch (error) {
             reject(error);
         } finally {
@@ -347,7 +598,6 @@ const addMainNote = async function () {
         }
     });
 }
-
 const listEdit = async function(params) {
     console.log("🚀 ~ listEdit ~ params:", params);
     return new Promise(async (resolve, reject) => {
@@ -366,7 +616,7 @@ const listEdit = async function(params) {
             set_issue.issue_type,
             MAX(ticket_detail.detail_updateby) AS detail_updateby,
             COALESCE(MAX('"' || sys_user.user_firstname || '"'), '""') AS user_updateby,
-            STRING_AGG(DISTINCT set_tag.tag_name, ', ') AS tag_names
+            STRING_AGG(DISTINCT set_tag.tag_name, ', ') AS tag_name
         FROM
             ticket
         JOIN 
@@ -434,8 +684,8 @@ const addNote = async function (params) {
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {
-            let sqlQuery = `INSERT INTO ticket_detail (detail_ticketid, detail_type, detail_details, detail_access, detail_updateby, detail_createdate)
-            VALUES ($1, 2, $2, 0, $3, $4)
+            let sqlQuery = `INSERT INTO ticket_detail (detail_ticketid, detail_type, detail_details, detail_access, detail_owner, detail_createby, detail_createdate)
+            VALUES ($1, 2, $2, $3, $4, $4, $5)
             `;
             let rows = await client.query(sqlQuery, params);
             resolve(rows.rows);
@@ -579,6 +829,80 @@ async function getLatestTicketCodeNumberFromDatabase(client) {
     } catch (error) {
         throw error;
     }
+};
+
+const tagTicket = async function () {
+    return new Promise(async (resolve, reject) => {
+        const client = await connection.connect();
+        try {
+            await client.query('BEGIN');
+            let sqlQuery = `SELECT * FROM set_tag ORDER BY tag_id ASC`;
+            let rows = await client.query(sqlQuery);
+            
+            await client.query('COMMIT');
+            resolve(rows.rows);
+        } catch (error) {
+            await client.query('ROLLBACK');
+            reject(error);
+        } finally {
+            client.release();
+        }
+    });
+}
+const Finddate = async function (dataDate) {
+    console.log("🚀 ~ Finddate ~ dataDate:", dataDate)
+    return new Promise(async (resolve, reject) => {
+        const client = await connection.connect();
+        try {
+            let sqlQuery =`SELECT 
+            ticket.ticket_id, 
+            ticket.ticket_code, 
+            ticket.ticket_orderdate, 
+            ticket.ticket_type, 
+            ticket.ticket_title,
+            company.company_id,
+            company.company_shortname,
+            company.company_fullname,
+            company_contact.contact_nickname,
+            set_issue.issue_priority, 
+            set_issue.issue_duedate, 
+            set_issue.issue_type,
+            ticket_status.ticket_status_statusid,
+            set_team.team_name,
+            ticket,ticket_createdate
+        FROM
+            ticket
+        JOIN 
+            set_issue ON ticket.ticket_issueid = set_issue.issue_id
+        JOIN 
+            company ON ticket.ticket_companyid = company.company_id
+        JOIN
+            company_contact ON ticket.ticket_company_contactid = company_contact.contact_id
+        JOIN 
+            ticket_status ON ticket.ticket_id = ticket_status.ticket_status_ticketid 
+        JOIN 
+            set_team ON ticket.ticket_teamid = set_team.team_id
+        JOIN
+            ticket_detail ON ticket.ticket_id = ticket_detail.detail_ticketid
+        JOIN
+            ticket_assign ON ticket_assign.assign_ticketid = ticket.ticket_id
+        JOIN
+            sys_user ON ticket_assign.assign_userid = sys_user.user_id
+        WHERE 
+            ticket.ticket_delete = 0
+            AND DATE(ticket.ticket_createdate) >= $1 
+            AND DATE(ticket.ticket_createdate) <= $2
+        ORDER BY 
+            ticket.ticket_createdate
+            `;
+            let rows = await client.query(sqlQuery, dataDate);
+            resolve(rows.rows);
+        } catch (error) {
+            reject(error);
+        } finally {
+            client.release();
+        }
+    });
 }
 
 module.exports = { MainTicket, 
@@ -594,6 +918,9 @@ module.exports = { MainTicket,
     assignUser, 
     DataNotification, 
     deleteTicket, 
-    addNote 
+    addNote,
+    MainNote, // Test
+    Finddate,
+    tagTicket
 };
 
