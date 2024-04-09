@@ -19,5 +19,7 @@ router.post('/update', TicketController.updateByTicket); // update data Ticket
 router.post('/add-note',functionAuth.verityMidToken,TicketController.AddNoteByTicket); // add Note Ticket
 router.post('/finddate',TicketController.Finddate); // find date
 router.post('/tags',TicketController.Tags); // list tag Ticket
+router.post('/edit-note',TicketController.EditNoteByTicket); // edit note Ticket
+router.post('/delete-note',TicketController.DeleteNoteByTicket); // delete note Ticket
 // router.post('/mainnote', functionAuth.verityMidToken,TicketController.MainNoteByTicket); // Test main note
 module.exports = router;

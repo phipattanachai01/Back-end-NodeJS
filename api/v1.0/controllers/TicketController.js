@@ -8,11 +8,10 @@ const moment = require('moment');
 const DatalistByTicket = async function (req, res) {
     let params = req.body.company_id ? [req.body.company_id] : null;
     let userId = req.user.id;
-    let role = req.user.role
-    console.log("🚀 ~ DatalistByTicket ~ role:", role)
-    // console.log("🚀 ~ DatalistByTicket ~ userId:", userId)
+    let role = req.user.role;
+    let dataDate = (req.body.start_date && req.body.end_date) ? [req.body.start_date, req.body.end_date] : null;
     try {
-        let data = await Ticket.MainTicket(params, userId, role);
+        let data = await Ticket.MainTicket(params, userId, role, dataDate);
         
         let Result = data.map(item => {
             let a = moment();
@@ -121,7 +120,8 @@ const listdetailByTicket = async function (req, res) {
     try{
         var dataList = await Ticket.listDetail(params);        
         var transformedData = dataList.reduce((acc, item) => {
-            item.ticket_createdate = moment(item.ticket_createdate).format('ddd, DD MMM YYYY [at] HH:mm');
+            item.ticket_createdate = moment(item.ticket_createdate).format('ddd, DD MMM YYYY [at] HH:mm A');
+            item.detail_createdate = moment(item.detail_createdate).format('ddd, DD MMM YYYY [at] HH:mm A');
             acc.push(item);
             return acc;
         }, []);
@@ -295,6 +295,7 @@ const deleteByTicket = async function(req, res) {
         res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
             message: rescode.c1000.description,
+            data: dataDelete
         });
     } catch (error) {
         res.status(rescode.c5001.httpStatusCode).json({
@@ -416,8 +417,48 @@ const Tags = async function (req, res) {
         });
     }
 }
+
+const EditNoteByTicket = async function (req, res) {
+    let data = [req.body.detail_id,req.body.detail_details];
+    try {
+        var result = await Ticket.updateNote(data)
+        res.status(rescode.c1000.httpStatusCode).json({
+            code: rescode.c1000.businessCode,
+            message: rescode.c1000.description,
+            data: result
+        });
+    } catch (error) {
+        return res.status(rescode.c5001.httpStatusCode).json({
+            code: rescode.c5001.businessCode,
+            message: rescode.c5001.description,
+            error: rescode.c5001.error,
+            timeReq: dateTimeFormater(new Date(), 'x'),
+            catch: error.message
+        });
+    }
+};
+
+const DeleteNoteByTicket = async function (req, res) {
+    let data = [req.body.detail_id];
+    try {
+        var result = await Ticket.deleteNote(data);
+        res.status(rescode.c1000.httpStatusCode).json({
+            code: rescode.c1000.businessCode,
+            message: rescode.c1000.description,
+            data: result
+        });
+    } catch (error) {
+        return res.status(rescode.c5001.httpStatusCode).json({
+            code: rescode.c5001.businessCode,
+            message: rescode.c5001.description,
+            error: rescode.c5001.error,
+            timeReq: dateTimeFormater(new Date(), 'x'),
+            catch: error.message
+        });
+    }
+}
 const Finddate = async function(req, res) {
-    let dataDate = [req.body.ticket_createdate, req.body.ticket_createdate]
+    let dataDate = [req.body.start_date, req.body.end_date];
     try{
         var DataDate = await Ticket.Finddate(dataDate);
         res.status(rescode.c1000.httpStatusCode).json({
@@ -450,6 +491,8 @@ module.exports = {
     CountByTicket,
     deleteByTicket,
     AddNoteByTicket,
+    EditNoteByTicket,
+    DeleteNoteByTicket,
     Finddate,
     Tags
 };

@@ -5,6 +5,7 @@ const { listBuckets, makeBucket, putObjectUploadFile, copyObjectCpoyFile } = req
 const functionBasicCenter = require('../middleware/functionBasicCenter');
 const { dateTimeFormater, keysToCamel } = require('../middleware/formatConverter');
 const Log = require('../models/log');
+const fileModel = require('../models/file'); 
 
 var { MINIO_BUCKET, minioConfig } = require('../../../config/default');
 
@@ -48,6 +49,11 @@ const uploadFile = async function uploadFile(req, res) {
             folder_name: folder_name,
             // buffer: req.file.buffer,
         };
+        var paramsFile = [req.file.originalname, req.file.size, req.headers['file-type'], file[file.length - 1], file_url, file_path]
+        console.log("🚀 ~ uploadFile ~ paramsFile:", paramsFile)
+        // var filedata =  await fileModel.file(paramsFile);
+        // console.log("🚀 ~ uploadFile ~ filedata:", filedata)
+
 
         var etag = await putObjectUploadFile(params.backet_name, file_path, req.file.buffer);
         params.etag = etag;

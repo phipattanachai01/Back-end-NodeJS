@@ -63,14 +63,14 @@ const { connection } = require('../../../connection');
 //                 let rows = await client.query(sqlQuery, userId);
 //                 resolve(rows.rows);
 //             } 
-//             if (params && params.company_id !== undefined) {
+            // if (params && params.company_id !== undefined) {
                  
-//                 sqlQuery += ` AND ticket.ticket_companyid = $1`; 
+            //     sqlQuery += ` AND ticket.ticket_companyid = $1`; 
 
-//                 sqlQuery += ` ORDER BY ticket.ticket_id`;
-//                 let rows = await client.query(sqlQuery, params);
-//                 resolve(rows.rows);
-//             } else {
+            //     sqlQuery += ` ORDER BY ticket.ticket_id`;
+            //     let rows = await client.query(sqlQuery, params);
+            //     resolve(rows.rows);
+            // } else {
 //                 sqlQuery += ` ORDER BY ticket.ticket_id`;
 //                 let rows = await client.query(sqlQuery);
 //                 resolve(rows.rows);
@@ -84,13 +84,15 @@ const { connection } = require('../../../connection');
 //     });
 // };
 
-const MainTicket = async function (params, userId, role) {
+const MainTicket = async function (params, userId, role, dataDate) {
+    console.log("🚀 ~ MainTicket ~ dataDate:", dataDate)
+    console.log("🚀 ~ MainTicket ~ params:", params)
     console.log("🚀 ~ MainTicket ~ userId:", userId)
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {
             let sqlQuery = `
-                SELECT
+                SELECT 
                     ticket.ticket_id, 
                     ticket.ticket_code, 
                     ticket.ticket_orderdate, 
@@ -126,52 +128,156 @@ const MainTicket = async function (params, userId, role) {
                 WHERE 
                     ticket.ticket_delete = 0
             `;
-            if (role && role == 1) {
+            if (dataDate && dataDate !== null) {
                 sqlQuery += `
-                    GROUP BY 
-                        ticket.ticket_id,
-                        ticket.ticket_code, 
-                        ticket.ticket_orderdate, 
-                        ticket.ticket_type, 
-                        ticket.ticket_title,
-                        company.company_id,
-                        company.company_shortname,
-                        company.company_fullname,
-                        company_contact.contact_nickname,
-                        set_issue.issue_priority, 
-                        set_issue.issue_duedate, 
-                        set_issue.issue_type,
-                        ticket_status.ticket_status_statusid,
-                        set_team.team_name
-                    ORDER BY ticket.ticket_id
+                    AND DATE(ticket.ticket_createdate) >= $1 
+                    AND DATE(ticket.ticket_createdate) <= $2
+                    ORDER BY ticket.ticket_createdate
                 `;
-                let rows = await client.query(sqlQuery);
+                let rows = await client.query(sqlQuery, dataDate);
+                resolve(rows.rows);
+            }
+            
+            if (params && params !== undefined) {
+                sqlQuery += ` AND ticket.ticket_companyid = $1`; 
+                sqlQuery += ` GROUP BY ticket.ticket_id,
+                company.company_id,
+                company_contact.contact_nickname,
+                set_issue.issue_priority,
+                set_issue.issue_duedate,
+                 set_issue.issue_type,
+                ticket_status.ticket_status_statusid,
+                set_team.team_name`;
+                let rows = await client.query(sqlQuery, params);
                 resolve(rows.rows);
             } else {
-                if (userId && userId !== 0) {
-                    sqlQuery += ` AND sys_user.user_id = $1
-                    GROUP BY 
-                        ticket.ticket_id,
-                        ticket.ticket_code, 
-                        ticket.ticket_orderdate, 
-                        ticket.ticket_type, 
-                        ticket.ticket_title,
-                        company.company_id,
-                        company.company_shortname,
-                        company.company_fullname,
-                        company_contact.contact_nickname,
-                        set_issue.issue_priority, 
-                        set_issue.issue_duedate, 
-                        set_issue.issue_type,
-                        ticket_status.ticket_status_statusid,
-                        set_team.team_name
+                if (role && role == 1) {
+                    sqlQuery += `
+                        GROUP BY 
+                            ticket.ticket_id,
+                            ticket.ticket_code, 
+                            ticket.ticket_orderdate, 
+                            ticket.ticket_type, 
+                            ticket.ticket_title,
+                            company.company_id,
+                            company.company_shortname,
+                            company.company_fullname,
+                            company_contact.contact_nickname,
+                            set_issue.issue_priority, 
+                            set_issue.issue_duedate, 
+                            set_issue.issue_type,
+                            ticket_status.ticket_status_statusid,
+                            set_team.team_name
+                        ORDER BY ticket.ticket_id
                     `;
-                    let rows = await client.query(sqlQuery, [userId]);
+                    let rows = await client.query(sqlQuery);
                     resolve(rows.rows);
                 } else {
-                    reject("Invalid userId");
+                    if (userId && userId !== 0) {
+                        sqlQuery += ` AND sys_user.user_id = $1
+                        GROUP BY 
+                            ticket.ticket_id,
+                            ticket.ticket_code, 
+                            ticket.ticket_orderdate, 
+                            ticket.ticket_type, 
+                            ticket.ticket_title,
+                            company.company_id,
+                            company.company_shortname,
+                            company.company_fullname,
+                            company_contact.contact_nickname,
+                            set_issue.issue_priority, 
+                            set_issue.issue_duedate, 
+                            set_issue.issue_type,
+                            ticket_status.ticket_status_statusid,
+                            set_team.team_name
+                        `;
+                        sqlQuery += ` ORDER BY ticket.ticket_id`;
+                        let rows = await client.query(sqlQuery, [userId]);
+                        resolve(rows.rows);
+                    } else {
+                        reject("Invalid userId");
+                    }
                 }
             }
+
+            if (dataDate && dataDate !== 0) {
+                sqlQuery += `
+                    AND DATE(ticket.ticket_createdate) >= $1 
+                    AND DATE(ticket.ticket_createdate) <= $2
+                    ORDER BY ticket.ticket_createdate
+                `;
+                let rows = await client.query(sqlQuery, dataDate);
+                resolve(rows.rows);
+            }
+            // if (dataDate && dataDate !== 0) {
+            //     sqlQuery += `
+            //     AND DATE(ticket.ticket_createdate) >= $1 
+            //     AND DATE(ticket.ticket_createdate) <= $2
+            //     `;
+                // sqlQuery += ` ORDER BY ticket.ticket_createdate
+                // GROUP BY 
+                //             ticket.ticket_id,
+                //             ticket.ticket_code, 
+                //             ticket.ticket_orderdate, 
+                //             ticket.ticket_type, 
+                //             ticket.ticket_title,
+                //             company.company_id,
+                //             company.company_shortname,
+                //             company.company_fullname,
+                //             company_contact.contact_nickname,
+                //             set_issue.issue_priority, 
+                //             set_issue.issue_duedate, 
+                //             set_issue.issue_type,
+                //             ticket_status.ticket_status_statusid,
+                //             set_team.team_name`;
+            // }
+
+            // if (role && role == 1) {
+            //     sqlQuery += `
+            //         GROUP BY 
+            //             ticket.ticket_id,
+            //             ticket.ticket_code, 
+            //             ticket.ticket_orderdate, 
+            //             ticket.ticket_type, 
+            //             ticket.ticket_title,
+            //             company.company_id,
+            //             company.company_shortname,
+            //             company.company_fullname,
+            //             company_contact.contact_nickname,
+            //             set_issue.issue_priority, 
+            //             set_issue.issue_duedate, 
+            //             set_issue.issue_type,
+            //             ticket_status.ticket_status_statusid,
+            //             set_team.team_name
+            //         ORDER BY ticket.ticket_id
+            //     `;
+            //     let rows = await client.query(sqlQuery);
+            //     resolve(rows.rows);
+            // } else {
+            //     if (userId && userId !== 0) {
+            //         sqlQuery += ` AND sys_user.user_id = $1
+            //         GROUP BY 
+            //             ticket.ticket_id,
+            //             ticket.ticket_code, 
+            //             ticket.ticket_orderdate, 
+            //             ticket.ticket_type, 
+            //             ticket.ticket_title,
+            //             company.company_id,
+            //             company.company_shortname,
+            //             company.company_fullname,
+            //             company_contact.contact_nickname,
+            //             set_issue.issue_priority, 
+            //             set_issue.issue_duedate, 
+            //             set_issue.issue_type,
+            //             ticket_status.ticket_status_statusid,
+            //             set_team.team_name
+            //         `;
+            //         let rows = await client.query(sqlQuery, [userId]);
+            //         resolve(rows.rows);
+            //     } else {
+            //         reject("Invalid userId");
+            //     }
+            // }
         } catch (error) {
             await client.query('ROLLBACK');
             reject(error);
@@ -540,7 +646,9 @@ const listDetail = async function(params) {
             ticket.ticket_id,
             ticket.ticket_code,
             ticket.ticket_title,
+            ticket_detail.detail_id,
             ticket_detail.detail_details,
+            ticket_detail.detail_createdate,
             ticket.ticket_createdate,
             ticket_detail.detail_createby,
             sys_user.user_firstname AS "use_createby"
@@ -793,7 +901,7 @@ const deleteTicket = async function(params) {
             let rows = await client.query(sqlQuery, params);
             
             await client.query('COMMIT');
-            resolve(rows.rows);
+            resolve('Delete Successfully');
         } catch (error) {
             await client.query('ROLLBACK');
             reject(error);
@@ -849,12 +957,50 @@ const tagTicket = async function () {
         }
     });
 }
+
+const updateNote = async function (data) {
+    return new Promise(async (resolve, reject) => {
+        const client = await connection.connect();
+        try {
+            await client.query('BEGIN');
+            let sqlQuery = `UPDATE ticket_detail SET detail_details = $2 WHERE detail_id = $1`;
+            let rows = await client.query(sqlQuery, data);
+            
+            await client.query('COMMIT');
+            resolve(rows.rows);
+        } catch (error) {
+            await client.query('ROLLBACK');
+            reject(error);
+        } finally {
+            client.release();
+        }
+    });
+};
+
+const deleteNote = async function (data) {
+    return new Promise(async (resolve, reject) => {
+        const client = await connection.connect();
+        try {
+            await client.query('BEGIN');
+            let sqlQuery = `UPDATE ticket_detail SET detail_delete = 1 WHERE detail_id = $1`;
+            let rows = await client.query(sqlQuery, data);
+            
+            await client.query('COMMIT');
+            resolve(rows.rows);
+        } catch (error) {
+            await client.query('ROLLBACK');
+            reject(error);
+        } finally {
+            client.release();
+        }
+    });
+}
 const Finddate = async function (dataDate) {
     console.log("🚀 ~ Finddate ~ dataDate:", dataDate)
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {
-            let sqlQuery =`SELECT 
+            let sqlQuery =`SELECT DISTINCT
             ticket.ticket_id, 
             ticket.ticket_code, 
             ticket.ticket_orderdate, 
@@ -869,7 +1015,7 @@ const Finddate = async function (dataDate) {
             set_issue.issue_type,
             ticket_status.ticket_status_statusid,
             set_team.team_name,
-            ticket,ticket_createdate
+            ticket.ticket_createdate
         FROM
             ticket
         JOIN 
@@ -919,7 +1065,9 @@ module.exports = { MainTicket,
     DataNotification, 
     deleteTicket, 
     addNote,
+    deleteNote,
     MainNote, // Test
+    updateNote,
     Finddate,
     tagTicket
 };
