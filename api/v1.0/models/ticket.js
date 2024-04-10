@@ -498,8 +498,8 @@ const addTicket = async function (params) {
             let sqlQueryTicketDetail = `
                 INSERT INTO ticket_detail (
                     detail_createby, detail_ticketid, detail_type, detail_access,
-                    detail_details, detail_createdate
-                ) VALUES ($1, $2, 1, 1, $3, $4)`;
+                    detail_details, detail_createdate, detail_delete
+                ) VALUES ($1, $2, 1, 1, $3, $4, 0)`;
 
             let rowsTicketDetail = await client.query(sqlQueryTicketDetail, [
                 params[13],
@@ -649,6 +649,7 @@ const listDetail = async function(params) {
             ticket_detail.detail_id,
             ticket_detail.detail_details,
             ticket_detail.detail_createdate,
+            ticket_detail.detail_updatedate,
             ticket.ticket_createdate,
             ticket_detail.detail_createby,
             sys_user.user_firstname AS "use_createby"
@@ -657,6 +658,7 @@ const listDetail = async function(params) {
             JOIN sys_user ON ticket_detail.detail_createby = sys_user.user_id
             WHERE detail_ticketid = $1 
             AND (detail_access = 1 OR (detail_owner = $2 AND detail_access = 0))
+            AND (detail_type <> 2 OR (detail_type = 2 AND detail_delete = 0))
             ORDER BY ticket_detail.detail_createdate`;
             // let sqlQuery = `SELECT             
             // ticket_detail.detail_details
@@ -792,8 +794,8 @@ const addNote = async function (params) {
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {
-            let sqlQuery = `INSERT INTO ticket_detail (detail_ticketid, detail_type, detail_details, detail_access, detail_owner, detail_createby, detail_createdate)
-            VALUES ($1, 2, $2, $3, $4, $4, $5)
+            let sqlQuery = `INSERT INTO ticket_detail (detail_ticketid, detail_type, detail_details, detail_access, detail_owner, detail_createby, detail_createdate, detail_delete)
+            VALUES ($1, 2, $2, $3, $4, $4, $5, 0)
             `;
             let rows = await client.query(sqlQuery, params);
             resolve(rows.rows);
@@ -944,7 +946,7 @@ const tagTicket = async function () {
         const client = await connection.connect();
         try {
             await client.query('BEGIN');
-            let sqlQuery = `SELECT * FROM set_tag ORDER BY tag_id ASC`;
+            let sqlQuery = `SELECT * FROM set_tag WHERE tag_delete = 0 ORDER BY tag_id ASC`;
             let rows = await client.query(sqlQuery);
             
             await client.query('COMMIT');
@@ -963,7 +965,7 @@ const updateNote = async function (data) {
         const client = await connection.connect();
         try {
             await client.query('BEGIN');
-            let sqlQuery = `UPDATE ticket_detail SET detail_details = $2 WHERE detail_id = $1`;
+            let sqlQuery = `UPDATE ticket_detail SET detail_details = $2 , detail_updatedate = $3 WHERE detail_id = $1`;
             let rows = await client.query(sqlQuery, data);
             
             await client.query('COMMIT');
@@ -978,6 +980,7 @@ const updateNote = async function (data) {
 };
 
 const deleteNote = async function (data) {
+    console.log("🚀 ~ deleteNote ~ data:", data)
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {

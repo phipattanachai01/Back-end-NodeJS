@@ -5,7 +5,7 @@ const { listBuckets, makeBucket, putObjectUploadFile, copyObjectCpoyFile } = req
 const functionBasicCenter = require('../middleware/functionBasicCenter');
 const { dateTimeFormater, keysToCamel } = require('../middleware/formatConverter');
 const Log = require('../models/log');
-const fileModel = require('../models/file'); 
+const fileModel = require('../models/file');
 
 var { MINIO_BUCKET, minioConfig } = require('../../../config/default');
 
@@ -13,7 +13,7 @@ const uploadFile = async function uploadFile(req, res) {
     var start = new Date();
     try {
         var file = req.file.originalname.split('.');
-        console.log("🚀 ~ uploadFile ~ req:", req.file)
+        console.log('🚀 ~ uploadFile ~ req:', req.file);
 
         switch (req.headers['file-type']) {
             case '1':
@@ -23,7 +23,7 @@ const uploadFile = async function uploadFile(req, res) {
                 var file_path = `${folder_name}${file_name}`;
                 break;
             case '2':
-                var folder_name = `profile/${dateTimeFormater(new Date(), 'yyyy-MM')}/`;
+                var folder_name = `info/${dateTimeFormater(new Date(), 'yyyy-MM')}/`;
                 var prefix = `${dateTimeFormater(new Date(), 'DD')}-${Date.now()}`; //day-timestamp
                 var file_name = `${prefix}-${functionBasicCenter.makeid(15).toLowerCase()}.${file[file.length - 1]}`;
                 var file_path = `${folder_name}${file_name}`;
@@ -34,6 +34,19 @@ const uploadFile = async function uploadFile(req, res) {
                 var file_name = `${prefix}-${functionBasicCenter.makeid(15).toLowerCase()}.${file[file.length - 1]}`;
                 var file_path = `${folder_name}${file_name}`;
                 break;
+            case '4':
+                var folder_name = `note/${dateTimeFormater(new Date(), 'yyyy-MM')}/`;
+                var prefix = `${dateTimeFormater(new Date(), 'DD')}-${Date.now()}`; //day-timestamp
+                var file_name = `${prefix}-${functionBasicCenter.makeid(15).toLowerCase()}.${file[file.length - 1]}`;
+                var file_path = `${folder_name}${file_name}`;
+                break;
+            case '5':
+                var folder_name = `cont/${dateTimeFormater(new Date(), 'yyyy-MM')}/`;
+                var prefix = `${dateTimeFormater(new Date(), 'DD')}-${Date.now()}`; //day-timestamp
+                var file_name = `${prefix}-${functionBasicCenter.makeid(15).toLowerCase()}.${file[file.length - 1]}`;
+                var file_path = `${folder_name}${file_name}`;
+                break;
+
             default:
                 var folder_name = ``;
                 var prefix = `oth/${dateTimeFormater(new Date(), 'DD')}-${Date.now()}`; //day-timestamp
@@ -49,11 +62,26 @@ const uploadFile = async function uploadFile(req, res) {
             folder_name: folder_name,
             // buffer: req.file.buffer,
         };
-        var paramsFile = [req.file.originalname, req.file.size, req.headers['file-type'], file[file.length - 1], file_url, file_path]
-        console.log("🚀 ~ uploadFile ~ paramsFile:", paramsFile)
+        var fileUrl = `${minioConfig.view_url}/${params.backet_name}`;
+        var filePath = `${params.backet_name}/${file_path}`;
+
+        var paramsFile = [
+            req.file.originalname,
+            req.file.size,
+            req.headers['file-type'],
+            file[file.length - 1],
+            fileUrl,
+            filePath,
+        ];
+        console.log('🚀 ~ uploadFile ~ paramsFile:', paramsFile);
+
+        console.log(
+            '🚀 ~ uploadFile ~ paramsencodeURIComponent(paramsFile[0])File:',
+            encodeURIComponent(paramsFile[0])
+        );
+
         // var filedata =  await fileModel.file(paramsFile);
         // console.log("🚀 ~ uploadFile ~ filedata:", filedata)
-
 
         var etag = await putObjectUploadFile(params.backet_name, file_path, req.file.buffer);
         params.etag = etag;
@@ -70,11 +98,17 @@ const uploadFile = async function uploadFile(req, res) {
         //  if (insert_log_file.length == 1) {
         var payload = {
             etag: etag,
-            file_id: '1', //insert_log_file[0].uploadfile_id,
-            file_path: `${params.backet_name}/${file_path}`,
-            file_url: `${minioConfig.view_url}/${params.backet_name}/${file_path}`,
-            start_time: start,
+            original_name: req.file.originalname,
+            file_type : req.headers['file-type'],
+            filePath : `${params.backet_name}/${file_path}`,
+            fileUrl : `${minioConfig.view_url}/${params.backet_name}`,
+            // file_url: `${minioConfig.view_url}/${params.backet_name}/${file_path}`,
+
+            // file_id: '1', //insert_log_file[0].uploadfile_id,
+            // file_path: `${params.backet_name}/${file_path}`,
+            // start_time: start,
         };
+        console.log("🚀 ~ uploadFile ~ payload:", payload)
         //  } else {
         //   var payload = {
         //    etag: etag,
@@ -97,6 +131,7 @@ const uploadFile = async function uploadFile(req, res) {
             catch: error.message,
         });
     }
+    console.log('🚀 ~ uploadFile ~ encodeURIComponent(paramsFile[0]):', encodeURIComponent(paramsFile[0]));
 };
 
 module.exports = {

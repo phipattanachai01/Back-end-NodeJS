@@ -122,6 +122,7 @@ const listdetailByTicket = async function (req, res) {
         var transformedData = dataList.reduce((acc, item) => {
             item.ticket_createdate = moment(item.ticket_createdate).format('ddd, DD MMM YYYY [at] HH:mm A');
             item.detail_createdate = moment(item.detail_createdate).format('ddd, DD MMM YYYY [at] HH:mm A');
+            item.detail_updatedate = moment(item.detail_updatedate).format('ddd, DD MMM YYYY [at] HH:mm A');
             acc.push(item);
             return acc;
         }, []);
@@ -419,7 +420,8 @@ const Tags = async function (req, res) {
 }
 
 const EditNoteByTicket = async function (req, res) {
-    let data = [req.body.detail_id,req.body.detail_details];
+    let formattedDateTime = dateTimeFormater(new Date(), 'yyyy-MM-DD HH:mm:ss');
+    let data = [req.body.detail_id,req.body.detail_details,formattedDateTime];
     try {
         var result = await Ticket.updateNote(data)
         res.status(rescode.c1000.httpStatusCode).json({
@@ -440,6 +442,7 @@ const EditNoteByTicket = async function (req, res) {
 
 const DeleteNoteByTicket = async function (req, res) {
     let data = [req.body.detail_id];
+    console.log("🚀 ~ DeleteNoteByTicket ~ data:", data)
     try {
         var result = await Ticket.deleteNote(data);
         res.status(rescode.c1000.httpStatusCode).json({

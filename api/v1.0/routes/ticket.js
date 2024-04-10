@@ -3,7 +3,7 @@ const router = express.Router();
 const TicketController = require('../controllers/TicketController');
 const verifyParamsTicket = require('../middleware/verifyParamsTicket');
 const functionAuth = require('../middleware/functionAuth');
-router.post('/create',functionAuth.verityMidToken, TicketController.CreateTicket); // create a new Ticket
+router.post('/create',functionAuth.verityMidToken,TicketController.CreateTicket); // create a new Ticket
 router.post('/main',functionAuth.verityMidToken,TicketController.DatalistByTicket); // main list Ticket
 router.post('/company-ticket',TicketController.CompanyTicket); // data company Ticket
 router.post('/view',functionAuth.verityMidToken ,TicketController.ViewByTicket); // view data Ticket

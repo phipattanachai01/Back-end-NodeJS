@@ -16,7 +16,9 @@ const RegisterUser = async function (req, res) {
         hashPass,
         formattedDateTime,
         req.body.user_rolename,
-        req.body.user_createby
+        req.body.user_createby,
+        filePath,
+        fileUrl
     ];
     // console.log(paramsRe);
     try {

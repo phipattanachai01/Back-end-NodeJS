@@ -15,6 +15,21 @@ const createTag = async function (data) {
     })
 };
 
+const listTag = async function () {
+    return new Promise(async(resolve, reject) => {
+        const client = await connection.connect();
+        try {
+            let sqlQuery = `SELECT * FROM set_tag WHERE tag_delete = 0`;
+            let rows = await client.query(sqlQuery);
+            resolve(rows.rows);
+        } catch (error) {
+            reject(error);
+          } finally {
+            client.release();
+        }
+    })
+}
+
 const deleteTag = async function (tagId) {
     return new Promise(async(resolve, reject) => {
         const client = await connection.connect();
@@ -34,4 +49,6 @@ const deleteTag = async function (tagId) {
 }
 
 module.exports = { createTag,
-    deleteTag };
+    deleteTag,
+    listTag 
+};
