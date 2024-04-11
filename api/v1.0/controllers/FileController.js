@@ -63,16 +63,16 @@ const uploadFile = async function uploadFile(req, res) {
             // buffer: req.file.buffer,
         };
         var fileUrl = `${minioConfig.view_url}/${params.backet_name}`;
-        var filePath = `${params.backet_name}/${file_path}`;
+        var filePath = `${file_path}`;
 
-        var paramsFile = [
-            req.file.originalname,
-            req.file.size,
-            req.headers['file-type'],
-            file[file.length - 1],
-            fileUrl,
-            filePath,
-        ];
+        var paramsFile = {
+            original_name: req.file.originalname,
+            file_size: req.file.size,
+            file_type: req.headers['file-type'],
+            file_extension : file[file.length - 1],
+            fileUrl: fileUrl,
+            filePath: filePath,
+        };
         console.log('🚀 ~ uploadFile ~ paramsFile:', paramsFile);
 
         console.log(
@@ -98,12 +98,13 @@ const uploadFile = async function uploadFile(req, res) {
         //  if (insert_log_file.length == 1) {
         var payload = {
             etag: etag,
+            file_details: paramsFile,
+            path_url: `${minioConfig.view_url}/${params.backet_name}/${file_path}`,
+            file_url : `${minioConfig.view_url}/${params.backet_name}`,
+            filePath : `${file_path}`,
             original_name: req.file.originalname,
             file_type : req.headers['file-type'],
-            filePath : `${params.backet_name}/${file_path}`,
-            fileUrl : `${minioConfig.view_url}/${params.backet_name}`,
-            // file_url: `${minioConfig.view_url}/${params.backet_name}/${file_path}`,
-
+            // fileUrl : `${minioConfig.view_url}/${params.backet_name}`,
             // file_id: '1', //insert_log_file[0].uploadfile_id,
             // file_path: `${params.backet_name}/${file_path}`,
             // start_time: start,
@@ -121,7 +122,7 @@ const uploadFile = async function uploadFile(req, res) {
             code: rescode.c1000.businessCode,
             message: rescode.c1000.description,
             error: rescode.c1000.error,
-            data: keysToCamel(payload),
+            data: payload
         });
     } catch (error) {
         return res.status(rescode.c1104.httpStatusCode).json({
@@ -131,7 +132,6 @@ const uploadFile = async function uploadFile(req, res) {
             catch: error.message,
         });
     }
-    console.log('🚀 ~ uploadFile ~ encodeURIComponent(paramsFile[0]):', encodeURIComponent(paramsFile[0]));
 };
 
 module.exports = {

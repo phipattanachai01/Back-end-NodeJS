@@ -87,7 +87,14 @@ const CreateTicket = async function (req, res) {
             req.body.ticket_userid,
             req.body.ticket_tagid,
             req.body.detail_details,
-            userId        
+            userId,
+            req.body.file_name || null,
+            req.body.file_size || null,
+            req.body.file_type || null,
+            req.body.file_extension || null,
+            req.body.file_url || null,
+            req.body.file_path || null
+
         ];
         console.log("🚀 ~ CreateTicket ~ params:", params)
         // console.log('🚀 ~ CreateTicket ~ params:', params);

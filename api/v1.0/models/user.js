@@ -11,7 +11,7 @@ const adduse = function (params) {
             console.log();
             let rows = await client.query(sqlQuery, params);
             await client.query('COMMIT');
-            resolve(rows.rows);
+            resolve('Successfully');
         } catch (error) {
             await client.query('ROLLBACK');
             reject(error);
@@ -35,11 +35,14 @@ const mainlistByUser = function () {
             user_name, 
             role_name AS user_role, 
             user_status,
-            user_roleid
+            user_roleid,
+            user_url,
+            user_path
         FROM 
             sys_user
         JOIN 
             sys_role  ON sys_user.user_roleid = role_id
+        WHERE user_delete = 0
         ORDER BY 
             user_id;
         `;
@@ -103,19 +106,10 @@ const deleteUser = function (userID) {
         const client = await connection.connect();
         try {
             await client.query('BEGIN');
-            var sqlQuery = `WITH deleted_user AS (
-                DELETE FROM sys_user 
-                WHERE user_id = $1
-                RETURNING user_id
-            )
-            UPDATE sys_user 
-            SET user_id = user_id - 1
-            WHERE user_id > $1
-            AND user_id NOT IN (SELECT user_id FROM sys_user)
-            AND user_id <> 1
+            var sqlQuery = `UPDATE sys_user SET user_delete = 1 WHERE user_id = $1
             `;
             console.log();
-            let rows = await client.query(sqlQuery, [userID]);
+            let rows = await client.query(sqlQuery, userID);
             await client.query('COMMIT');
             resolve(rows.rows);
         } catch (error) {
@@ -127,27 +121,27 @@ const deleteUser = function (userID) {
         }
     });
 };
-const ReorganizeUserIDs = function(userID) {
-    return new Promise(async (resolve, reject) => {
-        const client = await connection.connect();
-        try {
-            const reorganizeQuery = `
-                UPDATE sys_user
-                SET user_id = user_id - 1
-                WHERE user_id > $1
-            `;
-            await client.query(reorganizeQuery, [userID]);
-            await client.query("SELECT setval('sys_user_seq', COALESCE((SELECT MAX(user_id) FROM sys_user), 0))");
+// const ReorganizeUserIDs = function(userID) {
+//     return new Promise(async (resolve, reject) => {
+//         const client = await connection.connect();
+//         try {
+//             const reorganizeQuery = `
+//                 UPDATE sys_user
+//                 SET user_id = user_id - 1
+//                 WHERE user_id > $1
+//             `;
+//             await client.query(reorganizeQuery, [userID]);
+//             await client.query("SELECT setval('sys_user_seq', COALESCE((SELECT MAX(user_id) FROM sys_user), 0))");
 
-            resolve(true);
-        } catch (error) {
-            reject(error);
-            console.log(error);
-        } finally {
-            client.release();
-        }
-    });
-}
+//             resolve(true);
+//         } catch (error) {
+//             reject(error);
+//             console.log(error);
+//         } finally {
+//             client.release();
+//         }
+//     });
+// }
 const changePasswordUser = function (params) {
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
@@ -211,4 +205,4 @@ const checkUserExists = async function (username) {
 
 
 
-module.exports = { adduse, loginuser, updateUser, deleteUser, changePasswordUser, ReorganizeUserIDs , updateStatus, mainlistByUser , checkUserExists};
+module.exports = { adduse, loginuser, updateUser, deleteUser, changePasswordUser , updateStatus, mainlistByUser , checkUserExists};

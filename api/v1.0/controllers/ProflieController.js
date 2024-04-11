@@ -16,7 +16,8 @@ const ProflieUser = async function (req, res) {
             firstname: user.user_firstname,
             lastname: user.user_lastname,
             role_name: user.role_name,
-            user_language: user.user_language
+            user_language: user.user_language,
+            path_images: `${user.user_url || ''}/${user.user_path || ''}`.trim()
         }));
         res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,

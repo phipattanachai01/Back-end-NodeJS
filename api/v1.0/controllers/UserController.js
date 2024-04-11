@@ -2,11 +2,15 @@ var rescode = require('../../../responsecode.json');
 let { dateTimeFormater, addToLoggedInUsers, checkLogin } = require('../middleware/formatConverter');
 const { hashPassword, comparePassword, signAccessToken } = require('../middleware/functionAuth');
 var {} = require('../../../config/default');
+let { verityMidToken } = require('../middleware/functionAuth');
 const Register = require('../models/user');
 
 const RegisterUser = async function (req, res) {
     let hashPass = await hashPassword({ password: req.body.user_password });
     let formattedDateTime = dateTimeFormater(new Date(), 'yyyy-MM-DD HH:mm:ss');
+    let userId = req.user.id;
+    console.log("🚀 ~ RegisterUser ~ userId:", userId)
+
     // console.log(hashPass);
     let paramsRe = [
         req.body.user_name,
@@ -16,18 +20,20 @@ const RegisterUser = async function (req, res) {
         hashPass,
         formattedDateTime,
         req.body.user_rolename,
-        req.body.user_createby,
-        filePath,
-        fileUrl
+        userId,
+        req.body.filePath,
+        req.body.fileUrl
+
     ];
     // console.log(paramsRe);
     try {
-        await Register.adduse(paramsRe);
+        let data =  await Register.adduse(paramsRe);
         // var accessToken = await signAccessToken(user[0].user_id);
 
         return res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
             message: rescode.c1000.description,
+            data : data
             // user_id: user[0].user_id,
             // token: accessToken,
         });
@@ -127,7 +133,20 @@ const login = async function (req, res) {
 
 const mainUser = async function (req, res) {
     try {
-        var DataList = await Register.mainlistByUser();
+        let DataList = await Register.mainlistByUser();
+                UserList = DataList.map((user) => {
+                var path_image = `${user.user_url || ''}/${user.user_path || ''}`.trim();
+                user.path_image = path_image;
+                delete user.user_path;
+                delete user.user_url;
+                return user;
+
+            })
+        //     DataList = DataList.map((user) => {
+        //     var path_image = `${user.user_url || ''}/${user.user_path || ''}`.trim();
+        //     user.path_image = path_image.replace(/^\//, '');
+        //     return user;
+        // })
         res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
             message: rescode.c1000.description,
@@ -175,11 +194,10 @@ const updateUser = async function (req, res) {
 };
 
 const deleteuse = async function (req, res) {
-    let userID = req.params.userID;
+    let userID = [req.body.userID];
     console.log('🚀 ~ deleteuse ~ userID:', userID);
     try {
         await Register.deleteUser(userID);
-        await Register.ReorganizeUserIDs(userID);
         res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
             message: rescode.c1000.description,

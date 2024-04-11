@@ -36,9 +36,10 @@ const DatalistByContact = function () {
             company_contact.contact_email, 
             company_contact.contact_phone 
             FROM 
-            company_contact
+                company_contact
             JOIN 
-            company ON company_contact.contact_companyid = company.company_id
+                company ON company_contact.contact_companyid = company.company_id
+            WHERE contact_delete = 0
             ORDER BY company_contact.contact_id`;
             let rows = await client.query(sqlQuery);
             resolve(rows.rows);
