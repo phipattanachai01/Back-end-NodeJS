@@ -21,5 +21,6 @@ router.post('/finddate',TicketController.Finddate); // find date
 router.post('/tags',TicketController.Tags); // list tag Ticket
 router.post('/edit-note',TicketController.EditNoteByTicket); // edit note Ticket
 router.post('/delete-note',TicketController.DeleteNoteByTicket); // delete note Ticket
+router.post('/listfile',verifyParamsTicket.listFile,TicketController.MainFile);
 // router.post('/mainnote', functionAuth.verityMidToken,TicketController.MainNoteByTicket); // Test main note
 module.exports = router;

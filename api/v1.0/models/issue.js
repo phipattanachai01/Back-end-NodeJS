@@ -4,7 +4,7 @@ const main = function () {
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {
-            let sqlQuery = `SELECT issue_id, issue_name, issue_priority ,issue_duedate, issue_type FROM set_issue`;
+            let sqlQuery = `SELECT issue_id, issue_name, issue_priority ,issue_duedate, issue_type FROM set_issue WHERE issue_delete = 0`;
             let rows = await client.query(sqlQuery);
             console.log(rows.rows);
             resolve(rows.rows);
@@ -63,7 +63,7 @@ const updateIssue = function (params) {
                 params[4],
                 params[5],
             ]);
-            console.log('🚀 ~ returnnewPromise ~ rows:', rows.rows);
+            // console.log('🚀 ~ returnnewPromise ~ rows:', rows.rows);
 
             resolve({ issueName: params[0] });
         } catch (error) {
@@ -79,8 +79,8 @@ const deleteIssue = async function (issueId) {
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {
-            var sqlQuery = `DELETE FROM sys_issue WHERE issue_id = $1`;
-            let rows = await client.query(sqlQuery, [issueId]);
+            var sqlQuery = `UPDATE SET sys_issue SET issue_delete = 1 WHERE issue_id = $1`;
+            let rows = await client.query(sqlQuery, issueId);
             resolve(rows.rowCount);
         } catch (error) {
             reject(error);
@@ -91,22 +91,22 @@ const deleteIssue = async function (issueId) {
     });
 };
 
-const ReorganizeIssueIDs = function (issueId) {
-    return new Promise(async (resolve, reject) => {
-        const client = await connection.connect();
-        try {
-            var sqlQuery = `UPDATE sys_issue SET issue_id = issue_id - 1 WHERE issue_id > $1`;
-            let rows = await client.query(sqlQuery, [issueId]);
-            await client.query("SELECT setval('set_issue_seq', COALESCE((SELECT MAX(issue_id) FROM sys_issue), 0))");
-            resolve(rows.rows); 
-        } catch (error) {
-            reject(error);
-            console.log(error);
-        } finally {
-            client.release();
-        }
-    });
-};
+// const ReorganizeIssueIDs = function (issueId) {
+//     return new Promise(async (resolve, reject) => {
+//         const client = await connection.connect();
+//         try {
+//             var sqlQuery = `UPDATE sys_issue SET issue_id = issue_id - 1 WHERE issue_id > $1`;
+//             let rows = await client.query(sqlQuery, [issueId]);
+//             await client.query("SELECT setval('set_issue_seq', COALESCE((SELECT MAX(issue_id) FROM sys_issue), 0))");
+//             resolve(rows.rows); 
+//         } catch (error) {
+//             reject(error);
+//             console.log(error);
+//         } finally {
+//             client.release();
+//         }
+//     });
+// };
 
 
 const Priority = function () {
@@ -148,8 +148,8 @@ const checkIssue = async function (issueName) {
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {
-            let sqlQuery = `SELECT * FROM set_issue WHERE issue_name = $1`;
-            let rows = await client.query(sqlQuery, [issueName]);
+            let sqlQuery = `SELECT * FROM set_issue WHERE issue_name = $1 AND issue_delete = 0`;
+            let rows = await client.query(sqlQuery, issueName);
             resolve(rows.rows.length > 0);
         } catch (error) {
             reject(error);
@@ -158,4 +158,4 @@ const checkIssue = async function (issueName) {
         }
     })
 }
-module.exports = { main, addIssue, updateIssue, deleteIssue, ReorganizeIssueIDs , Priority, typesDate , checkIssue};
+module.exports = { main, addIssue, updateIssue, deleteIssue , Priority, typesDate , checkIssue};

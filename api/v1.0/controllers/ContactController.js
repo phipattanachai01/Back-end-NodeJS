@@ -67,7 +67,6 @@ const MainContact = async function (req, res) {
 };
 
 const EditContact = async function (req, res) {
-    let contactId = req.params.contactId; 
     let formattedDateTime = dateTimeFormater(new Date(), 'yyyy-MM-DD HH:mm:ss');
 
     const data = [
@@ -77,7 +76,7 @@ const EditContact = async function (req, res) {
         req.body.contact_phone,
         req.body.company_shortname,
         req.body.contact_about,
-        contactId
+        req.body.contact_id
     ];
     
     try {
@@ -88,7 +87,7 @@ const EditContact = async function (req, res) {
             message: rescode.c1000.description,
             error: rescode.c1000.error,
             timeReq: dateTimeFormater(new Date(), 'x'),
-            data: updatedData,
+            data: updatedData
         });
     } catch (error) {
         res.status(rescode.c5001.httpStatusCode).json({
@@ -103,10 +102,10 @@ const EditContact = async function (req, res) {
 
 
 const DeleteContact = async function (req, res) {
-    let contactId = req.params.contactId
+    let contactId = [req.body.contact_id];
     try {
         var DeleteData = await Contact.DeleteByContact(contactId);
-                         await Contact.ReorganizeContactIDs(contactId)
+                        //  await Contact.ReorganizeContactIDs(contactId)
         res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
             message: rescode.c1000.description,

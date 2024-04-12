@@ -31,7 +31,6 @@ const createByCompany = async function (req, res) {
 };
 
 const editByCompany = async function (req, res) {
-    let companyId = req.params.companyId;
     let formattedDateTime = dateTimeFormater(new Date(), 'yyyy-MM-DD HH:mm:ss');
     let data = [
         req.body.company_fullname,
@@ -40,8 +39,8 @@ const editByCompany = async function (req, res) {
         req.body.company_dormain,
         req.body.company_linetoken,
         formattedDateTime,
-        companyId,
-    ];
+        req.body.company_id
+        ];
 
     try {
         await CreateCompany.updateCompany(data);
@@ -68,7 +67,7 @@ const datalist = async function (req, res) {
         return res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
             message: rescode.c1000.description,
-            data: data,
+            data: data
         });
     } catch (error) {
         res.status(rescode.c5001.httpStatusCode).json({
@@ -83,7 +82,7 @@ const datalist = async function (req, res) {
 };
 
 const deleteByCompany = async function (req, res) {
-    let companyId = req.params.companyId;
+    let companyId = [req.body.company_id];
     try {
         await CreateCompany.DeleteCompany(companyId);
         // await CreateCompany.ReorganizeCompanyIDs(companyId);

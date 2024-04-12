@@ -1,5 +1,6 @@
 const { generateTicketCode } = require('../middleware/formatConverter');
 const { connection } = require('../../../connection');
+const { Connection } = require('pg');
 
 // const MainTicket = async function (params, userId) {
 //     console.log("🚀 ~ MainTicket ~ userId:", userId)
@@ -431,7 +432,28 @@ const countTicket = async function (params) {
 };
 
 const addTicket = async function (params) {
-    console.log('🚀 ~ addTicket ~ params:', params[13]);
+    console.log('🚀 ~ addTicket ~ params 0:', params[0]);
+    console.log('🚀 ~ addTicket ~ params 1:', params[1]);
+    console.log('🚀 ~ addTicket ~ params 2:', params[2]);
+    console.log('🚀 ~ addTicket ~ params 3:', params[3]);
+    console.log('🚀 ~ addTicket ~ params 4:', params[4]);
+    console.log('🚀 ~ addTicket ~ params 5:', params[5]);
+    console.log('🚀 ~ addTicket ~ params 6:', params[6]);
+    console.log('🚀 ~ addTicket ~ params 7:', params[7]);
+    console.log('🚀 ~ addTicket ~ params 8:', params[8]);
+    console.log('🚀 ~ addTicket ~ params 9:', params[9]);
+    console.log('🚀 ~ addTicket ~ params 10:', params[10]);
+    console.log('🚀 ~ addTicket ~ params 11:', params[11]);
+    console.log('🚀 ~ addTicket ~ params 12:', params[12]);
+    console.log('🚀 ~ addTicket ~ params 13:', params[13]);
+    console.log('🚀 ~ addTicket ~ params 14:', params[14]);
+    console.log('🚀 ~ addTicket ~ params 15:', params[15]);
+    console.log('🚀 ~ addTicket ~ params 16:', params[16]);
+    console.log('🚀 ~ addTicket ~ params 17:', params[17]);
+    console.log('🚀 ~ addTicket ~ params 18:', params[18]);
+    console.log('🚀 ~ addTicket ~ params 19:', params[19]);
+    // console.log('🚀 ~ addTicket ~ params 20:', params[20]);
+
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {
@@ -499,14 +521,14 @@ const addTicket = async function (params) {
                     detail_details, detail_createdate, detail_delete
                 ) VALUES ($1, $2, 1, 1, $3, $4, 0) RETURNING detail_id`;
 
-            let detail_id = detailRow.rows[0].detail_id;
-
             let rowsTicketDetail = await client.query(sqlQueryTicketDetail, [
                 params[13],
                 ticket_id,
                 params[12],
                 ticket_createdate,
             ]);
+            let detail_id = rowsTicketDetail.rows[0].detail_id;
+            console.log('🚀 ~ returnnewPromise ~ detail_id:', detail_id);
 
             let sqlQueryTicketFile = `
             INSERT INTO ticket_file 
@@ -515,19 +537,29 @@ const addTicket = async function (params) {
             SELECT
                 unnest($1::text[]),
                 unnest($2::int[]),
-                unnest($3::text[]),
-                unnest($4::text[]),
+                unnest($3::int[]),
+                $4,
                 $5, 
                 $6, 
                 unnest($7::text[]),
                 unnest($8::text[]),
                 0`;
-
+            console.log('🚀 ~ returnnewPromise ~ params:', params.slice(14, 18));
+            // params[15] = Math.round(parseFloat(params[15]))
             let fileRow = await client.query(sqlQueryTicketFile, [
-                params.slice(14, 18), // Array of file_name, file_size, file_type, file_extension
+                [params[14]], // file_name
+                [params[15]], // file_size
+                [params[16]], // file_type
+                params[17], // file_extension
                 detail_id, // file_detailid
                 ticket_createdate, // file_createdate
-                params.slice(18, 20) // Array of file_url, file_path
+                [params[18]], // file_url
+                [params[19]], // file_path
+
+                // params.slice(14, 18), // Array of file_name, file_size, file_type, file_extension
+                // detail_id, // file_detailid
+                // ticket_createdate, // file_createdate
+                // params.slice(18, 20) // Array of file_url, file_path
             ]);
 
             let sqlQueryTicketStatus = `
@@ -554,7 +586,7 @@ const addTicket = async function (params) {
             }
 
             await client.query('COMMIT');
-            resolve(rowsTicketStatus);
+            resolve('Successfully');
         } catch (error) {
             await client.query('ROLLBACK');
             reject(error);
@@ -603,7 +635,13 @@ const ViewTicket = async function (params) {
             COALESCE(
                 STRING_AGG(DISTINCT CAST(set_tag.tag_name AS TEXT), ', '), 
                 '0'
-            ) AS tag_names
+            ) AS tag_names,
+            COALESCE(
+                STRING_AGG(DISTINCT CAST(set_tag.tag_color AS TEXT), ', '), 
+                '0'
+            ) AS tag_colors,
+            ticket_detail.detail_id,
+            ticket_detail.detail_details
         FROM
             ticket
         JOIN 
@@ -616,6 +654,8 @@ const ViewTicket = async function (params) {
             ticket_status ON ticket.ticket_id = ticket_status.ticket_status_ticketid 
         JOIN 
             set_team ON ticket.ticket_teamid = set_team.team_id
+        JOIN
+            ticket_detail ON ticket.ticket_id = ticket_detail.detail_ticketid
         LEFT JOIN 
             ticket_assign ON ticket.ticket_id = ticket_assign.assign_ticketid
         LEFT JOIN 
@@ -627,6 +667,7 @@ const ViewTicket = async function (params) {
         WHERE 
             ticket.ticket_delete = 0
             AND ticket.ticket_id = $1
+            AND ticket_detail.detail_type = 1
         GROUP BY 
             ticket.ticket_id,
             ticket.ticket_code, 
@@ -646,7 +687,9 @@ const ViewTicket = async function (params) {
             set_issue.issue_type,
             ticket_status.ticket_status_statusid,
             set_team.team_id,
-            set_team.team_name
+            set_team.team_name,
+            ticket_detail.detail_id,
+            ticket_detail.detail_details
         `;
             let rows = await client.query(sqlQuery, params);
             resolve(rows.rows);
@@ -745,7 +788,8 @@ const listEdit = async function (params) {
             set_issue.issue_type,
             MAX(ticket_detail.detail_updateby) AS detail_updateby,
             COALESCE(MAX('"' || sys_user.user_firstname || '"'), '""') AS user_updateby,
-            STRING_AGG(DISTINCT set_tag.tag_name, ', ') AS tag_name
+            STRING_AGG(DISTINCT set_tag.tag_name, ', ') AS tag_name,
+            STRING_AGG(DISTINCT set_tag.tag_color, ', ') AS tag_color
         FROM
             ticket
         JOIN 
@@ -1069,6 +1113,21 @@ const Finddate = async function (dataDate) {
     });
 };
 
+const listfile = async function (params) {
+    return new Promise(async (resolve, reject) => {
+        const client = await connection.connect();
+        try {
+            let sqlQuery = `SELECT * FROM ticket_file JOIN ticket_detail ON ticket_file.file_detailid = ticket_detail.detail_id WHERE detail_id = $1`;
+            let rows = await client.query(sqlQuery, params);
+            resolve(rows.rows);
+        } catch (error) {
+            reject(error);
+        } finally {
+            client.release();
+        }
+    });
+};
+
 module.exports = {
     MainTicket,
     countTicket,
@@ -1089,4 +1148,5 @@ module.exports = {
     updateNote,
     Finddate,
     tagTicket,
+    listfile
 };

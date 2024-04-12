@@ -3,7 +3,7 @@ var rescode = require('../../../responsecode.json');
 const FILENAME = __filename.replace(/^.*[\\\/]/, '');
 const { listBuckets, makeBucket, putObjectUploadFile, copyObjectCpoyFile } = require('../helper/minio');
 const functionBasicCenter = require('../middleware/functionBasicCenter');
-const { dateTimeFormater, keysToCamel } = require('../middleware/formatConverter');
+const { dateTimeFormater, keysToCamel, convertBytesToMegabytes } = require('../middleware/formatConverter');
 const Log = require('../models/log');
 const fileModel = require('../models/file');
 
@@ -65,6 +65,10 @@ const uploadFile = async function uploadFile(req, res) {
         var fileUrl = `${minioConfig.view_url}/${params.backet_name}`;
         var filePath = `${file_path}`;
 
+        // var fileSizeBytes = req.file.size; 
+        // console.log("🚀 ~ uploadFile ~ fileSizeBytes:", fileSizeBytes)
+        // var fileSizeMegabytes = convertBytesToMegabytes(fileSizeBytes);
+
         var paramsFile = {
             original_name: req.file.originalname,
             file_size: req.file.size,
@@ -75,10 +79,10 @@ const uploadFile = async function uploadFile(req, res) {
         };
         console.log('🚀 ~ uploadFile ~ paramsFile:', paramsFile);
 
-        console.log(
-            '🚀 ~ uploadFile ~ paramsencodeURIComponent(paramsFile[0])File:',
-            encodeURIComponent(paramsFile[0])
-        );
+        // console.log(
+        //     '🚀 ~ uploadFile ~ paramsencodeURIComponent(paramsFile[0])File:',
+        //     encodeURIComponent(paramsFile[0])
+        // );
 
         // var filedata =  await fileModel.file(paramsFile);
         // console.log("🚀 ~ uploadFile ~ filedata:", filedata)
@@ -129,7 +133,7 @@ const uploadFile = async function uploadFile(req, res) {
             code: rescode.c1104.businessCode,
             message: rescode.c1104.description,
             error: rescode.c1104.error,
-            catch: error.message,
+            catch: error.message
         });
     }
 };

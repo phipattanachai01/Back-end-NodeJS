@@ -142,6 +142,11 @@ function label(tableName) {
     }
 };
 
+function convertBytesToMegabytes(bytes) {
+    const megabytes = bytes / (1024 * 1024);
+    return megabytes;
+}
+
 
 function generateTicketCode(maxTicketCodeNumber) {
     const currentDate = new Date();
@@ -180,6 +185,7 @@ module.exports = {
     getMenuName,
     label,
     generateTicketCode,
-    generateTeamCode
+    generateTeamCode,
+    convertBytesToMegabytes
     // generateTicketCode
     };

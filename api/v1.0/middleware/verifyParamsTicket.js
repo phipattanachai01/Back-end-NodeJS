@@ -61,7 +61,27 @@ const CreateTicket = async function (req, res, next) {
     next();
 };
 
+const listFile = async function (req, res, nexr) {
+    var verifyParams = {
+        detail_id : req.body.detail_id
+    };
+    var requiredParams = [];
+    for (const key in verifyParams) {
+        if (!verifyParams[key]) {
+            requiredParams.push(key);
+        }
+    }
+    if (requiredParams.length > 0) {
+        return res.status(200).json({
+            message: rescode.c5001.description,
+            message: 'require param' + ` ( ${requiredParams} )`,
+            error: true,
+        });
+    }
+    next();
+}
 module.exports = {
     DeleteTicket,
     CreateTicket,
+    listFile
 };

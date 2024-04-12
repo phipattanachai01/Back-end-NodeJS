@@ -65,7 +65,7 @@ const DeleteCompany = function (companyId) {
         try {
             var sqlQuery = 'UPDATE company SET company_delete = $1 WHERE company_id = $2';
             console.log();
-            let rows = await client.query(sqlQuery, [companyId]);
+            let rows = await client.query(sqlQuery, companyId);
             resolve(rows.rows);
         } catch (error) {
             reject(error);

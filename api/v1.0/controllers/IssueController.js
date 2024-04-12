@@ -65,8 +65,7 @@ const AddIssue = async function (req, res) {
 const UpdateIssue = async function (req, res) {
     let formattedDateTime = dateTimeFormater(new Date(), 'yyyy-MM-DD HH:mm:ss');
     try {
-        var IssueId = req.params.IssueId;
-        var params = [req.body.issue_name, req.body.priority_name, req.body.issue_duedate, req.body.issue_type_name, formattedDateTime, IssueId]
+        var params = [req.body.issue_name, req.body.priority_name, req.body.issue_duedate, req.body.issue_type_name, formattedDateTime, req.body.issue_id]
         // console.log("🚀 ~ AddIssue ~ params:", params)
         var data = await Issue.updateIssue(params);
         console.log("🚀 ~ AddIssue ~ data:", data)
@@ -115,11 +114,11 @@ const UpdateIssue = async function (req, res) {
 
 const DeleteIssue = async function (req, res) {
     try {
-        var issueId = req.params.IssueId;
-        console.log("🚀 ~ DeleteIssue ~ issueId:", issueId);
+        var issueId = [req.body.Issue_id];
+        // console.log("🚀 ~ DeleteIssue ~ issueId:", issueId);
         
         await Issue.deleteIssue(issueId);
-        await Issue.ReorganizeIssueIDs(issueId);
+        // await Issue.ReorganizeIssueIDs(issueId);
             res.status(rescode.c1000.httpStatusCode).json({
                 code: rescode.c1000.businessCode,
                 message: rescode.c1000.description,
@@ -185,10 +184,10 @@ const ListPriority = async function (req, res) {
    };
 
    const CheckIssueName = async function (req, res) {
-    let issueName = req.body.issue_name;
+    let issueName = [req.body.issue_name];
     try {
         var existingIssue = await Issue.checkIssue(issueName);
-        console.log("🚀 ~ CheckIssueName ~ existingIssue:", existingIssue)
+        // console.log("🚀 ~ CheckIssueName ~ existingIssue:", existingIssue)
         if(existingIssue) {
             return res.status(400).json({ message: 'มีผู้ใช้งานชื่อนี้แล้ว' });
         } else {

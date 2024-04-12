@@ -4,8 +4,8 @@ const RoleController = require('../controllers/RoleController');
 
 router.post('/add', RoleController.RoleUser);
 router.post('/main',RoleController.ListRoles);
-router.post('/edit/:RoleId', RoleController.EditRoles);
-router.post('/delete/:RoleId', RoleController.DeleteRoles);
+router.post('/edit', RoleController.EditRoles);
+router.post('/delete', RoleController.DeleteRoles);
 router.post('/roleuser',RoleController.RoleUsers);
 
 module.exports = router;

@@ -62,14 +62,14 @@ const EditRoles = async function (req, res) {
     let formattedDateTime = dateTimeFormater(new Date(), 'yyyy-MM-DD HH:mm:ss');
 
     try {
-        const roleId = req.params.RoleId;
-        // console.log('___', roleId);
-        var data = {
-            role_name: req.body.role_name,
-            role_menu: req.body.role_menu
-        };
+        var data = [
+            req.body.role_name,
+            req.body.role_menu,
+            formattedDateTime,
+            req.body.role_id,
+        ];
 
-        var result = await Role.Editrole(data, roleId, formattedDateTime);
+        var result = await Role.Editrole(data, formattedDateTime);
 
         res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
@@ -91,10 +91,10 @@ const EditRoles = async function (req, res) {
 };
 
 const DeleteRoles = async (req, res) => {
-    let roleId = req.params.RoleId
+    let roleId = [req.body.role_id];
     try {
         var DeleteRoles = await Role.Deleterole(roleId);
-        await Role.ReorganizeRoleIDs(roleId);
+        // await Role.ReorganizeRoleIDs(roleId);
         res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
             message: rescode.c1000.description,

@@ -169,17 +169,17 @@ const EditByContact = function (data, formattedDateTime) {
 };
 
 const DeleteByContact = function (contactId) {
-    console.log("🚀 ~ DeleteByContact ~ contactId:", contactId)
+    // console.log("🚀 ~ DeleteByContact ~ contactId:", contactId)
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {
             await client.query('BEGIN');
 
-            var deleteQuery = 'DELETE FROM company_contact WHERE contact_id = $1';
-            await client.query(deleteQuery, [contactId]);
+            // var deleteQuery = 'DELETE FROM company_contact WHERE contact_id = $1';
+            // await client.query(deleteQuery, [contactId]);
 
-            var updateQuery = 'UPDATE company_contact SET contact_id = contact_id - 1 WHERE contact_id > $1';
-            await client.query(updateQuery, [contactId]);
+            var updateQuery = 'UPDATE company_contact SET contact_delete =  1 WHERE contact_id = $1';
+            await client.query(updateQuery, contactId);
 
             await client.query('COMMIT');
             resolve("Delete successful");
@@ -194,25 +194,25 @@ const DeleteByContact = function (contactId) {
 };
 
 
-const ReorganizeContactIDs = function (contactId) {
-    // console.log("🚀 ~ ReorganizeContactIDs ~ contactId:", contactId)
-    return new Promise(async (resolve, reject) => {
-        const client = await connection.connect();
-        try {
-            var sqlQuery = `UPDATE company_contact SET contact_id = contact_id - 1 WHERE contact_id > $1`;
-            var rows = await client.query(sqlQuery, [contactId]);
-            await client.query(
-                "SELECT setval('company_contact_seq', COALESCE((SELECT MAX(contact_id) FROM company_contact), 0))"
-            );
-            resolve(rows.rows);
-        } catch (error) {
-            reject(error);
-            console.log(error);
-        } finally {
-            client.release();
-        }
-    });
-};
+// const ReorganizeContactIDs = function (contactId) {
+//     // console.log("🚀 ~ ReorganizeContactIDs ~ contactId:", contactId)
+//     return new Promise(async (resolve, reject) => {
+//         const client = await connection.connect();
+//         try {
+//             var sqlQuery = `UPDATE company_contact SET contact_id = contact_id - 1 WHERE contact_id > $1`;
+//             var rows = await client.query(sqlQuery, [contactId]);
+//             await client.query(
+//                 "SELECT setval('company_contact_seq', COALESCE((SELECT MAX(contact_id) FROM company_contact), 0))"
+//             );
+//             resolve(rows.rows);
+//         } catch (error) {
+//             reject(error);
+//             console.log(error);
+//         } finally {
+//             client.release();
+//         }
+//     });
+// };
 
 const checkEmailByContact = function (contactemail) {
     console.log('🚀 ~ checkEmailByContact ~ contactemail:', contactemail);
@@ -237,5 +237,5 @@ module.exports = {
     EditByContact,
     DeleteByContact,
     checkEmailByContact,
-    ReorganizeContactIDs,
+    // ReorganizeContactIDs,
 };
