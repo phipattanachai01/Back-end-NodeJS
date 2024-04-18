@@ -431,7 +431,8 @@ const countTicket = async function (params) {
     });
 };
 
-const addTicket = async function (params) {
+const addTicket = async function (params, filesParams) {
+    console.log('🚀 ~ addTicket ~ filesParams:', filesParams);
     console.log('🚀 ~ addTicket ~ params 0:', params[0]);
     console.log('🚀 ~ addTicket ~ params 1:', params[1]);
     console.log('🚀 ~ addTicket ~ params 2:', params[2]);
@@ -446,12 +447,12 @@ const addTicket = async function (params) {
     console.log('🚀 ~ addTicket ~ params 11:', params[11]);
     console.log('🚀 ~ addTicket ~ params 12:', params[12]);
     console.log('🚀 ~ addTicket ~ params 13:', params[13]);
-    console.log('🚀 ~ addTicket ~ params 14:', params[14]);
-    console.log('🚀 ~ addTicket ~ params 15:', params[15]);
-    console.log('🚀 ~ addTicket ~ params 16:', params[16]);
-    console.log('🚀 ~ addTicket ~ params 17:', params[17]);
-    console.log('🚀 ~ addTicket ~ params 18:', params[18]);
-    console.log('🚀 ~ addTicket ~ params 19:', params[19]);
+    // console.log('🚀 ~ addTicket ~ params 14:', params[14]);
+    // console.log('🚀 ~ addTicket ~ params 15:', params[15]);
+    // console.log('🚀 ~ addTicket ~ params 16:', params[16]);
+    // console.log('🚀 ~ addTicket ~ params 17:', params[17]);
+    // console.log('🚀 ~ addTicket ~ params 18:', params[18]);
+    // console.log('🚀 ~ addTicket ~ params 19:', params[19]);
     // console.log('🚀 ~ addTicket ~ params 20:', params[20]);
 
     return new Promise(async (resolve, reject) => {
@@ -532,35 +533,24 @@ const addTicket = async function (params) {
 
             let sqlQueryTicketFile = `
             INSERT INTO ticket_file 
-            ( file_name, file_size, file_type, file_extension,
-            file_detailid, file_createdate, file_url, file_path, file_delete )
-            SELECT
-                unnest($1::text[]),
-                unnest($2::int[]),
-                unnest($3::int[]),
-                $4,
-                $5, 
-                $6, 
-                unnest($7::text[]),
-                unnest($8::text[]),
-                0`;
+                (file_name, file_size, file_type, file_extension,
+                     file_detailid, file_createdate, file_url, file_path, file_delete)
+             VALUES 
+                ($1, $2, $3, $4, $5, $6, $7, $8, 0)`;
             console.log('🚀 ~ returnnewPromise ~ params:', params.slice(14, 18));
             // params[15] = Math.round(parseFloat(params[15]))
-            let fileRow = await client.query(sqlQueryTicketFile, [
-                [params[14]], // file_name
-                [params[15]], // file_size
-                [params[16]], // file_type
-                params[17], // file_extension
-                detail_id, // file_detailid
-                ticket_createdate, // file_createdate
-                [params[18]], // file_url
-                [params[19]], // file_path
-
-                // params.slice(14, 18), // Array of file_name, file_size, file_type, file_extension
-                // detail_id, // file_detailid
-                // ticket_createdate, // file_createdate
-                // params.slice(18, 20) // Array of file_url, file_path
-            ]);
+            for (let fileParams of filesParams) {
+                let fileRow = await client.query(sqlQueryTicketFile, [
+                    fileParams[0], // file_name
+                    fileParams[1], // file_size
+                    fileParams[2], // file_type
+                    fileParams[3], // file_extension
+                    detail_id,      // file_detailid
+                    ticket_createdate, // file_createdate
+                    fileParams[4], // file_url
+                    fileParams[5], // file_path
+                ]);
+            }
 
             let sqlQueryTicketStatus = `
                 INSERT INTO ticket_status (
@@ -723,14 +713,8 @@ const listDetail = async function (params) {
             WHERE detail_ticketid = $1 
             AND (detail_access = 1 OR (detail_owner = $2 AND detail_access = 0))
             AND (detail_type <> 2 OR (detail_type = 2 AND detail_delete = 0))
-            ORDER BY ticket_detail.detail_createdate`;
-            // let sqlQuery = `SELECT
-            // ticket_detail.detail_details
-            // FROM ticket_detail
-            // WHERE detail_ticketid = $1
-            // AND (detail_access = 1 OR detail_owner = $2 AND detail_access = 0)
-            // ORDER BY ticket_detail.detail_createdate
-            // `;
+            ORDER BY ticket_detail.detail_createdate
+        `;
             let rows = await client.query(sqlQuery, params);
             resolve(rows.rows);
         } catch (error) {
@@ -740,6 +724,34 @@ const listDetail = async function (params) {
         }
     });
 };
+
+const detailFiles = async function (params) {
+    return new Promise(async (resolve, reject) =>{
+        const client = await connection.connect();
+        try {
+            let sqlQuery = `SELECT
+            ticket_file.file_id,
+            ticket_file.file_path,
+            ticket_file.file_url,
+            ticket_file.file_name,
+            ticket_file.file_extension
+        FROM
+            ticket_file
+        JOIN
+            ticket_detail ON ticket_file.file_detailid = ticket_detail.detail_id
+        WHERE
+            detail_ticketid = $1 
+        AND ticket_file.file_delete = 0`
+        let rows = await client.query(sqlQuery, params);
+        resolve(rows.rows);
+
+        } catch (error) {
+            reject(error);
+        } finally {
+            client.release();
+        }
+    })
+}
 
 const MainNote = async function (params, token) {
     return new Promise(async (resolve, reject) => {
@@ -1148,5 +1160,6 @@ module.exports = {
     updateNote,
     Finddate,
     tagTicket,
-    listfile
+    listfile,
+    detailFiles
 };

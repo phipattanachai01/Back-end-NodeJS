@@ -73,6 +73,23 @@ const CreateTicket = async function (req, res) {
     let formattedDateTime = dateTimeFormater(new Date(), 'yyyy-MM-DD HH:mm:ss');
     let userId = req.user.id;
     try {
+        var filesParams = [];
+        var filesIndexes = []; 
+        if (req.body.files && req.body.files.length > 0) {
+            req.body.files.forEach((file, index) => {
+                console.log("🚀 ~ req.body.files.forEach ~ index:", index)
+                filesParams.push(
+                    [
+                    file.file_name || null,
+                    file.file_size || null,
+                    file.file_type || null,
+                    file.file_extension || null,
+                    file.file_url || null,
+                    file.file_path || null
+                    ]
+                );
+            });
+        }
         var params = [
             req.body.ticket_orderdate,
             req.body.ticket_notification_status,
@@ -88,18 +105,14 @@ const CreateTicket = async function (req, res) {
             req.body.ticket_tagid,
             req.body.detail_details,
             userId,
-            req.body.file_name || null,
-            req.body.file_size || null,
-            req.body.file_type || null,
-            req.body.file_extension || null,
-            req.body.file_url || null,
-            req.body.file_path || null
 
         ];
         console.log("🚀 ~ CreateTicket ~ params:", params)
+        console.log("🚀 ~ CreateTicket ~ filesParams:", filesParams);
+
         // console.log('🚀 ~ CreateTicket ~ params:', params);
         // console.log("🚀 ~ AddIssue ~ params:", params)
-        var data = await Ticket.addTicket(params);
+        var data = await Ticket.addTicket(params, filesParams);
         // console.log("🚀 ~ AddIssue ~ data:", data)
         res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
@@ -126,13 +139,13 @@ const listdetailByTicket = async function (req, res) {
     // console.log("🚀 ~ MainNoteByTicket ~ a:", userId);
     try{
         var dataList = await Ticket.listDetail(params);        
-        var transformedData = dataList.reduce((acc, item) => {
-            item.ticket_createdate = moment(item.ticket_createdate).format('ddd, DD MMM YYYY [at] HH:mm A');
+        // console.log("🚀 ~ listdetailByTicket ~ dataList:", dataList)
+        var transformedData = dataList.map(item => {
             item.detail_createdate = moment(item.detail_createdate).format('ddd, DD MMM YYYY [at] HH:mm A');
             item.detail_updatedate = moment(item.detail_updatedate).format('ddd, DD MMM YYYY [at] HH:mm A');
-            acc.push(item);
-            return acc;
-        }, []);
+            return item;
+        });
+            // console.log("🚀 ~ transformedData ~ transformedData:", transformedData)
             res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
             message: rescode.c1000.description,
@@ -230,6 +243,37 @@ const listeditlByTicket = async function (req, res) {
         return false;
     }
 };
+
+const detailFiles = async function (req, res) {
+    let params = [req.body.detail_ticketid];
+    console.log("🚀 ~ detailFiles ~ params:", params)
+    try {
+        var file = await Ticket.detailFiles(params)
+        var convertPath = file.map((item) => {
+            return {
+                ...item,
+                Path: item.file_url + '/' + item.file_path
+            };
+        })
+        console.log("🚀 ~ convertPath ~ convertPath:", convertPath)
+        // file = convertPath;
+
+        res.status(rescode.c1000.httpStatusCode).json({
+            code: rescode.c1000.businessCode,
+            message: rescode.c1000.description,
+            data: convertPath
+        });
+    } catch (error) {
+        res.status(rescode.c5001.httpStatusCode).json({
+            code: rescode.c5001.businessCode,
+            message: rescode.c5001.description,
+            error: rescode.c5001.error,
+            timeReq: dateTimeFormater(new Date(), 'x'),
+            catch: error.message,
+        });
+        return false;
+    }
+}
 
 const AddNoteByTicket = async function (req, res) {
     let formattedDateTime = dateTimeFormater(new Date(), 'yyyy-MM-DD HH:mm:ss');
@@ -524,5 +568,6 @@ module.exports = {
     DeleteNoteByTicket,
     Finddate,
     Tags,
-    MainFile
+    MainFile,
+    detailFiles
 };

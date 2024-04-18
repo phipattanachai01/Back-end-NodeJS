@@ -64,8 +64,9 @@ const uploadFile = async function uploadFile(req, res) {
         };
         var fileUrl = `${minioConfig.view_url}/${params.backet_name}`;
         var filePath = `${file_path}`;
+        // var start_time.toLocaleString('th-TH') = start;
 
-        // var fileSizeBytes = req.file.size; 
+        // var fileSizeBytes = req.file.size;
         // console.log("🚀 ~ uploadFile ~ fileSizeBytes:", fileSizeBytes)
         // var fileSizeMegabytes = convertBytesToMegabytes(fileSizeBytes);
 
@@ -73,7 +74,7 @@ const uploadFile = async function uploadFile(req, res) {
             original_name: req.file.originalname,
             file_size: req.file.size,
             file_type: req.headers['file-type'],
-            file_extension : file[file.length - 1],
+            file_extension: file[file.length - 1],
             fileUrl: fileUrl,
             filePath: filePath,
         };
@@ -100,20 +101,24 @@ const uploadFile = async function uploadFile(req, res) {
         //  };
         //  var insert_log_file = await Log.logUploadFile(params_log);
         //  if (insert_log_file.length == 1) {
+        var fileSizeInMB = req.file.size / (1024 * 1024);
+        var roundedFileSizeInMB = Math.round(fileSizeInMB * 100) / 100;
+
         var payload = {
             etag: etag,
             file_details: paramsFile,
+            file_size_mb: roundedFileSizeInMB,
             path_url: `${minioConfig.view_url}/${params.backet_name}/${file_path}`,
-            file_url : `${minioConfig.view_url}/${params.backet_name}`,
-            filePath : `${file_path}`,
+            file_url: `${minioConfig.view_url}/${params.backet_name}`,
+            filePath: `${file_path}`,
             original_name: req.file.originalname,
-            file_type : req.headers['file-type'],
+            file_type: req.headers['file-type'],
             // fileUrl : `${minioConfig.view_url}/${params.backet_name}`,
             // file_id: '1', //insert_log_file[0].uploadfile_id,
             // file_path: `${params.backet_name}/${file_path}`,
-            // start_time: start,
+            start_time: start.toLocaleString('th-TH'),
         };
-        console.log("🚀 ~ uploadFile ~ payload:", payload)
+        console.log('🚀 ~ uploadFile ~ payload:', payload);
         //  } else {
         //   var payload = {
         //    etag: etag,
@@ -126,14 +131,14 @@ const uploadFile = async function uploadFile(req, res) {
             code: rescode.c1000.businessCode,
             message: rescode.c1000.description,
             error: rescode.c1000.error,
-            data: payload
+            data: payload,
         });
     } catch (error) {
         return res.status(rescode.c1104.httpStatusCode).json({
             code: rescode.c1104.businessCode,
             message: rescode.c1104.description,
             error: rescode.c1104.error,
-            catch: error.message
+            catch: error.message,
         });
     }
 };

@@ -99,12 +99,13 @@ const AddTeamUser = async function (req, res) {
 
 const EditTeamUser = async function (req, res) {
     try {
-        const formattedDateTime = dateTimeFormater(new Date(), 'yyyy-MM-DD HH:mm:ss');
-        const teamID = req.params.teamID;
-        const data = req.body;
+        let formattedDateTime = dateTimeFormater(new Date(), 'yyyy-MM-DD HH:mm:ss');
+        // const teamID = [req.body.team_id];
+        let user_id = req.body.user_id;
+        let data = [req.body.team_id, req.body.team_name, req.body.team_linetoken, formattedDateTime];
 
-        const result = await Team.EditTeam(data, teamID, formattedDateTime);
-        res.status(200).json({
+        let result = await Team.EditTeam(data, user_id);
+        res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
             message: rescode.c1000.description,
             error: rescode.c1000.error,
@@ -124,20 +125,9 @@ const EditTeamUser = async function (req, res) {
 
 const DeleteTeamUser = async function (req, res) {
     try {
-        const { teamId } = req.body; 
+        let  team_id  = req.body.team_id; 
 
-        if (!teamId) {
-            return res.status(rescode.c4000.httpStatusCode).json({
-                code: rescode.c4000.businessCode,
-                message: rescode.c4000.description,
-                error: rescode.c4000.error,
-                timeReq: dateTimeFormater(new Date(), 'x'),
-                catch: 'Invalid request parameters',
-            });
-        }
-
-        const result = await Team.DeleteTeam(teamId);
-        await Team.ReorganizeTeamIDs(teamId);
+        let result = await Team.DeleteTeam(team_id);
 
         res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
