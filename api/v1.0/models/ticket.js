@@ -529,7 +529,7 @@ const addTicket = async function (params, filesParams) {
                 ticket_createdate,
             ]);
             let detail_id = rowsTicketDetail.rows[0].detail_id;
-            console.log('🚀 ~ returnnewPromise ~ detail_id:', detail_id);
+            // console.log('🚀 ~ returnnewPromise ~ detail_id:', detail_id);
 
             let sqlQueryTicketFile = `
             INSERT INTO ticket_file 
@@ -537,7 +537,7 @@ const addTicket = async function (params, filesParams) {
                      file_detailid, file_createdate, file_url, file_path, file_delete)
              VALUES 
                 ($1, $2, $3, $4, $5, $6, $7, $8, 0)`;
-            console.log('🚀 ~ returnnewPromise ~ params:', params.slice(14, 18));
+            // console.log('🚀 ~ returnnewPromise ~ params:', params.slice(14, 18));
             // params[15] = Math.round(parseFloat(params[15]))
             for (let fileParams of filesParams) {
                 let fileRow = await client.query(sqlQueryTicketFile, [
@@ -731,6 +731,8 @@ const detailFiles = async function (params) {
         try {
             let sqlQuery = `SELECT
             ticket_file.file_id,
+            ticket_file.file_detailid,
+            ticket_file.file_type,
             ticket_file.file_path,
             ticket_file.file_url,
             ticket_file.file_name,
@@ -791,6 +793,7 @@ const listEdit = async function (params) {
             ticket.ticket_id,
             ticket.ticket_createdate,
             ticket_status.ticket_status_statusid,
+            ticket_status.ticket_status_updatedate,
             ticket.ticket_companyid,
             company.company_fullname,
             ticket.ticket_type,
@@ -825,6 +828,7 @@ const listEdit = async function (params) {
             ticket.ticket_id,
             ticket.ticket_createdate,
             ticket_status.ticket_status_statusid,
+            ticket_status.ticket_status_updatedate,
             ticket.ticket_companyid,
             company.company_fullname,
             ticket.ticket_type,
@@ -849,7 +853,7 @@ const updateTicket = async function (params) {
         const client = await connection.connect();
         try {
             let sqlQuery = `UPDATE ticket_status AS ts
-            SET ticket_status_statusid = $2
+            SET ticket_status_statusid = $2 , ticket_status_updatedate = $3
             FROM ticket AS t
             WHERE t.ticket_id = $1
             AND ts.ticket_status_ticketid = t.ticket_id`;
@@ -863,16 +867,74 @@ const updateTicket = async function (params) {
     });
 };
 
-const addNote = async function (params) {
-    console.log('🚀 ~ addNote ~ params:', params);
+const addNote = async function (params, filesParams) {
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {
-            let sqlQuery = `INSERT INTO ticket_detail (detail_ticketid, detail_type, detail_details, detail_access, detail_owner, detail_createby, detail_createdate, detail_delete)
-            VALUES ($1, 2, $2, $3, $4, $4, $5, 0)
-            `;
-            let rows = await client.query(sqlQuery, params);
-            resolve(rows.rows);
+            let sqlQuerydetail = `
+            INSERT INTO ticket_detail (
+                detail_ticketid, 
+                detail_type, 
+                detail_details, 
+                detail_access, 
+                detail_owner, 
+                detail_createby, 
+                detail_createdate, 
+                detail_delete
+            )
+            VALUES ($1, 2, $2, $3, $4, $4, $5, 0) RETURNING detail_id`;
+            let rows = await client.query(sqlQuerydetail, params);
+            
+            let detail_id = rows.rows[0].detail_id;
+            console.log("🚀 ~ returnnewPromise ~ detail_id:", detail_id)
+
+            let sqlQueryTicketFile = `
+            INSERT INTO ticket_file 
+                (file_name, file_size, file_type, file_extension,
+                     file_detailid, file_createdate, file_url, file_path, file_delete)
+             VALUES 
+                ($1, $2, $3, $4, $5, $6, $7, $8, 0)`;
+            for (let fileParams of filesParams) {
+                let fileRow = await client.query(sqlQueryTicketFile, [
+                    fileParams[0], // file_name
+                    fileParams[1], // file_size
+                    fileParams[2], // file_type
+                    fileParams[3], // file_extension
+                    detail_id,      // file_detailid
+                    fileParams[6], // file_createdate
+                    fileParams[4], // file_url
+                    fileParams[5], // file_path
+                ]);
+            }
+            // if (filesParams !== null) {
+            //     console.log("🚀 ~ returnnewPromise ~ filesParams:", filesParams)
+            //     let sqlQuery = `
+            //         INSERT INTO ticket_detail (
+            //             detail_file_name, 
+            //             detail_file_size, 
+            //             detail_file_type, 
+            //             detail_file_extension,
+            //             detail_file_url,  
+            //             detail_file_path, 
+            //             detail_file_createdate,
+            //             detail_file_id
+            //         )
+            //         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`;
+            //     for (let fileParams of filesParams) {
+            //         await client.query(sqlQuery, 
+            //             [
+            //             filesParams[0],
+            //             filesParams[1],
+            //             filesParams[2],
+            //             filesParams[3],
+            //             filesParams[4],
+            //             filesParams[5],
+            //             filesParams[6],
+            //             detail_id
+            //         ]);
+                // }
+            // }
+            resolve("Successfully");
         } catch (error) {
             reject(error);
         } finally {
@@ -880,6 +942,7 @@ const addNote = async function (params) {
         }
     });
 };
+
 
 const listEditTeam = async function (params) {
     return new Promise(async (resolve, reject) => {

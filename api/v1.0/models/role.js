@@ -129,44 +129,73 @@ const Addrole = function (data, formattedDateTime) {
     });
 };
 
-const Editrole = function (data) {
-    return new Promise(async (resolve, reject) => {
-        const client = await connection.connect();
-        try {
-            await client.query('BEGIN');
+// const Editrole = function (data) {
+//     console.log("🚀 ~ Editrole ~ data:", data)
+//     return new Promise(async (resolve, reject) => {
+//         const client = await connection.connect();
+//         try {
+//             await client.query('BEGIN');
 
-            let roleUpdateQuery = `UPDATE sys_role SET role_name = $1 ,role_updatedate = $2 WHERE role_id = $3`;
+//             let roleUpdateQuery = `UPDATE sys_role SET role_name = $1 ,role_updatedate = $2 WHERE role_id = $3`;
             
-            let rows = await client.query(roleUpdateQuery, [data[0], data[2], data[3]]);
+//             let rows = await client.query(roleUpdateQuery, [data[1], data[3], data[0]]);
 
             
-            for (let menu of data.role_menu) {
-                let menuQuery = `SELECT menu_id FROM sys_menu WHERE menu_id = $1`;
-                let menuParams = [menu.menu_id];
-                const menuResult = await client.query(menuQuery, menuParams);
-                const menuId = menuResult.rows[0].menu_id;
+//             for (let menu of data[2]) {
+//                 let menuQuery = `SELECT menu_id FROM sys_menu WHERE menu_id = $1`;
+//                 let menuParams = [menu.menu_id];
+//                 const menuResult = await client.query(menuQuery, menuParams);
+//                 const menuId = menuResult.rows[0].menu_id;
                 
-                let roleMenuUpdateQuery = `UPDATE sys_role_menu SET role_menu_permissions = $1, role_menu_updatedate = $2 WHERE role_menu_roleid = $3 AND role_menu_menuid = $4`;
-                let roleMenuUpdateParams = [menu.role_menu_permissions, data[2], data[3], menuId];
-                await client.query(roleMenuUpdateQuery, roleMenuUpdateParams);
-            }
+//                 let roleMenuUpdateQuery = `UPDATE sys_role_menu SET role_menu_permissions = $1, role_menu_updatedate = $2 WHERE role_menu_roleid = $3 AND role_menu_menuid = $4`;
+//                 let roleMenuUpdateParams = [menu.role_menu_permissions, data[2], data[3], menuId];
+//                 await client.query(roleMenuUpdateQuery, roleMenuUpdateParams);
+//             }
 
-            await client.query('COMMIT');
+//             await client.query('COMMIT');
 
-            resolve({
-                role_id: roleId,
-                role_name: data.role_name,
-                role_menu: data.role_menu,
-            });
-        } catch (error) {
-            await client.query('ROLLBACK');
-            reject(error);
-            console.log(error);
-        } finally {
-            client.release();
+//             resolve("success");
+//         } catch (error) {
+//             await client.query('ROLLBACK');
+//             reject(error);
+//             console.log(error);
+//         } finally {
+//             client.release();
+//         }
+//     });
+// };
+
+const Editrole = async function (data) {
+    console.log("🚀 ~ Editrole ~ data:", data);
+    const client = await connection.connect();
+    try {
+        await client.query('BEGIN');
+
+        let roleUpdateQuery = `UPDATE sys_role SET role_name = $1, role_updatedate = $2 WHERE role_id = $3`;
+        await client.query(roleUpdateQuery, [data[1], data[3], data[0]]);
+
+        for (let menu of data[2]) {
+            let menuQuery = `SELECT menu_id FROM sys_menu WHERE menu_id = $1`;
+            let menuParams = [menu.menu_id];
+            const menuResult = await client.query(menuQuery, menuParams);
+            const menuId = menuResult.rows[0].menu_id;
+            
+            let roleMenuUpdateQuery = `UPDATE sys_role_menu SET role_menu_permissions = $1, role_menu_updatedate = $2 WHERE role_menu_roleid = $3 AND role_menu_menuid = $4`;
+            await client.query(roleMenuUpdateQuery, [menu.role_menu_permissions, data[3], data[0], menuId]);
         }
-    });
+
+        await client.query('COMMIT');
+
+        return "success";
+    } catch (error) {
+        await client.query('ROLLBACK');
+        console.error(error);
+        throw error;
+    } finally {
+        client.release();
+    }
 };
+
 
 const Deleterole = function (roleId) {
     return new Promise(async (resolve, reject) => {
@@ -192,6 +221,25 @@ const Deleterole = function (roleId) {
     });
 };
 
+const datarole = async function ()  {
+    return new Promise(async (resolve, reject) => {
+        const client = await connection.connect();
+        try {
+
+            let deleteRoleMenuQuery = `
+            select menu_id, menu_name, menu_status, menu_parents, menu_type, menu_level from sys_menu ORDER BY menu_id
+            `;
+            let rows = await client.query(deleteRoleMenuQuery);
+
+            resolve(rows.rows);
+        } catch (error) {
+            reject(error);
+            console.log(error);
+        } finally {
+            client.release();
+        }
+    });
+}
 // const ReorganizeRoleIDs = function (roleId) {
 //     return new Promise(async (resolve, reject) => {
 //         const client = await connection.connect();
@@ -212,4 +260,4 @@ const Deleterole = function (roleId) {
 //         }
 //     });
 // };
-module.exports = { Mainrole, Addrole, Editrole, Deleterole ,roleusers};
+module.exports = { Mainrole, Addrole, Editrole, Deleterole ,roleusers, datarole};

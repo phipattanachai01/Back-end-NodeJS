@@ -109,28 +109,28 @@ const EditByContact = function (data, formattedDateTime) {
         const client = await connection.connect();
         try {
             await client.query('BEGIN');
-            const companyShortname = data[4];
-            const companyQuery = 'SELECT company_id FROM sys_company WHERE company_shortname = $1';
-            const companyResult = await client.query(companyQuery, [companyShortname]);
-            // console.log("🚀 ~ returnnewPromise ~ companyResult:", companyResult)
-            if (companyResult.rows.length === 0) {
-                reject(new Error('Company not found'));
-                return;
-            }
-            const companyId = companyResult.rows[0].company_id;
-            console.log('🚀 ~ returnnewPromise ~ companyId:', companyId);
-            const contactId = parseInt(data[6]);
-            console.log('contactID', contactId);
+            // let companyShortname = data[4];
+            // let companyQuery = 'SELECT company_id FROM sys_company WHERE company_shortname = $1';
+            // let companyResult = await client.query(companyQuery, [companyShortname]);
+            // // console.log("🚀 ~ returnnewPromise ~ companyResult:", companyResult)
+            // if (companyResult.rows.length === 0) {
+            //     reject(new Error('Company not found'));
+            //     return;
+            // }
+            // let companyId = companyResult.rows[0].company_id;
+            // console.log('🚀 ~ returnnewPromise ~ companyId:', companyId);
+            // let contactId = parseInt(data[6]);
+            // console.log('contactID', contactId);
 
-            if (isNaN(contactId)) {
-                reject(new Error('Invalid contactId'));
-                return;
-            }
+            // if (isNaN(contactId)) {
+            //     reject(new Error('Invalid contactId'));
+            //     return;
+            // }
             // const fullname = data[0];
             // console.log("🚀 ~ returnnewPromise ~ fullname:", fullname)
             // const about = data[5];
             // console.log("🚀 ~ returnnewPromise ~ about:", about)
-            const sqlQuery = `
+            let sqlQuery = `
                 UPDATE company_contact 
                 SET contact_fullname = $1,
                     contact_nickname = $2,
@@ -141,21 +141,17 @@ const EditByContact = function (data, formattedDateTime) {
                     contact_updatedate = $7
                 WHERE contact_id = $8
                 RETURNING * `;
-            console.log('🚀 ~ returnnewPromise ~ slice:', [fullname, ...data.slice(1, 4)]);
 
-            const rows = await client.query(sqlQuery, [
+            let rows = await client.query(sqlQuery, [
                 data[0],
-                ...data.slice(1, 4),
+                data[1],
+                data[2],
+                data[3],
+                data[4],
                 data[5],
-                companyId,
                 formattedDateTime,
-                contactId,
+                data[6],
             ]);
-
-            if (rows.rows.length === 0) {
-                reject(new Error('Contact not found'));
-                return;
-            }
             await client.query('COMMIT');
             resolve(rows.rows[0]);
         } catch (error) {
@@ -231,11 +227,36 @@ const checkEmailByContact = function (contactemail) {
     });
 };
 
+
+const dataEdit = async function (params) {
+    return new Promise(async (resolve, reject) => {
+        const client = await connection.connect();
+        try {
+             var sqlQuery = `SELECT contact_id,
+                contact_fullname,
+                contact_nickname,
+                contact_email, 
+                contact_phone,
+                company_fullname 
+                FROM company_contact
+                JOIN company ON company_contact.contact_companyid = company.company_id
+                WHERE contact_id = $1`;
+             var rows = await client.query(sqlQuery, params);
+             resolve(rows.rows);
+        } catch (error) {
+            reject(error);
+            console.log(error);
+        } finally {
+            client.release();
+        }
+    })
+}
 module.exports = {
     AddContact,
     DatalistByContact,
     EditByContact,
     DeleteByContact,
     checkEmailByContact,
+    dataEdit
     // ReorganizeContactIDs,
 };

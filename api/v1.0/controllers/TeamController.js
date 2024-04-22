@@ -100,7 +100,6 @@ const AddTeamUser = async function (req, res) {
 const EditTeamUser = async function (req, res) {
     try {
         let formattedDateTime = dateTimeFormater(new Date(), 'yyyy-MM-DD HH:mm:ss');
-        // const teamID = [req.body.team_id];
         let user_id = req.body.user_id;
         let data = [req.body.team_id, req.body.team_name, req.body.team_linetoken, formattedDateTime];
 
@@ -124,17 +123,15 @@ const EditTeamUser = async function (req, res) {
 };
 
 const DeleteTeamUser = async function (req, res) {
+    let  team_id  = [req.body.team_id]; 
     try {
-        let  team_id  = req.body.team_id; 
-
         let result = await Team.DeleteTeam(team_id);
-
         res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
             message: rescode.c1000.description,
             error: rescode.c1000.error,
             timeReq: dateTimeFormater(new Date(), 'x'),
-            data: result,
+            data: result
         });
     } catch (error) {
         res.status(rescode.c5001.httpStatusCode).json({
@@ -190,5 +187,27 @@ const checkTeam = async function (req, res)  {
     }
 };
 
-module.exports = { MainTeamUser, AddTeamUser, EditTeamUser, DeleteTeamUser , disableTeam, checkTeam};
+const dataEdit = async function (req, res) {
+    let params = [req.body.team_id]
+    try {
+        let data = await Team.dataEditTeam(params);
+        res.status(rescode.c1000.httpStatusCode).json({
+            code: rescode.c1000.businessCode,
+            message: rescode.c1000.description,
+            error: rescode.c1000.error,
+            timeReq: dateTimeFormater(new Date(), 'x'),
+            data
+        });
+    } catch (error) {
+        res.status(rescode.c5001.httpStatusCode).json({
+            code: rescode.c5001.businessCode,
+            message: rescode.c5001.description,
+            error: rescode.c5001.error,
+            timeReq: dateTimeFormater(new Date(), 'x'),
+            catch: error.message
+        });
+    }
+}
+
+module.exports = { MainTeamUser, AddTeamUser, EditTeamUser, DeleteTeamUser , disableTeam, dataEdit, checkTeam};
 

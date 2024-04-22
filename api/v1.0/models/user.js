@@ -65,7 +65,7 @@ const loginuser = function (paramuser) {
             user_status, user_password, 
             role_id FROM sys_user JOIN sys_role 
             ON sys_user.user_roleid = sys_role.role_id 
-            WHERE user_name  = $1 AND user_status = 1`;
+            WHERE user_name  = $1 AND user_status = 1 AND user_delete = 0`;
             console.log();
             let rows = await client.query(sqlQuery, paramuser);
             resolve(rows.rows);
@@ -84,7 +84,7 @@ const updateUser = function (params) {
         try {
             await client.query('BEGIN');
             var sqlQuery =
-                'UPDATE sys_user SET user_name = $1, user_phone = $2, user_firstname = $3, user_lastname = $4, user_updatedate = $5 WHERE user_id = $6';
+                'UPDATE sys_user SET user_name = $1, user_phone = $2, user_firstname = $3, user_lastname = $4, user_roleid = $5, user_url = $6, user_path = $7, user_updatedate = $8 WHERE user_id = $9';
             // console.log(sqlQuery);
             // console.log('combinedParams', combinedParams);
             let rows = await client.query(sqlQuery, params);

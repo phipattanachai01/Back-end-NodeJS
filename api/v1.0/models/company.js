@@ -27,7 +27,7 @@ const updateCompany = function (params) {
         try {
             await client.query('BEGIN');
             var sqlQuery =
-                'UPDATE company SET company_fullname = $1, company_shortname = $2, company_about = $3, company_dormain = $4, company_linetoken = $5, company_updatedate = $6  WHERE company_id = $7';
+                'UPDATE company SET company_fullname = $1, company_shortname = $2, company_about = $3, company_dormain = $4, company_updatedate = $5  WHERE company_id = $6';
             console.log();
             let rows = await client.query(sqlQuery, params);
             await client.query('COMMIT');
@@ -116,17 +116,20 @@ const MainCompany = function () {
 };
 
 const updateCompanyStatus = async function (params) {
-    const client = await connection.connect();
-    try {
-        const sqlQuery = 'UPDATE company SET company_status = $1 WHERE company_id = $2';
-        const rows = await client.query(sqlQuery, params);
-        return rows.rows;
-    } finally {
-        client.release();
-    }
+    return new Promise(async (resolve, reject) => {
+        const client = await connection.connect();
+        try {
+            var sqlQuery = 'UPDATE company SET company_status = $1 WHERE company_id = $2';
+            var rows = await client.query(sqlQuery, params);
+            resolve(rows.rows);
+        } catch (error) {
+            reject(error);
+            console.log(error);
+        } finally {
+            client.release();
+        }
+    });
 };
-
-
 
 const CountContactCompany = function (params) {
     return new Promise(async (resolve, reject) => {
@@ -177,6 +180,22 @@ const ListOfNames = function (params) {
         }
     });
 };
+
+const dataEdit = async function (params) {
+    return new Promise(async (resolve, reject) => {
+        const client = await connection.connect();
+        try {
+            var sqlQuery = `SELECT * FROM company WHERE company_id = $1`;
+            let rows = await client.query(sqlQuery, params);
+            resolve(rows.rows);
+        } catch (error) {
+            reject(error);
+            console.log(error);
+        } finally {
+            client.release();
+        }
+    })
+}
 module.exports = {
     CreateCompany,
     updateCompany,
@@ -187,5 +206,6 @@ module.exports = {
     // ReorganizeCompanyIDs,
     // ViewTicket,
     CountContactCompany,
-    ListOfNames
+    ListOfNames,
+    dataEdit
 };

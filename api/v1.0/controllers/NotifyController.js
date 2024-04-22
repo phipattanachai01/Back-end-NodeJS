@@ -5,8 +5,9 @@ const Notify = require('../models/notify');
 // const { param } = require('../routes');
 
 const MainNotify = async function (req, res) {
+    let dataDate = (req.body.start_date && req.body.end_date) ? [req.body.start_date, req.body.end_date] : null;
     try {
-        let data = await Notify.MainNotification();
+        let data = await Notify.MainNotification(dataDate);
 
 
         let Resultdata = data.map((item) =>{

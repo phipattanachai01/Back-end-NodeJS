@@ -69,13 +69,13 @@ const MainContact = async function (req, res) {
 const EditContact = async function (req, res) {
     let formattedDateTime = dateTimeFormater(new Date(), 'yyyy-MM-DD HH:mm:ss');
 
-    const data = [
+    let data = [
         req.body.contact_fullname,
         req.body.contact_nickname,
         req.body.contact_email,
         req.body.contact_phone,
-        req.body.company_shortname,
         req.body.contact_about,
+        req.body.contact_companyid,
         req.body.contact_id
     ];
     
@@ -143,10 +143,32 @@ const checkEmail = async function (req, res)  {
     }
 };
 
+const dataEditContact = async function (req, res) {
+    let params = [req.body.contact_id];
+    try {
+        var data = await Contact.dataEdit(params)
+        res.status(rescode.c1000.httpStatusCode).json({
+            code: rescode.c1000.businessCode,
+            message: rescode.c1000.description,
+            error: rescode.c1000.error,
+            timeReq: dateTimeFormater(new Date(), 'x'),
+            data: data
+        });
+    } catch (error) {
+        res.status(rescode.c5001.httpStatusCode).json({
+            code: rescode.c5001.businessCode,
+            message: rescode.c5001.description,
+            error: rescode.c5001.error,
+            timeReq: dateTimeFormater(new Date(), 'x'),
+        });
+    }
+}
+
 module.exports = {
     CreateContact,
     MainContact,
     EditContact,
     DeleteContact,
-    checkEmail
+    checkEmail,
+    dataEditContact
 }

@@ -3,18 +3,22 @@ let { dateTimeFormater , getCurrentFormattedDateTime} = require('../middleware/f
 let { verityMidToken } = require('../middleware/functionAuth');
 var {} = require('../../../config/default');
 const Role = require('../models/role');
+const moment = require('moment');
 
 const ListRoles = async function (req, res) {
 
     try {
         var data = await Role.Mainrole();
-        
+        var result = data.map((item) => {
+            item.role_createdate = moment(item.role_createdate).format('DD-MM-YYYY');
+            return item;
+        })
         res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
             message: rescode.c1000.description,
             error: rescode.c1000.error,
             timeReq: dateTimeFormater(new Date(), 'yyyy-MM-dd'),
-            data: data,
+            data: result,
         });
     } catch (error) {
         res.status(rescode.c5001.httpStatusCode).json({
@@ -63,10 +67,10 @@ const EditRoles = async function (req, res) {
 
     try {
         var data = [
+            req.body.role_id,
             req.body.role_name,
             req.body.role_menu,
-            formattedDateTime,
-            req.body.role_id,
+            formattedDateTime
         ];
 
         var result = await Role.Editrole(data, formattedDateTime);
@@ -135,10 +139,43 @@ const RoleUsers = async (req, res) => {
         return false;
     }
 };
+
+const dataRole = async function (req, res) {
+    try {
+        var role = await Role.datarole();
+        var buildSubMenu = (parentId) => {
+            return role.filter(menu => menu.menu_parents === parentId).map(menu => {
+                return {
+                    ...menu,
+                    sub: buildSubMenu(menu.menu_id)
+                };
+            });
+        };
+
+        var menuStructure = buildSubMenu(null);
+        res.status(rescode.c1000.httpStatusCode).json({
+            code: rescode.c1000.businessCode,
+            message: rescode.c1000.description,
+            error: rescode.c1000.error,
+            timeReq: dateTimeFormater(new Date(), 'x'),
+            data: menuStructure
+        });
+    } catch (error) {
+        res.status(rescode.c5001.httpStatusCode).json({
+            code: rescode.c5001.businessCode,
+            message: rescode.c5001.description,
+            error: rescode.c5001.error,
+            timeReq: dateTimeFormater(new Date(), 'x'),
+            catch: error.message,
+        });
+        return false;
+    }
+}
 module.exports = {
     RoleUser,
     ListRoles,
     EditRoles,
     DeleteRoles,
-    RoleUsers
+    RoleUsers,
+    dataRole
 };

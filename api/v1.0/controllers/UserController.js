@@ -164,18 +164,23 @@ const mainUser = async function (req, res) {
     }
 };
 const updateUser = async function (req, res) {
-    let userID = req.params.userID;
-    console.log(userID);
+    let userID = req.body.user_id;
+    // console.log(userID);
     let formattedupdateDateTime = dateTimeFormater(new Date(), 'yyyy-MM-DD HH:mm:ss');
-    let params = [
+    let params = 
+    [
+
         req.body.user_name,
         req.body.user_phone,
         req.body.user_firstname,
         req.body.user_lastname,
+        req.body.user_roleid,
+        req.body.user_url || null,
+        req.body.user_path || null,
         formattedupdateDateTime,
         userID,
     ];
-    console.log(params);
+    // console.log(params);
     try {
         await Register.updateUser(params, userID);
         res.status(rescode.c1000.httpStatusCode).json({
@@ -194,7 +199,7 @@ const updateUser = async function (req, res) {
 };
 
 const deleteuse = async function (req, res) {
-    let userID = [req.body.userID];
+    let userID = [req.body.user_id];
     console.log('🚀 ~ deleteuse ~ userID:', userID);
     try {
         await Register.deleteUser(userID);
@@ -243,9 +248,9 @@ const changePasswordByuser = async function (req, res) {
 // UserStatus
 const disableuser = async function (req, res) {
     try {
-        if (!req.body.user_id || !req.body.user_status) {
-            throw new Error('Missing user_id or user_status in request body');
-        }
+        // if (!req.body.user_id || !req.body.user_status) {
+        //     throw new Error('Missing user_id or user_status in request body');
+        // }
         let user_id = req.body.user_id;
         let user_status = req.body.user_status;
 
@@ -287,6 +292,8 @@ const checkUsername = async function (req, res)  {
         });
     }
 };
+
+
 
 
 module.exports = {

@@ -1,6 +1,6 @@
 var { connection } = require('../../../connection');
 const { generateTeamCode } = require('../middleware/formatConverter');
-const MainTeam = function () {
+const MainTeam = async function () {
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {
@@ -8,6 +8,7 @@ const MainTeam = function () {
             set_team.team_id AS team_id,
             set_team.team_code AS team_code,
             set_team.team_name,
+
             COALESCE(STRING_AGG(sys_user.user_firstname, ', '), '0') AS user_firstname,
             COUNT(set_team_user.team_user_userid) AS number_of_people
             FROM 
@@ -32,7 +33,7 @@ const MainTeam = function () {
     });
 };
 
-const Addteam = function (data, formattedDateTime) {
+const Addteam = async function (data, formattedDateTime) {
     console.log('🚀 ~ Addteam ~ data[0]:', data[0]);
     console.log('🚀 ~ Addteam ~ data[1]:', data[1]);
     console.log('🚀 ~ Addteam ~ data[2]:', data[2]);
@@ -105,7 +106,7 @@ const Addteam = function (data, formattedDateTime) {
 //     });
 // };
 
-const EditTeam = function (data, user_id) {
+const EditTeam = async function (data, user_id) {
     console.log('🚀 ~ EditTeam ~ user_id:', user_id);
     console.log('🚀 ~ EditTeam ~ data:', data);
     return new Promise(async (resolve, reject) => {
@@ -145,7 +146,7 @@ const EditTeam = function (data, user_id) {
     });
 };
 
-const DeleteTeam = function (team_id) {
+const DeleteTeam = async function (team_id) {
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {
@@ -193,7 +194,7 @@ const DeleteTeam = function (team_id) {
 //         }
 //     });
 // };
-const statusTeam = function (params) {
+const statusTeam = async function (params) {
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {
@@ -218,7 +219,7 @@ const statusTeam = function (params) {
     });
 };
 
-const checkByTeam = function (CheckTeam) {
+const checkByTeam = async function (CheckTeam) {
     console.log('🚀 ~ checkEmailByContact ~ contactemail:', CheckTeam);
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
@@ -235,6 +236,38 @@ const checkByTeam = function (CheckTeam) {
     });
 };
 
+const dataEditTeam = async function () {
+    return new Promise(async (resolve, reject) => {
+        const client = await connection.connect();
+        try {
+            var sqlQuery = `SELECT 
+            set_team.team_id AS team_id,
+            set_team.team_code AS team_code,
+            set_team.team_name,
+            COALESCE(STRING_AGG(sys_user.user_firstname, ' , '), '0') AS user_firstname
+            FROM 
+            set_team
+            LEFT JOIN 
+            set_team_user ON set_team.team_id = set_team_user.team_user_teamid
+            LEFT JOIN 
+            sys_user ON set_team_user.team_user_userid = sys_user.user_id
+            WHERE team_id = $1 AND set_team.team_delete = 0
+            GROUP BY 
+            set_team.team_id, set_team.team_name
+            ORDER BY 
+            set_team.team_id`;
+            let rows = await client.query(sqlQuery, [1]);
+            resolve(rows.rows);
+        } catch (error) {
+            reject(error);
+            console.log(error);
+        } finally {
+            client.release();
+        }
+    });
+
+}
+
 async function getLatesetTeamcodeNumberFromDatabase(client) {
     try {
         const queryResult = await client.query(
@@ -247,4 +280,4 @@ async function getLatesetTeamcodeNumberFromDatabase(client) {
     }
 }
 
-module.exports = { MainTeam, Addteam, EditTeam, DeleteTeam, statusTeam, checkByTeam };
+module.exports = { MainTeam, Addteam, EditTeam, DeleteTeam, statusTeam, dataEditTeam, checkByTeam };

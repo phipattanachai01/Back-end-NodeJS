@@ -8,18 +8,18 @@ const ListMenu = async function (req, res) {
     try {
         var data = await Menu.mainmenu();
 
-        var topLevelMenus = data.filter(item => item.menu_pareat === null);
+        var topLevelMenus = data.filter(item => item.menu_parents === null);
 
         var formattedData = topLevelMenus.map(menuItem => {
-            var subItems = data.filter(item => item.menu_pareat === menuItem.menu_id);
+            var subItems = data.filter(item => item.menu_parents === menuItem.menu_id);
             // console.log("🚀 ~ formattedData ~ subItems:", subItems)
             var formattedSubItems = subItems.map(subItem => ({
                 ...subItem,
-                sub: formatSubMenu(subItem.menu_id, data)
+                sub: formatSubMenu(subItem.menu_id, data),
             }));
             return {
                 ...menuItem,
-                sub: formattedSubItems
+                sub: formattedSubItems,
             };
         });
         // console.log("🚀 ~ formattedData ~ formattedData:", formattedData)
@@ -29,9 +29,9 @@ const ListMenu = async function (req, res) {
             message: rescode.c1000.description,
             error: rescode.c1000.error,
             timeReq: dateTimeFormater(new Date(), 'x'),
-            Data: formattedData,
+            data: formattedData,
         });
-            // console.log("🚀 ~ res.status ~ formattedData:", formattedData)
+        // console.log("🚀 ~ res.status ~ formattedData:", formattedData)
     } catch (error) {
         res.status(rescode.c5001.httpStatusCode).json({
             code: rescode.c5001.businessCode,
@@ -48,7 +48,7 @@ function formatSubMenu(menuId, data) {
     var subItems = data.filter(item => item.menu_pareat === menuId);
     var formattedSubItems = subItems.map(subItem => ({
         ...subItem,
-        sub: formatSubMenu(subItem.menu_id, data)
+        sub: formatSubMenu(subItem.menu_id, data),
     }));
     return formattedSubItems;
 }
@@ -109,13 +109,12 @@ function formatSubMenu(menuId, data) {
 //     }
 // };
 
-
-const UpdateMenu = async function (req , res) {
+const UpdateMenu = async function (req, res) {
     let formattedupdateDateTime = dateTimeFormater(new Date(), 'yyyy-MM-DD HH:mm:ss');
     try {
         var data = {
             role_menu: req.body.role_menu,
-        }
+        };
         var result = await Menu.Updatemenu(data, formattedupdateDateTime);
         res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
@@ -135,4 +134,42 @@ const UpdateMenu = async function (req , res) {
         return false;
     }
 };
-module.exports = {ListMenu, UpdateMenu};
+
+const SideMenu = async function (req, res) {
+    let params = req.user;
+    // console.log("🚀 ~ SideMenu ~ params:", params)
+    try {
+
+        var data = await Menu.sideMenu(params);
+        let newData = data.map(item => ({
+            menu_id: item.menu_id,
+            menu_name: item.menu_name,
+            menu_url: item.menu_url,
+            role: {
+                role_menu_id: item.role_menu_id,
+                role_menu_roleid: item.role_menu_roleid,
+                role_menu_menuid: item.role_menu_menuid,
+                role_menu_permissions: item.role_menu_permissions.trim().toUpperCase()
+            }
+        }));
+        res.status(rescode.c1000.httpStatusCode).json({
+            code: rescode.c1000.businessCode,
+            message: rescode.c1000.description,
+            error: rescode.c1000.error,
+            timeReq: dateTimeFormater(new Date(), 'x'),
+            Data: newData
+        });
+    } catch (error) {
+        {
+            res.status(rescode.c5001.httpStatusCode).json({
+                code: rescode.c5001.businessCode,
+                message: rescode.c5001.description,
+                error: rescode.c5001.error,
+                timeReq: dateTimeFormater(new Date(), 'x'),
+                catch: error.message,
+            });
+            return false;
+        }
+    }
+};
+module.exports = { ListMenu, UpdateMenu, SideMenu };
