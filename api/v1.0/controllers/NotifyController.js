@@ -6,8 +6,10 @@ const Notify = require('../models/notify');
 
 const MainNotify = async function (req, res) {
     let dataDate = (req.body.start_date && req.body.end_date) ? [req.body.start_date, req.body.end_date] : null;
+    console.log("🚀 ~ MainNotify ~ dataDate:", dataDate)
     try {
         let data = await Notify.MainNotification(dataDate);
+        // console.log("🚀 ~ MainNotify ~ data:", data)
 
 
         let Resultdata = data.map((item) =>{

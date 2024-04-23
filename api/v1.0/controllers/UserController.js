@@ -293,7 +293,25 @@ const checkUsername = async function (req, res)  {
     }
 };
 
-
+const dataEdit = async function (req, res) {
+    let params = [req.body.user_id];
+    try {
+        let data = await Register.dataEdit(params);
+        res.status(rescode.c1000.httpStatusCode).json({
+            code: rescode.c1000.businessCode,
+            message: rescode.c1000.description,
+            data : data
+        });
+    } catch (error) {
+        res.status(rescode.c5001.httpStatusCode).json({
+            code: rescode.c5001.businessCode,
+            message: rescode.c5001.description,
+            error: rescode.c5001.error,
+            timeReq: dateTimeFormater(new Date(), 'x'),
+            catch: error.message,
+        });
+    }
+};
 
 
 module.exports = {
@@ -304,5 +322,6 @@ module.exports = {
     changePasswordByuser,
     disableuser,
     mainUser,
-    checkUsername
+    checkUsername,
+    dataEdit
 };

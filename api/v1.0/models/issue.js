@@ -54,7 +54,7 @@ const updateIssue = function (params) {
             // let issueTypeIdResult = await client.query(issueTypeIdQuery, [params[3]]);
             // let issue_typeid = issueTypeIdResult.rows[0].issue_type_id;
 
-            var sqlQuery = `UPDATE sys_issue SET issue_name = $1, issue_priorityid = $2, issue_duedate = $3, issue_typeid = $4, issue_updatedate = $5 WHERE issue_id = $6`;
+            var sqlQuery = `UPDATE set_issue SET issue_name = $1, issue_priorityid = $2, issue_duedate = $3, issue_typeid = $4, issue_updatedate = $5 WHERE issue_id = $6`;
             let rows = await client.query(sqlQuery, params);
             // console.log('🚀 ~ returnnewPromise ~ rows:', rows.rows);
 
@@ -72,7 +72,7 @@ const deleteIssue = async function (issueId) {
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {
-            var sqlQuery = `UPDATE SET sys_issue SET issue_delete = 1 WHERE issue_id = $1`;
+            var sqlQuery = `UPDATE set_issue SET issue_delete = 1 WHERE issue_id = $1`;
             let rows = await client.query(sqlQuery, issueId);
             resolve(rows.rowCount);
         } catch (error) {
@@ -103,7 +103,7 @@ const deleteIssue = async function (issueId) {
 
 
 const Priority = function () {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async (resolve, reject) => { // don't use
         const client = await connection.connect();
         try {
             let sqlQuery = `SELECT * FROM sys_priority ORDER BY priority_id`;
@@ -121,7 +121,7 @@ const Priority = function () {
 
 
 const typesDate = function () {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async (resolve, reject) => { // don't use
         const client = await connection.connect();
         try {
             let sqlQuery = `SELECT * FROM set_issue_type ORDER BY issue_type_id`;

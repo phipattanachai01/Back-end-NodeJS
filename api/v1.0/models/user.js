@@ -203,6 +203,22 @@ const checkUserExists = async function (username) {
     });
 };
 
+const dataEdit = async function (params) {
+    console.log("🚀 ~ dataEdit ~ params:", params)
+    return new Promise(async (resolve, reject) => {
+        const client = await connection.connect();
+        try {
+            let query = `SELECT *,role_name FROM sys_user 
+            JOIN sys_role ON sys_user.user_roleid = sys_role.role_id 
+            WHERE user_id = $1 AND user_delete = 0`;
+            let rows = await client.query(query, params);
+            resolve(rows.rows);
+        } catch (error) {
+            reject(error);
+        } finally {
+            client.release();
+        }
+    });
+}
 
-
-module.exports = { adduse, loginuser, updateUser, deleteUser, changePasswordUser , updateStatus, mainlistByUser , checkUserExists};
+module.exports = { adduse, loginuser, updateUser, deleteUser, changePasswordUser , updateStatus, mainlistByUser , checkUserExists, dataEdit};
