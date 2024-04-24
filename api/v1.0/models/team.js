@@ -156,7 +156,7 @@ const DeleteTeam = async function (team_id) {
             // var deleteTeamUsersQuery = `DELETE FROM set_team_user WHERE team_user_teamid = $1`;
             // await client.query(deleteTeamUsersQuery, [teamId]);
 
-            resolve({ teamId });
+            resolve({ team_id });
         } catch (error) {
             reject(error);
             console.log(error);
@@ -236,7 +236,7 @@ const checkByTeam = async function (CheckTeam) {
     });
 };
 
-const dataEditTeam = async function () {
+const dataEditTeam = async function (params) {
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {
@@ -256,7 +256,7 @@ const dataEditTeam = async function () {
             set_team.team_id, set_team.team_name
             ORDER BY 
             set_team.team_id`;
-            let rows = await client.query(sqlQuery, [1]);
+            let rows = await client.query(sqlQuery, params);
             resolve(rows.rows);
         } catch (error) {
             reject(error);

@@ -9,7 +9,7 @@ const AddContact = function (data, formattedDateTime) {
             const sqlQuery = `
                 INSERT INTO company_contact 
                 (contact_companyid, contact_fullname, contact_nickname, contact_email, contact_phone, 
-                    contact_about, contact_createdate, contact_delete)
+                    contact_about, contact_path, contact_url, contact_createdate, contact_delete)
                 VALUES ($1, $2, $3, $4, $5, $6, $7, 0)
                 `;
             const rows = await client.query(sqlQuery, [...Object.values(data), formattedDateTime]);
@@ -34,7 +34,10 @@ const DatalistByContact = function () {
             company_contact.contact_nickname, 
             company.company_fullname, 
             company_contact.contact_email, 
-            company_contact.contact_phone 
+            company_contact.contact_phone,
+            company_contact.contact_about, 
+            company_contact.contact_path, 
+            company_contact.contact_url
             FROM 
                 company_contact
             JOIN 
@@ -237,7 +240,9 @@ const dataEdit = async function (params) {
                 contact_nickname,
                 contact_email, 
                 contact_phone,
-                company_fullname 
+                company_fullname,
+                contact_path,
+                contact_url 
                 FROM company_contact
                 JOIN company ON company_contact.contact_companyid = company.company_id
                 WHERE contact_id = $1`;

@@ -45,7 +45,7 @@ const sideMenu = async function (params) {
             let role = params.role;
             //  console.log("🚀 ~ returnnewPromise ~ role:", role)
              let sqlQuery = `SELECT 
-             sys_menu.menu_id, sys_menu.menu_name, sys_menu.menu_url, 
+             sys_menu.menu_id, sys_menu.menu_name, sys_menu.menu_url, sys_menu.menu_parents,
              sys_role_menu.role_menu_id, sys_role_menu.role_menu_roleid, sys_role_menu.role_menu_menuid , sys_role_menu.role_menu_permissions
          FROM 
              sys_menu

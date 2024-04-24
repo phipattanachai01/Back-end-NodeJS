@@ -11,7 +11,9 @@ const CreateContact = async function (req, res) {
         req.body.contact_nickname, 
         req.body.contact_email, 
         req.body.contact_phone, 
-        req.body.contact_about
+        req.body.contact_about,
+        req.body.contact_path || null,
+        req.body.contact_url || null
     ];    
 
     
@@ -41,19 +43,19 @@ const CreateContact = async function (req, res) {
 const MainContact = async function (req, res) {
     try {
         var data = await Contact.DatalistByContact();
-        // var main = data.map(item => ({
-        //     contactId: item.contact_id,
-        //     contactNickname: item.contact_nickname,
-        //     companyShortname: item.company_shortname,
-        //     contactEmail: item.contact_email,
-        //     contactPhone: item.contact_phone,
-        // }))
+        var contact = data.map((contact) => {
+            var path_image = `${contact.contact_url || ''}/${contact.contact_path || ''}`.trim();
+            contact.path_image = path_image;
+            delete contact.contact_url;
+            delete contact.contact_path;
+            return contact;
+        });
         res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
             message: rescode.c1000.description,
             error: rescode.c1000.error,
             timeReq: dateTimeFormater(new Date(), 'x'),
-            data : data
+            data : contact
         });
     } catch (error) {
         res.status(rescode.c5001.httpStatusCode).json({
@@ -61,7 +63,6 @@ const MainContact = async function (req, res) {
             message: rescode.c5001.description,
             error: rescode.c5001.error,
             timeReq: dateTimeFormater(new Date(), 'x'),
-            catch: error.message,
         });
     }
 };
@@ -147,12 +148,19 @@ const dataEditContact = async function (req, res) {
     let params = [req.body.contact_id];
     try {
         var data = await Contact.dataEdit(params)
+        var contact = data.map((contact) => {
+            var path_image = `${contact.contact_url || ''}/${contact.contact_path || ''}`.trim();
+            contact.path_image = path_image;
+            delete contact.contact_url;
+            delete contact.contact_path;
+            return contact;
+        });
         res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
             message: rescode.c1000.description,
             error: rescode.c1000.error,
             timeReq: dateTimeFormater(new Date(), 'x'),
-            data: data
+            data: contact
         });
     } catch (error) {
         res.status(rescode.c5001.httpStatusCode).json({

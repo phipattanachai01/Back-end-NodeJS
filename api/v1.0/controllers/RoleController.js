@@ -96,6 +96,7 @@ const EditRoles = async function (req, res) {
 
 const DeleteRoles = async (req, res) => {
     let roleId = [req.body.role_id];
+    console.log("🚀 ~ DeleteRoles ~ roleId:", roleId)
     try {
         var DeleteRoles = await Role.Deleterole(roleId);
         // await Role.ReorganizeRoleIDs(roleId);

@@ -6,7 +6,7 @@ const CreateCompany = function (data) {
         try {
             await client.query('BEGIN');
             var sqlQuery =
-                'INSERT INTO company (company_fullname, company_shortname, company_about, company_domain, company_createdate,company_status, company_delete) VALUES($1,$2,$3,$4,$5,1,0)';
+                'INSERT INTO company (company_fullname, company_shortname, company_about, company_domain, company_path, company_url, company_createdate,company_status, company_delete) VALUES($1,$2,$3,$4,$5,$6,$7,1,0)';
             let rows = await client.query(sqlQuery, data);
             await client.query('COMMIT');
             resolve(rows.rows);
@@ -98,7 +98,8 @@ const MainCompany = function () {
         const client = await connection.connect();
         try {
             var sqlQuery = `SELECT company.company_id, company.company_fullname,
-            COALESCE(COUNT(company_contact.contact_id), 0) AS count_result, company.company_status
+            COALESCE(COUNT(company_contact.contact_id), 0) AS count_result, company.company_status ,
+            company_path, company_url
             FROM company
             LEFT JOIN company_contact ON company.company_id = company_contact.contact_companyid
             WHERE company.company_delete = 0

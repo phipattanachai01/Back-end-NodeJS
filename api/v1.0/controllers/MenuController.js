@@ -137,7 +137,6 @@ const UpdateMenu = async function (req, res) {
 
 const SideMenu = async function (req, res) {
     let params = req.user;
-    // console.log("🚀 ~ SideMenu ~ params:", params)
     try {
 
         var data = await Menu.sideMenu(params);
@@ -145,6 +144,7 @@ const SideMenu = async function (req, res) {
             menu_id: item.menu_id,
             menu_name: item.menu_name,
             menu_url: item.menu_url,
+            menu_parents: item.menu_parents,
             role: {
                 role_menu_id: item.role_menu_id,
                 role_menu_roleid: item.role_menu_roleid,
@@ -152,12 +152,27 @@ const SideMenu = async function (req, res) {
                 role_menu_permissions: item.role_menu_permissions.trim().toUpperCase()
             }
         }));
+
+        var topLevelMenus = newData.filter(item => item.menu_parents === null);
+
+        var formattedData = topLevelMenus.map(menuItem => {
+            var subItems = newData.filter(item => item.menu_parents === menuItem.menu_id);
+            var formattedSubItems = subItems.map(subItem => ({
+                ...subItem,
+                children: formatSubMenu(subItem.menu_id, newData),
+            }));
+            return {
+                ...menuItem,
+                children: formattedSubItems,
+            };
+        });
+
         res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
             message: rescode.c1000.description,
             error: rescode.c1000.error,
             timeReq: dateTimeFormater(new Date(), 'x'),
-            Data: newData
+            data: formattedData
         });
     } catch (error) {
         {
@@ -172,4 +187,5 @@ const SideMenu = async function (req, res) {
         }
     }
 };
+
 module.exports = { ListMenu, UpdateMenu, SideMenu };

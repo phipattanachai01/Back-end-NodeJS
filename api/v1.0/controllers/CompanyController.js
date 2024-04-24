@@ -10,6 +10,8 @@ const createByCompany = async function (req, res) {
         req.body.company_shortname,
         req.body.company_about,
         req.body.company_dormain,
+        req.body.company_path || null,
+        req.body.company_url || null,
         formattedDateTime,
     ];
     try {
@@ -103,30 +105,30 @@ const deleteByCompany = async function (req, res) {
 
 const mainByCompany = async function (req, res) {
     try {
-        var data = await Company.MainCompany();
-        // console.log("🚀 ~ mainByCompany ~ data:", data)
-        // var resultItems = data.map(item => ({
-        //     companyid: item.company_id,
-        //     CompanyFullname: item.company_fullname,
-        //     contactCompany: item.count_result,
-        //     companyStatus: item.company_status
-        // }));
+        var companyData = await Company.MainCompany();
+        var companies = companyData.map((company) => {
+            var path_image = `${company.company_url || ''}/${company.company_path || ''}`.trim();
+            company.path_image = path_image;
+            delete company.company_url;
+            delete company.company_path;
+            return company;
+        });
 
         return res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
             message: rescode.c1000.description,
-            data: data,
+            data: companies
         });
     } catch (error) {
         res.status(rescode.c5001.httpStatusCode).json({
             code: rescode.c5001.businessCode,
             message: rescode.c5001.description,
-            error: rescode.c5001.error,
+            error: error.message, 
             timeReq: dateTimeFormater(new Date(), 'x'),
         });
-        return false;
     }
 };
+
 const StatusCompany = async function (req, res) {
     try {
         let params = 
@@ -218,10 +220,17 @@ const listName = async function (req, res) {
     let params = [req.body.company_id];
     try {
         var data = await Company.dataEdit(params);
+        var companies = data.map((company) => {
+            var path_image = `${company.company_url || ''}/${company.company_path || ''}`.trim();
+            company.path_image = path_image;
+            delete company.company_url;
+            delete company.company_path;
+            return company;
+        });
         return res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
             message: rescode.c1000.description,
-            data: data
+            data: companies
         });
     } catch (error) {
         res.status(rescode.c5001.httpStatusCode).json({
