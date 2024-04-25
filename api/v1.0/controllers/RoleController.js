@@ -171,6 +171,23 @@ const dataRole = async function (req, res) {
         });
         return false;
     }
+};
+
+const updateStatusRole = async function (req, res) {
+    let formattedDateTime = dateTimeFormater(new Date(), 'yyyy-MM-DD HH:mm:ss');
+    let params = [req.body.role_id, req.body.role_status, formattedDateTime]
+    try {
+        let data = await Role.updateStatus(params)
+        res.status(rescode.c1000.httpStatusCode).json({
+            code: rescode.c1000.businessCode,
+            message: rescode.c1000.description,
+            error: rescode.c1000.error,
+            timeReq: dateTimeFormater(new Date(), 'x'),
+            data: data
+        });
+    } catch (error) {
+
+    }
 }
 module.exports = {
     RoleUser,
@@ -178,5 +195,6 @@ module.exports = {
     EditRoles,
     DeleteRoles,
     RoleUsers,
-    dataRole
+    dataRole,
+    updateStatusRole
 };

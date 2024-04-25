@@ -432,21 +432,21 @@ const countTicket = async function (params) {
 };
 
 const addTicket = async function (params, filesParams) {
-    console.log('🚀 ~ addTicket ~ filesParams:', filesParams);
-    console.log('🚀 ~ addTicket ~ params 0:', params[0]);
-    console.log('🚀 ~ addTicket ~ params 1:', params[1]);
-    console.log('🚀 ~ addTicket ~ params 2:', params[2]);
-    console.log('🚀 ~ addTicket ~ params 3:', params[3]);
-    console.log('🚀 ~ addTicket ~ params 4:', params[4]);
-    console.log('🚀 ~ addTicket ~ params 5:', params[5]);
-    console.log('🚀 ~ addTicket ~ params 6:', params[6]);
-    console.log('🚀 ~ addTicket ~ params 7:', params[7]);
-    console.log('🚀 ~ addTicket ~ params 8:', params[8]);
-    console.log('🚀 ~ addTicket ~ params 9:', params[9]);
-    console.log('🚀 ~ addTicket ~ params 10:', params[10]);
-    console.log('🚀 ~ addTicket ~ params 11:', params[11]);
-    console.log('🚀 ~ addTicket ~ params 12:', params[12]);
-    console.log('🚀 ~ addTicket ~ params 13:', params[13]);
+    // console.log('🚀 ~ addTicket ~ filesParams:', filesParams);
+    // console.log('🚀 ~ addTicket ~ params 0:', params[0]);
+    // console.log('🚀 ~ addTicket ~ params 1:', params[1]);
+    // console.log('🚀 ~ addTicket ~ params 2:', params[2]);
+    // console.log('🚀 ~ addTicket ~ params 3:', params[3]);
+    // console.log('🚀 ~ addTicket ~ params 4:', params[4]);
+    // console.log('🚀 ~ addTicket ~ params 5:', params[5]);
+    // console.log('🚀 ~ addTicket ~ params 6:', params[6]);
+    // console.log('🚀 ~ addTicket ~ params 7:', params[7]);
+    // console.log('🚀 ~ addTicket ~ params 8:', params[8]);
+    // console.log('🚀 ~ addTicket ~ params 9:', params[9]);
+    // console.log('🚀 ~ addTicket ~ params 10:', params[10]);
+    // console.log('🚀 ~ addTicket ~ params 11:', params[11]);
+    // console.log('🚀 ~ addTicket ~ params 12:', params[12]);
+    // console.log('🚀 ~ addTicket ~ params 13:', params[13]);
     // console.log('🚀 ~ addTicket ~ params 14:', params[14]);
     // console.log('🚀 ~ addTicket ~ params 15:', params[15]);
     // console.log('🚀 ~ addTicket ~ params 16:', params[16]);
@@ -473,7 +473,7 @@ const addTicket = async function (params, filesParams) {
                 ticket_createdate)
             VALUES (
                 $1, $2, $3, $4,  $5, $6, $7, $8, $9, $10, 0, $11)
-            RETURNING ticket_id,  ticket_createdate , ticket_teamid , ticket_code , ticket_title`;
+            RETURNING ticket_id,  ticket_createdate , ticket_teamid , ticket_code , ticket_title , ticket_notification_status`;
 
             let ticketRows = await client.query(sqlQueryTicket, [
                 newTicketCode,
@@ -499,6 +499,7 @@ const addTicket = async function (params, filesParams) {
             let ticket_createdate = ticketRows.rows[0].ticket_createdate;
 
             let ticket_teamid = ticketRows.rows[0].ticket_teamid;
+            let ticket_notification_status = ticketRows.rows[0].ticket_notification_status;
 
             let sqlQueryTicketAssign = `INSERT INTO ticket_assign (assign_ticketid, assign_teamid, assign_userid, assign_createdate) VALUES ($1, $2, unnest($3::int[]), $4) RETURNING assign_userid`;
             let rowsTicketAssign = await client.query(sqlQueryTicketAssign, [
@@ -520,7 +521,7 @@ const addTicket = async function (params, filesParams) {
                 INSERT INTO ticket_detail (
                     detail_createby, detail_ticketid, detail_type, detail_access,
                     detail_details, detail_createdate, detail_delete
-                ) VALUES ($1, $2, 1, 1, $3, $4, 0) RETURNING detail_id`;
+                ) VALUES ($1, $2, 1, 1, $3, $4, 0) RETURNING detail_id , detail_createby`;
 
             let rowsTicketDetail = await client.query(sqlQueryTicketDetail, [
                 params[13],
@@ -530,7 +531,8 @@ const addTicket = async function (params, filesParams) {
             ]);
             let detail_id = rowsTicketDetail.rows[0].detail_id;
             // console.log('🚀 ~ returnnewPromise ~ detail_id:', detail_id);
-
+            let detail_createby = rowsTicketDetail.rows[0].detail_createby;
+            console.log("🚀 ~ returnnewPromise ~ detail_createby:", detail_createby)
             let sqlQueryTicketFile = `
             INSERT INTO ticket_file 
                 (file_name, file_size, file_type, file_extension,
@@ -545,7 +547,7 @@ const addTicket = async function (params, filesParams) {
                     fileParams[1], // file_size
                     fileParams[2], // file_type
                     fileParams[3], // file_extension
-                    detail_id,      // file_detailid
+                    detail_id, // file_detailid
                     ticket_createdate, // file_createdate
                     fileParams[4], // file_url
                     fileParams[5], // file_path
@@ -573,10 +575,39 @@ const addTicket = async function (params, filesParams) {
                     notifyDetail,
                     ticket_createdate,
                 ]);
-            }
+            };
 
+            let sqlQuerylineNotifications = `SELECT set_team.team_linetoken 
+            FROM set_team 
+            JOIN ticket ON set_team.team_id = ticket.ticket_teamid 
+            WHERE ticket.ticket_id = $1`;
+            let rowslineNotifications = await client.query(sqlQuerylineNotifications, [ticket_id]);
+            let sqlQueryStatusTicket = `SELECT set_status.status_name 
+            FROM set_status 
+            JOIN ticket_status ON set_status.status_id = ticket_status.ticket_status_statusid 
+            JOIN ticket ON ticket.ticket_id = ticket_status.ticket_status_ticketid 
+            WHERE ticket.ticket_id = $1;
+            `;
+            let rowsStatusTicket = await client.query(sqlQueryStatusTicket, [ticket_id]);
+
+            let sqlQueryUsers = `SELECT user_firstname FROM sys_user WHERE user_id = $1 AND user_delete = 0 `
+            let rowsUsers = await client.query(sqlQueryUsers, [detail_createby]);
+            let user_createby = rowsUsers.rows[0].user_firstname;
+            console.log("🚀 ~ returnnewPromise ~ user_createby:", user_createby)
+            console.log("🚀 ~ returnnewPromise ~ user_createby:", user_createby)
             await client.query('COMMIT');
-            resolve('Successfully');
+            resolve({
+                ticket_id: ticket_id,
+                ticket_code: ticket_code,
+                ticket_title: ticket_title,
+                ticket_createdate: ticket_createdate,
+                detail_id: detail_id,
+                assignUserIds: assignUserIds,
+                ticket_notification_status: ticket_notification_status,
+                lineNotifications: rowslineNotifications.rows[0],
+                rowsStatusTicket: rowsStatusTicket.rows[0],
+                user_createby: user_createby
+            });
         } catch (error) {
             await client.query('ROLLBACK');
             reject(error);
@@ -726,7 +757,7 @@ const listDetail = async function (params) {
 };
 
 const detailFiles = async function (params) {
-    return new Promise(async (resolve, reject) =>{
+    return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {
             let sqlQuery = `SELECT
@@ -743,17 +774,16 @@ const detailFiles = async function (params) {
             ticket_detail ON ticket_file.file_detailid = ticket_detail.detail_id
         WHERE
             detail_ticketid = $1 
-        AND ticket_file.file_delete = 0`
-        let rows = await client.query(sqlQuery, params);
-        resolve(rows.rows);
-
+        AND ticket_file.file_delete = 0`;
+            let rows = await client.query(sqlQuery, params);
+            resolve(rows.rows);
         } catch (error) {
             reject(error);
         } finally {
             client.release();
         }
-    })
-}
+    });
+};
 
 const MainNote = async function (params, token) {
     return new Promise(async (resolve, reject) => {
@@ -853,12 +883,32 @@ const updateTicket = async function (params) {
         const client = await connection.connect();
         try {
             let sqlQuery = `UPDATE ticket_status AS ts
-            SET ticket_status_statusid = $2 , ticket_status_updatedate = $3
+            SET ticket_status_statusid = $2 , ticket_status_updatedate = $3 ,ticket_status_updateby = $4 
             FROM ticket AS t
             WHERE t.ticket_id = $1
-            AND ts.ticket_status_ticketid = t.ticket_id`;
-            await client.query(sqlQuery, params);
-            resolve('Update successful');
+            AND ts.ticket_status_ticketid = t.ticket_id
+            RETURNING t.ticket_id`;
+            let rowsTicket = await client.query(sqlQuery, params);
+
+            let ticket_id = rowsTicket.rows[0].ticket_id;
+            console.log("🚀 ~ returnnewPromise ~ ticket_id:", ticket_id)
+
+            let sqlQueryTicket = `SELECT ticket.ticket_id,
+            ticket.ticket_code,
+            ticket_status.ticket_status_updatedate,
+            ticket.ticket_title,
+            set_status.status_name,
+            sys_user.user_firstname,
+            ticket.ticket_notification_status,
+            set_team.team_linetoken
+            FROM ticket
+            LEFT JOIN ticket_status ON ticket.ticket_id = ticket_status.ticket_status_ticketid
+            LEFT JOIN set_status ON set_status.status_id = ticket_status.ticket_status_statusid
+            LEFT JOIN sys_user ON ticket_status.ticket_status_updateby = sys_user.user_id
+            LEFT JOIN set_team ON ticket.ticket_teamid = set_team.team_id
+            WHERE ticket.ticket_id = $1`;
+            let rows = await client.query(sqlQueryTicket, [ticket_id]);
+            resolve(rows.rows);
         } catch (error) {
             reject(error);
         } finally {
@@ -884,9 +934,9 @@ const addNote = async function (params, filesParams) {
             )
             VALUES ($1, 2, $2, $3, $4, $4, $5, 0) RETURNING detail_id`;
             let rows = await client.query(sqlQuerydetail, params);
-            
+
             let detail_id = rows.rows[0].detail_id;
-            console.log("🚀 ~ returnnewPromise ~ detail_id:", detail_id)
+            console.log('🚀 ~ returnnewPromise ~ detail_id:', detail_id);
 
             let sqlQueryTicketFile = `
             INSERT INTO ticket_file 
@@ -900,7 +950,7 @@ const addNote = async function (params, filesParams) {
                     fileParams[1], // file_size
                     fileParams[2], // file_type
                     fileParams[3], // file_extension
-                    detail_id,      // file_detailid
+                    detail_id, // file_detailid
                     fileParams[6], // file_createdate
                     fileParams[4], // file_url
                     fileParams[5], // file_path
@@ -910,18 +960,18 @@ const addNote = async function (params, filesParams) {
             //     console.log("🚀 ~ returnnewPromise ~ filesParams:", filesParams)
             //     let sqlQuery = `
             //         INSERT INTO ticket_detail (
-            //             detail_file_name, 
-            //             detail_file_size, 
-            //             detail_file_type, 
+            //             detail_file_name,
+            //             detail_file_size,
+            //             detail_file_type,
             //             detail_file_extension,
-            //             detail_file_url,  
-            //             detail_file_path, 
+            //             detail_file_url,
+            //             detail_file_path,
             //             detail_file_createdate,
             //             detail_file_id
             //         )
             //         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`;
             //     for (let fileParams of filesParams) {
-            //         await client.query(sqlQuery, 
+            //         await client.query(sqlQuery,
             //             [
             //             filesParams[0],
             //             filesParams[1],
@@ -932,9 +982,9 @@ const addNote = async function (params, filesParams) {
             //             filesParams[6],
             //             detail_id
             //         ]);
-                // }
             // }
-            resolve("Successfully");
+            // }
+            resolve('Successfully');
         } catch (error) {
             reject(error);
         } finally {
@@ -942,7 +992,6 @@ const addNote = async function (params, filesParams) {
         }
     });
 };
-
 
 const listEditTeam = async function (params) {
     return new Promise(async (resolve, reject) => {
@@ -981,7 +1030,10 @@ const DataCompany = async function () {
             let sqlQuery = await client.query(`SELECT 
             company.company_id, 
             company.company_fullname 
-        FROM company`);
+        FROM company
+        WHERE 
+                company_delete = 0
+            AND company_status = 1`);
             resolve(sqlQuery.rows);
         } catch (error) {
             reject(error);
@@ -1224,5 +1276,5 @@ module.exports = {
     Finddate,
     tagTicket,
     listfile,
-    detailFiles
+    detailFiles,
 };

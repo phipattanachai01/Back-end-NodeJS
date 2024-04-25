@@ -144,6 +144,7 @@ const SideMenu = async function (req, res) {
             menu_id: item.menu_id,
             menu_name: item.menu_name,
             menu_url: item.menu_url,
+            icon: item.menu_icon,
             menu_parents: item.menu_parents,
             role: {
                 role_menu_id: item.role_menu_id,
@@ -159,7 +160,7 @@ const SideMenu = async function (req, res) {
             var subItems = newData.filter(item => item.menu_parents === menuItem.menu_id);
             var formattedSubItems = subItems.map(subItem => ({
                 ...subItem,
-                children: formatSubMenu(subItem.menu_id, newData),
+                children: subItem.menu_id === 5 || subItem.menu_id === 6 || subItem.menu_id === 8 || subItem.menu_id === 9 || subItem.menu_id === 10 || subItem.menu_id === 12 || subItem.menu_id === 13 ? undefined : formatSubMenu(subItem.menu_id, newData),
             }));
             return {
                 ...menuItem,

@@ -9,5 +9,6 @@ router.post('/edit',functionAuth.verityMidToken, RoleController.EditRoles);
 router.post('/delete',functionAuth.verityMidToken, RoleController.DeleteRoles);
 router.post('/roleuser',functionAuth.verityMidToken,RoleController.RoleUsers);
 router.post('/data-role',functionAuth.verityMidToken, RoleController.dataRole);
+router.post('/update-status',functionAuth.verityMidToken, RoleController.updateStatusRole);
 
 module.exports = router;

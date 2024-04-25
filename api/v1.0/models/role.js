@@ -239,7 +239,34 @@ const datarole = async function ()  {
             client.release();
         }
     });
+};
+
+const updateStatus = async function (params) {
+    console.log("🚀 ~ updateStatus ~ params:", params)
+    return new Promise(async (resolve, reject) => {
+        const client = await connection.connect();
+        try {
+            await client.query('BEGIN');
+
+            let updateRoleQuery = `
+                UPDATE sys_role 
+                SET role_status = $2, role_updatedate = $3
+                WHERE role_id = $1
+            `;
+            let rows = await client.query(updateRoleQuery, params);
+
+            await client.query('COMMIT');
+            resolve(rows.rows);
+        } catch (error) {
+            await client.query('ROLLBACK');
+            reject(error);
+            console.log(error);
+        } finally {
+            client.release();
+        }
+    });
 }
+
 // const ReorganizeRoleIDs = function (roleId) {
 //     return new Promise(async (resolve, reject) => {
 //         const client = await connection.connect();
@@ -260,4 +287,4 @@ const datarole = async function ()  {
 //         }
 //     });
 // };
-module.exports = { Mainrole, Addrole, Editrole, Deleterole ,roleusers, datarole};
+module.exports = { Mainrole, Addrole, Editrole, Deleterole ,roleusers, datarole, updateStatus };

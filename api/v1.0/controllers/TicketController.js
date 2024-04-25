@@ -9,6 +9,7 @@ var {} = require('../../../config/default');
 let { verityMidToken } = require('../middleware/functionAuth');
 const Ticket = require('../models/ticket');
 const moment = require('moment');
+const { notifyLine2 } = require('../middleware/functionBasicCenter');
 
 const DatalistByTicket = async function (req, res) {
     let params = req.body.company_id ? [req.body.company_id] : null;
@@ -108,19 +109,28 @@ const CreateTicket = async function (req, res) {
             req.body.detail_details,
             userId,
         ];
-        console.log('🚀 ~ CreateTicket ~ params:', params);
-        console.log('🚀 ~ CreateTicket ~ filesParams:', filesParams);
-
-        // console.log('🚀 ~ CreateTicket ~ params:', params);
-        // console.log("🚀 ~ AddIssue ~ params:", params)
         var data = await Ticket.addTicket(params, filesParams);
-        // console.log("🚀 ~ AddIssue ~ data:", data)
+        console.log('🚀 ~ CreateTicket ~ data Notification:', data);
+        data.ticket_createdate = moment(data.ticket_createdate).format('DD-MM-YYYY');
+        let dataMessage = `\nTicket: ${data.ticket_code}\nTitle: ${data.ticket_title}\nCreated Date: ${data.ticket_createdate}\nStatus: ${data.rowsStatusTicket.status_name}\nCreate By: ${data.user_createby}`;
+
+        // let dataMessage = 'ทดสอบส่งข้อมูล';
+        if (data.ticket_notification_status === 1) {
+            let params_noti = {};
+            params_noti.Message = dataMessage;
+            params_noti.lineToken = data.lineNotifications.team_linetoken;
+            await notifyLine2(params_noti);
+        } else if (data.ticket_notification_status === 0) {
+            return res.status(rescode.c1000.httpStatusCode).json({
+                code: rescode.c1000.businessCode,
+                message: ' ---------> lineNoti_status = 0',
+                data: data,
+            });
+        }
         res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
             message: rescode.c1000.description,
-            error: rescode.c1000.error,
-            timeReq: dateTimeFormater(new Date(), 'HH:mm:ss'),
-            // data: data,
+            data: data,
         });
     } catch (error) {
         res.status(rescode.c5001.httpStatusCode).json({
@@ -417,11 +427,28 @@ const ContactCompany = async function (req, res) {
 
 const updateByTicket = async function (req, res) {
     let formattedDateTime = dateTimeFormater(new Date(), 'yyyy-MM-DD HH:mm:ss');
-
-    let params = [req.body.ticket_id, req.body.ticket_status_statusid, formattedDateTime];
+    let userID = req.user.id;
+    let params = [req.body.ticket_id, req.body.ticket_status_statusid, formattedDateTime, userID];
     try {
         var data = await Ticket.updateTicket(params);
-        console.log('🚀 ~ updateByTicket ~ data:', data);
+        // console.log("🚀 ~ updateByTicket ~ data:", data)
+        // console.log('🚀 ~ updateByTicket ~ data:', data[0].team_linetoken);
+        data[0].ticket_status_updatedate = moment(data[0].ticket_status_updatedate).format('DD-MM-YYYY');
+        let dataMessage = `\nTicket: ${data[0].ticket_code}\nTitle: ${data[0].ticket_title}\nCreated Date: ${data[0].ticket_status_updatedate}\nStatus: ${data[0].status_name}\nUpdate By: ${data[0].user_firstname}`;
+        console.log('🚀 ~ updateByTicket ~ dataMessage:', dataMessage);
+
+        if (data[0].ticket_notification_status === 1) {
+            let params_noti = {};
+            params_noti.Message = dataMessage;
+            params_noti.lineToken = data[0].team_linetoken;
+            await notifyLine2(params_noti);
+        } else if (data.ticket_notification_status === 0) {
+            return res.status(rescode.c1000.httpStatusCode).json({
+                code: rescode.c1000.businessCode,
+                message: ' ---------> lineNoti_status = 0',
+                data: data
+            });
+        }
         res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
             message: rescode.c1000.description,

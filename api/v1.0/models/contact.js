@@ -7,10 +7,10 @@ const AddContact = function (data, formattedDateTime) {
         try {
             await client.query('BEGIN');
             const sqlQuery = `
-                INSERT INTO company_contact 
-                (contact_companyid, contact_fullname, contact_nickname, contact_email, contact_phone, 
-                    contact_about, contact_path, contact_url, contact_createdate, contact_delete)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, 0)
+            INSERT INTO company_contact 
+            (contact_companyid, contact_fullname, contact_nickname, contact_email, contact_phone, 
+                contact_about, contact_path, contact_url, contact_createdate, contact_delete)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 0)            
                 `;
             const rows = await client.query(sqlQuery, [...Object.values(data), formattedDateTime]);
             await client.query('COMMIT');

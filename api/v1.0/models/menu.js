@@ -17,6 +17,7 @@ const mainmenu = function (param) {
 };
 
 const Updatemenu = function (data , formattedupdateDateTime) {
+    console.log("🚀 ~ Updatemenu ~ data:", data)
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {
@@ -43,9 +44,8 @@ const sideMenu = async function (params) {
         const client = await connection.connect();
         try {
             let role = params.role;
-            //  console.log("🚀 ~ returnnewPromise ~ role:", role)
              let sqlQuery = `SELECT 
-             sys_menu.menu_id, sys_menu.menu_name, sys_menu.menu_url, sys_menu.menu_parents,
+             sys_menu.menu_id, sys_menu.menu_name, sys_menu.menu_url, sys_menu.menu_icon, sys_menu.menu_parents,
              sys_role_menu.role_menu_id, sys_role_menu.role_menu_roleid, sys_role_menu.role_menu_menuid , sys_role_menu.role_menu_permissions
          FROM 
              sys_menu
@@ -57,6 +57,7 @@ const sideMenu = async function (params) {
              sys_role_menu.role_menu_menuid = sys_menu.menu_id
              AND sys_role.role_id = $1
              AND sys_menu.menu_status = 1
+             AND sys_role_menu.role_menu_permissions != 'NA'
         ORDER BY sys_menu.menu_id
          `;
              let rows = await client.query(sqlQuery, [role]);
