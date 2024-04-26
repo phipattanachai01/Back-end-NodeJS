@@ -609,6 +609,37 @@ const MainFile = async function (req, res) {
         });
     }
 };
+
+const CountStatusByTicket = async function (req, res) {
+    try {
+        let data = await Ticket.countstatusTicket();
+
+        let result = data.map((status) => ({
+            ticket_status_statusid: status.ticket_status_statusid,
+            count_status: status.count_status
+        }));
+
+        let allStatus = data[data.length - 1].all_status;
+        res.status(rescode.c1000.httpStatusCode).json({
+            code: rescode.c1000.businessCode,
+            message: rescode.c1000.description,
+            error: rescode.c1000.error,
+            timeReq: dateTimeFormater(new Date(), 'x'),
+            data: result,
+            All_Status : allStatus
+        });
+
+    } catch (error) {
+        res.status(rescode.c5001.httpStatusCode).json({
+            code: rescode.c5001.businessCode,
+            message: rescode.c5001.description,
+            error: rescode.c5001.error,
+            timeReq: dateTimeFormater(new Date(), 'x'),
+            catch: error.message
+        });
+    }
+};
+
 module.exports = {
     DatalistByTicket,
     CreateTicket,
@@ -630,4 +661,5 @@ module.exports = {
     Tags,
     MainFile,
     detailFiles,
+    CountStatusByTicket
 };

@@ -36,8 +36,7 @@ const RoleUser = async function (req, res) {
     try {
         var data = {
             role_name: req.body.role_name,
-            role_menu: req.body.role_menu,
-            
+            role_menu: req.body.role_menu
         };
         // console.log("🚀 ~ RoleUser ~ data:", data, formattedDateTime)
         // console.log('data: ', data);

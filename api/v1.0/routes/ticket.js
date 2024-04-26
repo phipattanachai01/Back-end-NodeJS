@@ -24,4 +24,5 @@ router.post('/delete-note', functionAuth.verityMidToken,TicketController.DeleteN
 router.post('/listfile', functionAuth.verityMidToken,verifyParamsTicket.listFile,TicketController.MainFile);
 router.post('/detail-file', functionAuth.verityMidToken,TicketController.detailFiles); // detail file Ticket
 // router.post('/mainnote', functionAuth.verityMidToken,TicketController.MainNoteByTicket); // Test main note
+router.post('/count-status', functionAuth.verityMidToken, TicketController.CountStatusByTicket);
 module.exports = router;

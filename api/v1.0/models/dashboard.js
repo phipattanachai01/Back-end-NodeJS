@@ -21,6 +21,8 @@ const ListDashboard = function () {
             if (rows.rows) {
                 resolve(rows.rows);
             }
+
+            // แก้
         } catch (error) {
             reject(error);
         } finally {

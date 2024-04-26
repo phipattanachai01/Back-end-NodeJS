@@ -196,7 +196,7 @@ const dataEdit = async function (req, res) {
             message: rescode.c1000.description,
             error: rescode.c1000.error,
             timeReq: dateTimeFormater(new Date(), 'x'),
-            data
+            data: data
         });
     } catch (error) {
         res.status(rescode.c5001.httpStatusCode).json({
@@ -207,7 +207,9 @@ const dataEdit = async function (req, res) {
             catch: error.message
         });
     }
-}
+};
+
+
 
 module.exports = { MainTeamUser, AddTeamUser, EditTeamUser, DeleteTeamUser , disableTeam, dataEdit, checkTeam};
 

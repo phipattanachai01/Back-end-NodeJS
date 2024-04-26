@@ -244,6 +244,7 @@ const dataEditTeam = async function (params) {
             set_team.team_id AS team_id,
             set_team.team_code AS team_code,
             set_team.team_name,
+            set_team.team_linetoken,
             COALESCE(STRING_AGG(sys_user.user_firstname, ' , '), '0') AS user_firstname
             FROM 
             set_team

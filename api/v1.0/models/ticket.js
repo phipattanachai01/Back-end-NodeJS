@@ -1255,6 +1255,39 @@ const listfile = async function (params) {
     });
 };
 
+const countstatusTicket = async function (params) {
+    return new Promise(async (resolve, reject) => {
+        const client = await connection.connect();
+        try {
+            let sqlQuery = `SELECT 
+            ticket_status_statusid,
+            COUNT(*) AS count_status,
+            (SELECT 
+                 COUNT(*) 
+             FROM 
+                 ticket_status 
+             WHERE 
+                 ticket_status_statusid BETWEEN 1 AND 6
+            ) AS All_status
+        FROM 
+            ticket_status
+        WHERE 
+            ticket_status_statusid BETWEEN 1 AND 6
+        GROUP BY 
+            ticket_status_statusid
+        ORDER BY 
+            ticket_status_statusid;
+        `;
+            let rows = await client.query(sqlQuery, params);
+            resolve(rows.rows);
+        } catch (error) {
+            reject(error);
+        } finally {
+            client.release();
+        }
+    });
+}
+
 module.exports = {
     MainTicket,
     countTicket,
@@ -1277,4 +1310,5 @@ module.exports = {
     tagTicket,
     listfile,
     detailFiles,
+    countstatusTicket
 };
