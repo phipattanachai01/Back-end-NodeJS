@@ -27,7 +27,7 @@ const updateCompany = function (params) {
         try {
             await client.query('BEGIN');
             var sqlQuery =
-                'UPDATE company SET company_fullname = $1, company_shortname = $2, company_about = $3, company_dormain = $4, company_updatedate = $5  WHERE company_id = $6';
+                'UPDATE company SET company_fullname = $1, company_shortname = $2, company_about = $3, company_domain = $4, company_path = $5, company_url = $6, company_updatedate = $7  WHERE company_id = $8';
             console.log();
             let rows = await client.query(sqlQuery, params);
             await client.query('COMMIT');

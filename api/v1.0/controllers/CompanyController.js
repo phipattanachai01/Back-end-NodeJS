@@ -9,11 +9,12 @@ const createByCompany = async function (req, res) {
         req.body.company_fullname,
         req.body.company_shortname,
         req.body.company_about,
-        req.body.company_dormain,
+        req.body.company_domain,
         req.body.company_path || null,
         req.body.company_url || null,
         formattedDateTime,
     ];
+    console.log("🚀 ~ createByCompany ~ data:", data)
     try {
         await Company.CreateCompany(data);
         return res.status(rescode.c1000.httpStatusCode).json({
@@ -35,10 +36,12 @@ const createByCompany = async function (req, res) {
 const editByCompany = async function (req, res) {
     let formattedDateTime = dateTimeFormater(new Date(), 'yyyy-MM-DD HH:mm:ss');
     let data = [
-        req.body.company_fullname,
+        req.body.company_fullname ,
         req.body.company_shortname,
         req.body.company_about,
-        req.body.company_dormain,
+        req.body.company_domain,
+        req.body.company_path || null,
+        req.body.company_url || null,
         formattedDateTime,
         req.body.company_id
         ];
