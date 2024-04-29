@@ -185,9 +185,48 @@ const updateStatusRole = async function (req, res) {
             data: data
         });
     } catch (error) {
-
+        res.status(rescode.c5001.httpStatusCode).json({
+            code: rescode.c5001.businessCode,
+            message: rescode.c5001.description,
+            error: rescode.c5001.error,
+            timeReq: dateTimeFormater(new Date(), 'x'),
+            catch: error.message,
+        });
+        return false;
     }
-}
+};
+
+const dataEditRole = async function (req, res) {
+    let params = [req.body.role_id];
+    try {
+        let data = await Role.DataEdit(params)
+        let roleData = {
+            role_id: data[0].role_id,
+            role_name: data[0].role_name,
+            role_menu: data.map((item) => ({
+                role_menu_menuid: item.role_menu_menuid,
+                role_menu_permissions: item.role_menu_permissions.trim()
+            }))
+        };
+        res.status(rescode.c1000.httpStatusCode).json({
+            code: rescode.c1000.businessCode,
+            message: rescode.c1000.description,
+            error: rescode.c1000.error,
+            timeReq: dateTimeFormater(new Date(), 'x'),
+            data: roleData                  
+        });
+    } catch (error) {
+        res.status(rescode.c5001.httpStatusCode).json({
+            code: rescode.c5001.businessCode,
+            message: rescode.c5001.description,
+            error: rescode.c5001.error,
+            timeReq: dateTimeFormater(new Date(), 'x'),
+            catch: error.message
+        });
+        return false;
+    }
+    };
+
 module.exports = {
     RoleUser,
     ListRoles,
@@ -195,5 +234,6 @@ module.exports = {
     DeleteRoles,
     RoleUsers,
     dataRole,
-    updateStatusRole
+    updateStatusRole,
+    dataEditRole
 };

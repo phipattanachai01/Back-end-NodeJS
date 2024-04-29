@@ -12,33 +12,31 @@ const ListMenu = async function (req, res) {
 
         var formattedData = topLevelMenus.map(menuItem => {
             var subItems = data.filter(item => item.menu_parents === menuItem.menu_id);
-            // console.log("🚀 ~ formattedData ~ subItems:", subItems)
-            var formattedSubItems = subItems.map(subItem => ({
-                ...subItem,
-                sub: formatSubMenu(subItem.menu_id, data),
-            }));
             return {
                 ...menuItem,
-                sub: formattedSubItems,
+                ...(subItems.length > 0 && { sub: subItems }),
             };
+        }).map(menuItem => {
+            if (menuItem.sub && menuItem.sub.length === 0) {
+                delete menuItem.sub;
+            }
+            return menuItem;
         });
-        // console.log("🚀 ~ formattedData ~ formattedData:", formattedData)
-
+        
         res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
             message: rescode.c1000.description,
             error: rescode.c1000.error,
             timeReq: dateTimeFormater(new Date(), 'x'),
-            data: formattedData,
+            data: formattedData
         });
-        // console.log("🚀 ~ res.status ~ formattedData:", formattedData)
     } catch (error) {
         res.status(rescode.c5001.httpStatusCode).json({
             code: rescode.c5001.businessCode,
             message: rescode.c5001.description,
             error: rescode.c5001.error,
             timeReq: dateTimeFormater(new Date(), 'x'),
-            catch: error.message,
+            catch: error.message
         });
         return false;
     }

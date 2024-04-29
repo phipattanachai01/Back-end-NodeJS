@@ -12,12 +12,23 @@ const MainNotify = async function (req, res) {
         // console.log("🚀 ~ MainNotify ~ data:", data)
 
 
+        let totalStatusCount = data.find(item => item.status_id === 7).status_count;
+
         let Resultdata = data.map((item) =>{
             let count = item.status_count;
-            
-            let percentage = Math.abs((count / 1000) * 100); 
-            let formattedPercentage = percentage % 1 === 0 ? parseInt(percentage) : percentage.toFixed(1);
+            let percentage;
 
+            if (totalStatusCount !== 0) {
+                if (item.status_id !== 7) {
+                    percentage = (count / totalStatusCount) * 100;
+                } else {
+                    percentage = 100;
+                }
+            } else {
+                percentage = 0;
+            }
+
+            let formattedPercentage = percentage % 1 === 0 ? parseInt(percentage) : percentage.toFixed(1);
 
             item.percentage = formattedPercentage + '%'; 
 

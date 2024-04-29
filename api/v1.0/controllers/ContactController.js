@@ -77,11 +77,14 @@ const EditContact = async function (req, res) {
         req.body.contact_phone,
         req.body.contact_about,
         req.body.contact_companyid,
+        req.body.contact_path || null,
+        req.body.contact_url || null,
+        formattedDateTime,
         req.body.contact_id
     ];
     
     try {
-        var updatedData = await Contact.EditByContact(data , formattedDateTime);
+        var updatedData = await Contact.EditByContact(data);
 
         res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,

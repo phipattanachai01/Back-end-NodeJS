@@ -191,13 +191,17 @@ const dataEdit = async function (req, res) {
     let params = [req.body.team_id]
     try {
         let data = await Team.dataEditTeam(params);
-        res.status(rescode.c1000.httpStatusCode).json({
-            code: rescode.c1000.businessCode,
-            message: rescode.c1000.description,
-            error: rescode.c1000.error,
-            timeReq: dateTimeFormater(new Date(), 'x'),
-            data: data
+        data.forEach(item => {
+            item.user_id = item.user_id.map(id => parseInt(id)).join(',');
         });
+            res.status(rescode.c1000.httpStatusCode).json({
+                code: rescode.c1000.businessCode,
+                message: rescode.c1000.description,
+                error: rescode.c1000.error,
+                timeReq: dateTimeFormater(new Date(), 'x'),
+                data: data
+            });
+        
     } catch (error) {
         res.status(rescode.c5001.httpStatusCode).json({
             code: rescode.c5001.businessCode,

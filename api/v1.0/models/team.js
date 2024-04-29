@@ -245,18 +245,22 @@ const dataEditTeam = async function (params) {
             set_team.team_code AS team_code,
             set_team.team_name,
             set_team.team_linetoken,
+            ARRAY_AGG(sys_user.user_id) AS user_id,
             COALESCE(STRING_AGG(sys_user.user_firstname, ' , '), '0') AS user_firstname
-            FROM 
+        FROM 
             set_team
-            LEFT JOIN 
+        LEFT JOIN 
             set_team_user ON set_team.team_id = set_team_user.team_user_teamid
-            LEFT JOIN 
+        LEFT JOIN 
             sys_user ON set_team_user.team_user_userid = sys_user.user_id
-            WHERE team_id = $1 AND set_team.team_delete = 0
-            GROUP BY 
-            set_team.team_id, set_team.team_name
-            ORDER BY 
-            set_team.team_id`;
+        WHERE 
+            set_team.team_id = $1 
+            AND set_team.team_delete = 0
+        GROUP BY 
+            set_team.team_id, set_team.team_code, set_team.team_name, set_team.team_linetoken
+        ORDER BY 
+            set_team.team_id;
+        `;
             let rows = await client.query(sqlQuery, params);
             resolve(rows.rows);
         } catch (error) {

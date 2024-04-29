@@ -78,13 +78,14 @@ const loginuser = function (paramuser) {
     });
 };
 const updateUser = function (params) {
+    console.log("🚀 ~ updateUser ~ params:", params)
     // console.log(userID)
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {
             await client.query('BEGIN');
             var sqlQuery =
-                'UPDATE sys_user SET user_name = $1, user_phone = $2, user_firstname = $3, user_lastname = $4, user_roleid = $5, user_url = $6, user_path = $7, user_updatedate = $8 WHERE user_id = $9';
+                'UPDATE sys_user SET user_name = $1, user_phone = $2, user_firstname = $3, user_lastname = $4, user_password = $5,  user_roleid = $6, user_url = $7, user_path = $8, user_updatedate = $9 WHERE user_id = $10';
             // console.log(sqlQuery);
             // console.log('combinedParams', combinedParams);
             let rows = await client.query(sqlQuery, params);
@@ -100,6 +101,8 @@ const updateUser = function (params) {
         }
     });
 };
+
+// $2a$10$xgZ4IV66DkULzmXYNBm5XO.r2yhJj6y6OZv9iS28cQXe9TXpn/s6W
 
 const deleteUser = function (userID) {
     return new Promise(async (resolve, reject) => {

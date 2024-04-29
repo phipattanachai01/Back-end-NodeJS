@@ -65,7 +65,7 @@ const AddIssue = async function (req, res) {
 const UpdateIssue = async function (req, res) {
     let formattedDateTime = dateTimeFormater(new Date(), 'yyyy-MM-DD HH:mm:ss');
     try {
-        var params = [req.body.issue_name, req.body.priority_id, req.body.issue_duedate, req.body.issue_type_id, formattedDateTime, req.body.issue_id]
+        var params = [req.body.issue_name, req.body.issue_priority, req.body.issue_duedate, req.body.issue_type, formattedDateTime, req.body.issue_id]
         // console.log("🚀 ~ AddIssue ~ params:", params)
         var data = await Issue.updateIssue(params);
         console.log("🚀 ~ AddIssue ~ data:", data)

@@ -106,8 +106,8 @@ const DatalistByContact = function () {
 //         }
 //     });
 // };
-const EditByContact = function (data, formattedDateTime) {
-    console.log(data);
+const EditByContact = function (data) {
+    console.log("🚀 ~ EditByContact ~ data:", data)
     return new Promise(async (resolve, reject) => {
         const client = await connection.connect();
         try {
@@ -141,20 +141,13 @@ const EditByContact = function (data, formattedDateTime) {
                     contact_phone = $4,
                     contact_about = $5,
                     contact_companyid = $6,
-                    contact_updatedate = $7
-                WHERE contact_id = $8
+                    contact_path = $7,
+                    contact_url = $8,
+                    contact_updatedate = $9
+                WHERE contact_id = $10
                 RETURNING * `;
 
-            let rows = await client.query(sqlQuery, [
-                data[0],
-                data[1],
-                data[2],
-                data[3],
-                data[4],
-                data[5],
-                formattedDateTime,
-                data[6],
-            ]);
+            let rows = await client.query(sqlQuery, data);
             await client.query('COMMIT');
             resolve(rows.rows[0]);
         } catch (error) {
@@ -240,6 +233,8 @@ const dataEdit = async function (params) {
                 contact_nickname,
                 contact_email, 
                 contact_phone,
+                contact_about,
+                company_id,
                 company_fullname,
                 contact_path,
                 contact_url 

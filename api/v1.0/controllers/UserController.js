@@ -1,6 +1,6 @@
 var rescode = require('../../../responsecode.json');
-let { dateTimeFormater, addToLoggedInUsers, checkLogin } = require('../middleware/formatConverter');
-const { hashPassword, comparePassword, signAccessToken } = require('../middleware/functionAuth');
+let { dateTimeFormater } = require('../middleware/formatConverter');
+const { hashPassword, comparePassword, signAccessToken} = require('../middleware/functionAuth');
 var {} = require('../../../config/default');
 let { verityMidToken } = require('../middleware/functionAuth');
 const Register = require('../models/user');
@@ -9,7 +9,7 @@ const RegisterUser = async function (req, res) {
     let hashPass = await hashPassword({ password: req.body.user_password });
     let formattedDateTime = dateTimeFormater(new Date(), 'yyyy-MM-DD HH:mm:ss');
     let userId = req.user.id;
-    console.log("🚀 ~ RegisterUser ~ userId:", userId)
+    console.log('🚀 ~ RegisterUser ~ userId:', userId);
 
     // console.log(hashPass);
     let paramsRe = [
@@ -22,18 +22,17 @@ const RegisterUser = async function (req, res) {
         req.body.user_rolename,
         userId,
         req.body.filePath || null,
-        req.body.fileUrl || null
-
+        req.body.fileUrl || null,
     ];
     // console.log(paramsRe);
     try {
-        let data =  await Register.adduse(paramsRe);
+        let data = await Register.adduse(paramsRe);
         // var accessToken = await signAccessToken(user[0].user_id);
 
         return res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
             message: rescode.c1000.description,
-            data : data
+            data: data,
             // user_id: user[0].user_id,
             // token: accessToken,
         });
@@ -98,11 +97,11 @@ const login = async function (req, res) {
     let params = [req.body.username];
     try {
         var user = await Register.loginuser(params);
-        console.log("🚀 ~ login ~ user:", user)
+        console.log('🚀 ~ login ~ user:', user);
 
         var data = { req_password: req.body.user_password, password: user[0].user_password };
         let compare = await comparePassword(data);
-        console.log("🚀 ~ login ~ data:", data)
+        console.log('🚀 ~ login ~ data:', data);
 
         if (compare) {
             var accessToken = await signAccessToken(user);
@@ -134,14 +133,13 @@ const login = async function (req, res) {
 const mainUser = async function (req, res) {
     try {
         let DataList = await Register.mainlistByUser();
-                UserList = DataList.map((user) => {
-                var path_image = `${user.user_url || ''}/${user.user_path || ''}`.trim();
-                user.path_image = path_image;
-                delete user.user_path;
-                delete user.user_url;
-                return user;
-
-            })
+        UserList = DataList.map(user => {
+            var path_image = `${user.user_url || ''}/${user.user_path || ''}`.trim();
+            user.path_image = path_image;
+            delete user.user_path;
+            delete user.user_url;
+            return user;
+        });
         //     DataList = DataList.map((user) => {
         //     var path_image = `${user.user_url || ''}/${user.user_path || ''}`.trim();
         //     user.path_image = path_image.replace(/^\//, '');
@@ -165,15 +163,16 @@ const mainUser = async function (req, res) {
 };
 const updateUser = async function (req, res) {
     let userID = req.body.user_id;
+    let hashPass = await hashPassword({ password: req.body.user_password });
+
     // console.log(userID);
     let formattedupdateDateTime = dateTimeFormater(new Date(), 'yyyy-MM-DD HH:mm:ss');
-    let params = 
-    [
-
+    let params = [
         req.body.user_name,
         req.body.user_phone,
         req.body.user_firstname,
         req.body.user_lastname,
+        hashPass,
         req.body.user_roleid,
         req.body.user_url || null,
         req.body.user_path || null,
@@ -218,7 +217,6 @@ const deleteuse = async function (req, res) {
         });
     }
 };
-
 
 const changePasswordByuser = async function (req, res) {
     let hashPass = await hashPassword({ password: req.body.user_password });
@@ -273,10 +271,10 @@ const disableuser = async function (req, res) {
         });
     }
 };
-const checkUsername = async function (req, res)  {
+const checkUsername = async function (req, res) {
     try {
         const username = req.body.user_name;
-        console.log("🚀 ~ checkUsername ~ username:", username)
+        console.log('🚀 ~ checkUsername ~ username:', username);
         const existingUser = await Register.checkUserExists(username);
         if (existingUser) {
             return res.status(400).json({ message: 'มีผู้ใช้งานชื่อนี้แล้ว' });
@@ -300,7 +298,7 @@ const dataEdit = async function (req, res) {
         res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
             message: rescode.c1000.description,
-            data : data
+            data: data
         });
     } catch (error) {
         res.status(rescode.c5001.httpStatusCode).json({
@@ -313,7 +311,6 @@ const dataEdit = async function (req, res) {
     }
 };
 
-
 module.exports = {
     RegisterUser,
     login,
@@ -323,5 +320,5 @@ module.exports = {
     disableuser,
     mainUser,
     checkUsername,
-    dataEdit
+    dataEdit,
 };

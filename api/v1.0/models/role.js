@@ -265,6 +265,30 @@ const updateStatus = async function (params) {
             client.release();
         }
     });
+};
+
+const DataEdit = async function (params) {
+    return new Promise(async (resolve, reject) => {
+        const client = await connection.connect();
+        try {
+
+            let sqlQuery = `
+            select role_id , role_name ,
+              role_menu_roleid , role_menu_menuid ,
+              role_menu_permissions from sys_role 
+              join sys_role_menu on sys_role.role_id = sys_role_menu.role_menu_roleid 
+              where role_id = $1
+            `;
+            let rows = await client.query(sqlQuery , params);
+
+            resolve(rows.rows);
+        } catch (error) {
+            reject(error);
+            console.log(error);
+        } finally {
+            client.release();
+        }
+    });
 }
 
 // const ReorganizeRoleIDs = function (roleId) {
@@ -287,4 +311,4 @@ const updateStatus = async function (params) {
 //         }
 //     });
 // };
-module.exports = { Mainrole, Addrole, Editrole, Deleterole ,roleusers, datarole, updateStatus };
+module.exports = { Mainrole, Addrole, Editrole, Deleterole ,roleusers, datarole, updateStatus , DataEdit };

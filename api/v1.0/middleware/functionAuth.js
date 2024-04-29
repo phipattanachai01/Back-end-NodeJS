@@ -204,6 +204,7 @@ const signAccessToken = async function (user) {
     });
 };
 
+
 module.exports = {
     hashPassword,
     comparePassword,
@@ -213,4 +214,5 @@ module.exports = {
     verifyAPIKeyAndCode2,
     signAccessToken,
     verityTokenkey,
+    
 };

@@ -54,7 +54,7 @@ const updateIssue = function (params) {
             // let issueTypeIdResult = await client.query(issueTypeIdQuery, [params[3]]);
             // let issue_typeid = issueTypeIdResult.rows[0].issue_type_id;
 
-            var sqlQuery = `UPDATE set_issue SET issue_name = $1, issue_priorityid = $2, issue_duedate = $3, issue_typeid = $4, issue_updatedate = $5 WHERE issue_id = $6`;
+            var sqlQuery = `UPDATE set_issue SET issue_name = $1, issue_priority = $2, issue_duedate = $3, issue_type = $4, issue_updatedate = $5 WHERE issue_id = $6`;
             let rows = await client.query(sqlQuery, params);
             // console.log('🚀 ~ returnnewPromise ~ rows:', rows.rows);
 
