@@ -20,7 +20,6 @@ router.use('/profile', Proflie);
 router.use('/dashboard', dashboard);
 router.use('/user', user);
 router.use('/ticket', ticket);
-// router.use('/setting', setting);
 router.use('/notify', notify);
 router.use('/company', company);
 router.use('/team', team);

@@ -131,9 +131,9 @@ const MainTicket = async function (params, userId, role, dataDate) {
             `;
             if (dataDate && dataDate !== null) {
                 sqlQuery += `
-                    AND DATE(ticket.ticket_createdate) >= $1 
-                    AND DATE(ticket.ticket_createdate) <= $2
-                    ORDER BY ticket.ticket_createdate
+                    AND DATE(ticket.ticket_orderdate) >= $1 
+                    AND DATE(ticket.ticket_orderdate) <= $2
+                    ORDER BY ticket.ticket_orderdate
                 `;
                 let rows = await client.query(sqlQuery, dataDate);
                 resolve(rows.rows);

@@ -6,41 +6,53 @@ const Notify = require('../models/notify');
 
 const MainNotify = async function (req, res) {
     let dataDate = (req.body.start_date && req.body.end_date) ? [req.body.start_date, req.body.end_date] : null;
-    console.log("🚀 ~ MainNotify ~ dataDate:", dataDate)
     try {
+
         let data = await Notify.MainNotification(dataDate);
-        // console.log("🚀 ~ MainNotify ~ data:", data)
 
+        let totalStatusCountExceptAll = data.reduce((total, item) => {
+            if (item.status_id !== 7) {
+                return total + parseInt(item.status_count);
+            }
+            return total;
+        }, 0);
 
-        let totalStatusCount = data.find(item => item.status_id === 7).status_count;
+        let totalPercentageExceptAll = 0;
 
         let Resultdata = data.map((item) =>{
             let count = item.status_count;
             let percentage;
 
-            if (totalStatusCount !== 0) {
-                if (item.status_id !== 7) {
-                    percentage = (count / totalStatusCount) * 100;
-                } else {
-                    percentage = 100;
-                }
+            if (item.status_id === 7) {
+                percentage = 100;
             } else {
-                percentage = 0;
+                if (totalStatusCountExceptAll !== 0) {
+                    percentage = (count / totalStatusCountExceptAll) * 100;
+                    totalPercentageExceptAll += percentage;
+                } else {
+                    percentage = 0;
+                }
             }
 
-            let formattedPercentage = percentage % 1 === 0 ? parseInt(percentage) : percentage.toFixed(1);
+            let roundedPercentage;
+            if (item.status_id === 7) {
+                roundedPercentage = 100;
+            } else if (totalStatusCountExceptAll === 0) {
+                roundedPercentage = 0;
+            } else {
+                roundedPercentage = Math.floor(percentage * 100) / 100;
+            }
 
-            item.percentage = formattedPercentage + '%'; 
+            item.percentage = roundedPercentage.toFixed(2) + '%'; 
 
             return item;
         });
-        
+
         res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
             message: rescode.c1000.description,
             data: Resultdata
         });
-        
     } catch (error) {
         console.error(error); 
         res.status(rescode.c5001.httpStatusCode).json({
@@ -49,6 +61,9 @@ const MainNotify = async function (req, res) {
         });
     }
 };
+
+
+
 
 const listNotification = async function (req, res) {
     let param = [req.body.notify_userid]

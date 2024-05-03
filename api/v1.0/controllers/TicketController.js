@@ -21,10 +21,14 @@ const DatalistByTicket = async function (req, res) {
 
         let Result = data.map(item => {
             let a = moment();
+            console.log("🚀 ~ Result ~ a:", a)
             let b = moment(item.ticket_orderdate);
+            console.log("🚀 ~ Result ~ b:", b)
             let resultDate = a.diff(b, 'minute');
             let c = item.issue_type;
+            console.log("🚀 ~ Result ~ c:", c)
             let d = item.issue_duedate;
+            console.log("🚀 ~ Result ~ d:", d)
             let sum;
             switch (c) {
                 case 1:
@@ -39,7 +43,9 @@ const DatalistByTicket = async function (req, res) {
             }
             let comparisonResult = sum < resultDate ? 1 : 0;
             item.ticket_overdue = comparisonResult;
+            console.log("🚀 ~ Result ~ ticket_overdue:", item.ticket_overdue)
             item.ticket_orderdate = moment(item.ticket_orderdate).format('DD/MM/YYYY HH:mm');
+            console.log("🚀 ~ Result ~ ticket_orderdate:", item.ticket_orderdate)
         });
 
         let countOverdue = data.reduce((count, item) => {
@@ -639,6 +645,8 @@ const CountStatusByTicket = async function (req, res) {
         });
     }
 };
+
+
 
 module.exports = {
     DatalistByTicket,

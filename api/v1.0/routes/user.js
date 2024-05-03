@@ -12,4 +12,6 @@ router.post('/editpass',functionAuth.verityMidToken, UserController.changePasswo
 router.post('/update-status',functionAuth.verityMidToken, UserController.disableuser);
 router.post('/checkduplicate',functionAuth.verityMidToken, UserController.checkUsername);
 router.post('/data-edit',functionAuth.verityMidToken, UserController.dataEdit);
+router.post('/list-role',functionAuth.verityMidToken, UserController.listroleUser);
+
 module.exports = router;

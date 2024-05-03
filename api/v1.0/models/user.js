@@ -62,7 +62,7 @@ const loginuser = function (paramuser) {
         const client = await connection.connect();
         try {
             var sqlQuery = `SELECT user_id, user_name, 
-            user_status, user_password, 
+            user_status, user_password, user_delete,
             role_id FROM sys_user JOIN sys_role 
             ON sys_user.user_roleid = sys_role.role_id 
             WHERE user_name  = $1 AND user_status = 1 AND user_delete = 0`;
@@ -222,6 +222,21 @@ const dataEdit = async function (params) {
             client.release();
         }
     });
+};
+
+const roleUser = async function () {
+    return new Promise(async (resolve, reject) => {
+        const client = await connection.connect();
+        try {
+            let query = `SELECT sys_role.role_id , sys_role.role_name  FROM sys_role WHERE sys_role.role_status = 1 AND sys_role.role_delete = 0`;
+            let rows = await client.query(query);
+            resolve(rows.rows);
+        } catch (error) {
+            reject(error);
+        } finally {
+            client.release();
+        }
+    });
 }
 
-module.exports = { adduse, loginuser, updateUser, deleteUser, changePasswordUser , updateStatus, mainlistByUser , checkUserExists, dataEdit};
+module.exports = { adduse, loginuser, updateUser, deleteUser, changePasswordUser , updateStatus, mainlistByUser , checkUserExists, dataEdit, roleUser};

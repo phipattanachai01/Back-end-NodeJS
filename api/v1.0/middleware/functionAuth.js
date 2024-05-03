@@ -183,6 +183,7 @@ const signAccessToken = async function (user) {
             id: user[0].user_id,
             user: user[0].user_name,
             status: user[0].user_status,
+            user_delete: user[0].user_delete,
             phone: user[0].user_phone,
             firstname: user[0].user_firstname,
             lastname: user[0].user_lastname,

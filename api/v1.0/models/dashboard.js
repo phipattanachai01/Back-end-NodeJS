@@ -9,11 +9,11 @@ const ListDashboard = function () {
             var sqlQuery = `SELECT 'company' AS table_name, COUNT(company_id) AS count_result
             FROM company
             UNION ALL
-            SELECT 'sys_user_status_1' AS table_name, COUNT(user_id) AS count_result
-            FROM sys_user WHERE user_status = 1
+            SELECT 'sys_company_status_1' AS table_name, COUNT(company_id) AS count_result
+            FROM company WHERE company_status = 1
             UNION ALL
-            SELECT 'sys_user_status_0' AS table_name, COUNT(user_id) AS count_result
-            FROM sys_user WHERE user_status = 0
+            SELECT 'sys_company_status_0' AS table_name, COUNT(company_id) AS count_result
+            FROM company WHERE company_status = 0
             UNION ALL
             SELECT 'company_contact' AS table_name, COUNT(contact_id) AS count_result
             FROM company_contact`;
@@ -22,7 +22,6 @@ const ListDashboard = function () {
                 resolve(rows.rows);
             }
 
-            // แก้
         } catch (error) {
             reject(error);
         } finally {

@@ -311,6 +311,65 @@ const dataEdit = async function (req, res) {
     }
 };
 
+
+const listroleUser = async function  (req, res) {
+    try {
+        let data = await Register.roleUser();
+        res.status(rescode.c1000.httpStatusCode).json({
+            code: rescode.c1000.businessCode,
+            message: rescode.c1000.description,
+            data: data
+        });
+    } catch (error) {
+        res.status(rescode.c5001.httpStatusCode).json({
+            code: rescode.c5001.businessCode,
+            message: rescode.c5001.description,
+            error: rescode.c5001.error,
+            timeReq: dateTimeFormater(new Date(), 'x'),
+            catch: error.message
+        });
+    }
+};
+
+// const editpass = async function (req, res) {
+//     let oldPasswordData = {
+//         req_password: req.body.old_user_password, 
+//         password: req.body.user_password 
+//     };
+
+//     let compareOldPassword = await comparePassword(oldPasswordData);
+    
+//     if (!compareOldPassword) {
+//         return res.status(rescode.c4010.httpStatusCode).json({
+//             code: rescode.c4010.businessCode,
+//             message: rescode.c4010.description,
+//             error: rescode.c4010.error,
+//             timeReq: dateTimeFormater(new Date(), 'x'),
+//         });
+//     }
+
+//     let newPasswordHash = await hashPassword({ password: req.body.user_password }); 
+//     let params = [newPasswordHash, req.body.user_id]; 
+
+//     try {
+//         var changepass = await Register.changePasswordUser(params); 
+
+//         res.status(rescode.c1000.httpStatusCode).json({
+//             code: rescode.c1000.businessCode,
+//             message: rescode.c1000.description,
+//             data: { id: req.body.user_id },
+//         });
+//     } catch (error) {
+//         res.status(rescode.c5001.httpStatusCode).json({
+//             code: rescode.c5001.businessCode,
+//             message: rescode.c5001.description,
+//             error: rescode.c5001.error,
+//             timeReq: dateTimeFormater(new Date(), 'x'),
+//             catch: error.message,
+//         });
+//     }
+// };
+
 module.exports = {
     RegisterUser,
     login,
@@ -321,4 +380,5 @@ module.exports = {
     mainUser,
     checkUsername,
     dataEdit,
+    listroleUser
 };
