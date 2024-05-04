@@ -3,6 +3,39 @@ let { dateTimeFormater } = require('../middleware/formatConverter');
 let { verityMidToken } = require('../middleware/functionAuth');
 var {} = require('../../../config/default');
 const Proflie = require('../models/proflie');
+// const ProflieUser = async function (req, res) {
+//     try {
+//         let param = [req.user];
+       
+//         var data = await Proflie.Proflie(param);
+//         var extractedData = data.map((user) => ({
+//             id: user.user_id,
+//             firstname: user.user_firstname,
+//             lastname: user.user_lastname,
+//             role_name: user.role_name,
+//             user_language: user.user_language,
+//             path_images: `${user.user_url || ''}/${user.user_path || ''}`.trim()
+//         }));
+//         console.log("🚀 ~ extractedData ~ extractedData:", extractedData)
+//         res.status(rescode.c1000.httpStatusCode).json({
+//             code: rescode.c1000.businessCode,
+//             message: rescode.c1000.description,
+//             error: rescode.c1000.error,
+//             timeReq: dateTimeFormater(new Date(), 'dddd / HH:mm:ss'),
+//             data: extractedData        
+//         });
+//     } catch (error) {
+//         res.status(rescode.c5001.httpStatusCode).json({
+//             code: rescode.c5001.businessCode,
+//             message: rescode.c5001.description,
+//             error: rescode.c5001.error,
+//             timeReq: dateTimeFormater(new Date(), 'x'),
+//             catch: error.message,
+//         });
+//         return false;
+//     }
+// };
+
 const ProflieUser = async function (req, res) {
     try {
         let param = [req.user];
@@ -16,6 +49,7 @@ const ProflieUser = async function (req, res) {
             user_language: user.user_language,
             path_images: `${user.user_url || ''}/${user.user_path || ''}`.trim()
         }));
+        console.log("🚀 ~ extractedData ~ extractedData:", extractedData)
         res.status(rescode.c1000.httpStatusCode).json({
             code: rescode.c1000.businessCode,
             message: rescode.c1000.description,
@@ -34,6 +68,7 @@ const ProflieUser = async function (req, res) {
         return false;
     }
 };
+
 
 // const ProflieUser = async function (req, res) {
 //     try {
