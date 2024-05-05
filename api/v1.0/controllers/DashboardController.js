@@ -10,7 +10,7 @@ const DashboardUser = async function (req, res) {
         console.log("🚀 ~ DashboardUser ~ data:", data)
 
         var resultItems = data.map(item => ({
-            label: label(item.table_name),
+            label: item.table_name,
             count: item.count_result,
         }));
         // console.log("🚀 ~ resultItems ~ resultItems:", resultItems)
