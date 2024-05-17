@@ -28,7 +28,7 @@ const DashboardUser = async function (req, res) {
             message: rescode.c1000.description,
             error: rescode.c1000.error,
             timeReq: dateTimeFormater(new Date(), 'x'),
-            data: resultItems,
+            data: resultItems
         });
             console.log("🚀 ~ res.status ~ resultItems:", resultItems)
     } catch (error) {
